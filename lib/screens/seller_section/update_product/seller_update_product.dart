@@ -1884,6 +1884,7 @@ class _UpdateProductState extends State<UpdateProduct> {
 
   Widget fileField(String fileType, String shortMessage, dynamic onChosenFile,
       FileInfo? selectedFile) {
+    print('commit mgs');
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -1939,6 +1940,7 @@ class _UpdateProductState extends State<UpdateProduct> {
         SizedBox(
           height: 10,
         ),
+
         if (shortMessage.isNotEmpty)
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
