@@ -55,13 +55,9 @@ class _SellerDetailsState extends State<SellerDetails> {
 
   @override
   void initState() {
-    // print("slug ${widget.slug}");
     fetchAll();
 
     _mainScrollController.addListener(() {
-      //print("position: " + _xcrollController.position.pixels.toString());
-      //print("max: " + _xcrollController.position.maxScrollExtent.toString());
-
       if (_mainScrollController.position.pixels ==
           _mainScrollController.position.maxScrollExtent) {
         if (tabOptionIndex == 2) {
@@ -101,8 +97,6 @@ class _SellerDetailsState extends State<SellerDetails> {
         SystemConfig.systemUser!.id != null) {
       var shopResponse =
           await ShopRepository().followedCheck(_shopDetails?.id ?? 0);
-      // print(shopResponse.result);
-      // print(shopResponse.message);
 
       _isThisSellerFollowed = shopResponse.result;
       setState(() {});
@@ -141,7 +135,6 @@ class _SellerDetailsState extends State<SellerDetails> {
   fetchShopDetails() async {
     var shopDetailsResponse = await ShopRepository().getShopInfo(widget.slug);
 
-    //print('ss:' + shopDetailsResponse.toString());
     if (shopDetailsResponse.shop != null) {
       _shopDetails = shopDetailsResponse.shop;
     }
@@ -980,7 +973,6 @@ class _SellerDetailsState extends State<SellerDetails> {
           ),
           itemPadding: EdgeInsets.only(right: 4.0),
           onRatingUpdate: (rating) {
-            print(rating);
           },
         ),
       ],

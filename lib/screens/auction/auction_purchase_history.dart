@@ -189,7 +189,6 @@ class _AuctionPurchaseHistoryState extends State<AuctionPurchaseHistory> {
           _scrollController.position.maxScrollExtent) {
         _showMoreProductLoadingContainer = true;
         setState(() {
-          print(_page);
           _page++;
         });
         getPurchaseList();

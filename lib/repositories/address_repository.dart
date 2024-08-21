@@ -71,7 +71,6 @@ class AddressRepository {
       body: post_body,
       middleware: BannedUser(),
     );
-    print("response Body Add Address===================>${post_body}");
     return addressAddResponseFromJson(response.body);
   }
 
@@ -129,7 +128,6 @@ class AddressRepository {
         },
         body: post_body,
         middleware: BannedUser());
-    print("response body Update location==============>${response.body}");
     return addressUpdateLocationResponseFromJson(response.body);
   }
 
@@ -178,14 +176,12 @@ class AddressRepository {
     String url =
         ("${AppConfig.BASE_URL}/states-by-country/${country_id}?name=${name}");
     final response = await ApiRequest.get(url: url, middleware: BannedUser());
-    print('response ************* ${response.body}');
     return myStateResponseFromJson(response.body);
   }
 
   Future<dynamic> getCountryList({name = ""}) async {
     String url = ("${AppConfig.BASE_URL}/countries?name=${name}");
     final response = await ApiRequest.get(url: url, middleware: BannedUser());
-    print("get Country code Response-------------->${response.body}");
     return countryResponseFromJson(response.body);
   }
 
@@ -210,8 +206,6 @@ class AddressRepository {
         },
         body: post_body,
         middleware: BannedUser());
-    print(
-        "Shipping Cost Response Data=======================>${response.body}");
     return shippingCostResponseFromJson(response.body);
   }
 

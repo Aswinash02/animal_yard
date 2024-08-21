@@ -48,7 +48,6 @@ class _PurchasedDigitalProductCardState
 
     _port.listen(
       (dynamic data) {
-        print(data.toString() + "llkk");
         if (data[2] >= 100) {
           ToastComponent.showDialog("File has downloaded successfully.",
               gravity: Toast.center, duration: Toast.lengthLong);
@@ -70,7 +69,6 @@ class _PurchasedDigitalProductCardState
 
   @override
   Widget build(BuildContext context) {
-    print((MediaQuery.of(context).size.width - 48) / 2);
     return Container(
       decoration: BoxDecorations.buildBoxDecoration_1().copyWith(),
       child: Column(children: <Widget>[
@@ -136,7 +134,6 @@ class _PurchasedDigitalProductCardState
 
   Future<void> requestDownload() async {
     var folder = await createFolder();
-    print("folder $folder");
     try {
       String? _taskid = await FlutterDownloader.enqueue(
           url: AppConfig.BASE_URL + "/purchased-products/download/${widget.id}",
@@ -148,9 +145,6 @@ class _PurchasedDigitalProductCardState
             "System-Key": AppConfig.system_key
           });
     } on Exception catch (e) {
-      print("e.toString()");
-      print(e.toString());
-      // TODO
     }
   }
 
@@ -160,7 +154,6 @@ class _PurchasedDigitalProductCardState
       var iosPath = await getApplicationDocumentsDirectory();
       mPath = iosPath.path;
     }
-    // print("path = $mPath");
     final dir = Directory(mPath);
 
     var status = await Permission.storage.status;

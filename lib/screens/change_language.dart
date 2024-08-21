@@ -2,6 +2,7 @@ import 'package:active_ecommerce_flutter/controllers/local_controller.dart';
 import 'package:active_ecommerce_flutter/custom/box_decorations.dart';
 import 'package:active_ecommerce_flutter/custom/useful_elements.dart';
 import 'package:active_ecommerce_flutter/presenter/home_presenter.dart';
+import 'package:active_ecommerce_flutter/screens/splash_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:active_ecommerce_flutter/my_theme.dart';
@@ -45,7 +46,6 @@ class _ChangeLanguageState extends State<ChangeLanguage> {
   }
 
   fetchList() async {
-    print("Called Language List Function");
     var languageListResponse = await LanguageRepository().getLanguageList();
     _list.addAll(languageListResponse.languages!);
 
@@ -96,7 +96,7 @@ class _ChangeLanguageState extends State<ChangeLanguage> {
         // Navigate to Index screen
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => Index()),
+          MaterialPageRoute(builder: (context) => SplashScreen()),
         );
       });
     }

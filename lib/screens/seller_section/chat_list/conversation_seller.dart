@@ -66,7 +66,6 @@ class _ConversationState extends State<Conversation> {
   }
 
   Future<void> refresh() async {
-    print("refresh");
     await resetData();
     return Future.delayed(const Duration(seconds: 1));
   }
@@ -216,7 +215,6 @@ class _ConversationState extends State<Conversation> {
           padding: const EdgeInsets.only(top: 10, bottom: 10),
           physics: const NeverScrollableScrollPhysics(),
           itemBuilder: (context, index) {
-            //print(_messages[index+1].year.toString());
             return Container(
               padding: const EdgeInsets.only(
                   left: 14, right: 14, top: 10, bottom: 10),
@@ -352,7 +350,6 @@ class _ConversationState extends State<Conversation> {
             FloatingActionButton(
               onPressed: messageTextController.text.trim().isNotEmpty
                   ? () {
-                print(_messege);
                 sendMessage();
               }
                   : null,
@@ -382,7 +379,6 @@ class _ConversationState extends State<Conversation> {
           padding: const EdgeInsets.only(top: 10, bottom: 10),
           physics: const NeverScrollableScrollPhysics(),
           itemBuilder: (context, index) {
-            //print(_messages[index+1].year.toString());
             return Container(
               padding: const EdgeInsets.only(
                   left: 14, right: 14, top: 10, bottom: 10),

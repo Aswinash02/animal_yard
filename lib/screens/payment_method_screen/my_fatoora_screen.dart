@@ -142,8 +142,6 @@ class _MyFatooraScreenState extends State<MyFatooraScreen> {
   }
 
   buildBody() {
-    //print("init url");
-    //print(initial_url);
 
     if (_order_init == false &&
         _combined_order_id == 0 &&

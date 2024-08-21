@@ -4,7 +4,6 @@ import 'package:active_ecommerce_flutter/repositories/addons_repository.dart';
 
 class AddonsHelper {
   setAddonsData() async {
-    print("Called Addons");
     List<AddonsListResponse> addonsList =
         await AddonsRepository().getAddonsListResponse();
 

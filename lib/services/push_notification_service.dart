@@ -40,8 +40,7 @@ class PushNotificationService {
         ?.createNotificationChannel(channel);
 
     if (fcmToken != null) {
-      // print("--fcm token--");
-      // print(fcmToken);
+
       if (is_logged_in.$ == true) {
         // update device token
         var deviceTokenUpdateResponse =
@@ -50,7 +49,6 @@ class PushNotificationService {
     }
 
     FirebaseMessaging.onMessage.listen((event) {
-      //print("onLaunch: " + event.toString());
       _showMessage(event);
       //(Map<String, dynamic> message) async => _showMessage(message);
 
@@ -83,13 +81,11 @@ class PushNotificationService {
     });
 
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-      print("onResume: $message");
       (Map<String, dynamic> message) async => _serialiseAndNavigate(message);
     });
   }
 
   void _showMessage(RemoteMessage message) {
-    //print("onMessage: $message");
 
     OneContext().showDialog(
       // barrierDismissible: false,
@@ -128,7 +124,6 @@ class PushNotificationService {
   }
 
   void _serialiseAndNavigate(Map<String, dynamic> message) {
-    print(message.toString());
     if (is_logged_in.$ == false) {
       OneContext().showDialog(
           // barrierDismissible: false,

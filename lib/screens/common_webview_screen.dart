@@ -1,39 +1,47 @@
 import 'package:active_ecommerce_flutter/helpers/shared_value_helper.dart';
+import 'package:active_ecommerce_flutter/helpers/shimmer_helper.dart';
 import 'package:active_ecommerce_flutter/my_theme.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
-class CommonWebviewScreen extends StatefulWidget {
-  String url;
-  String page_name;
+class CommonWebViewScreen extends StatefulWidget {
+  final String url;
+  final String page_name;
 
-  CommonWebviewScreen({Key? key, this.url = "", this.page_name = ""})
+  CommonWebViewScreen({Key? key, this.url = "", this.page_name = ""})
       : super(key: key);
 
   @override
-  _CommonWebviewScreenState createState() => _CommonWebviewScreenState();
+  _CommonWebViewScreenState createState() => _CommonWebViewScreenState();
 }
 
-class _CommonWebviewScreenState extends State<CommonWebviewScreen> {
-  WebViewController _webViewController = WebViewController();
+class _CommonWebViewScreenState extends State<CommonWebViewScreen> {
+  final WebViewController _webViewController = WebViewController();
+  bool isLoading = true; // Track the loading state of the web view
 
   @override
   void initState() {
-    print("Url FIle==========>${widget.url}");
-    // TODO: implement initState
     super.initState();
     webView();
   }
 
-  webView() {
+  void webView() {
     _webViewController
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
       ..setBackgroundColor(const Color(0x00000000))
       ..setNavigationDelegate(
         NavigationDelegate(
-          onWebResourceError: (error) {},
-          onPageFinished: (page) {},
+          onPageStarted: (url) {
+            setState(() {
+              isLoading = true;
+            });
+          },
+          onPageFinished: (url) {
+            setState(() {
+              isLoading = false;
+            });
+          },
         ),
       )
       ..loadRequest(Uri.parse(widget.url));
@@ -47,37 +55,39 @@ class _CommonWebviewScreenState extends State<CommonWebviewScreen> {
       child: Scaffold(
         backgroundColor: Colors.white,
         appBar: buildAppBar(context),
-        body: buildBody(),
+        body: Stack(
+          children: [
+            buildBody(),
+            if (isLoading)
+              Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: ShimmerHelper().buildBasicShimmer(),
+              )
+          ],
+        ),
       ),
     );
   }
 
-  buildBody() {
+  Widget buildBody() {
     return SizedBox.expand(
-      child: Container(
-        child: WebViewWidget(controller: _webViewController),
-      ),
+      child: WebViewWidget(controller: _webViewController),
     );
   }
 
   AppBar buildAppBar(BuildContext context) {
     return AppBar(
-      backgroundColor: Colors.white,
+      backgroundColor: MyTheme.white,
       centerTitle: true,
-      leading: widget.page_name == "Seller"
-          ? SizedBox()
-          : GestureDetector(
-              onTap: () {
-                Navigator.of(context).pop();
-              },
-              child: Icon(
-                CupertinoIcons.arrow_left,
-                color: Colors.black,
-              )),
-      automaticallyImplyLeading: false,
+      leading: Builder(
+        builder: (context) => IconButton(
+          icon: Icon(CupertinoIcons.arrow_left, color: MyTheme.dark_grey),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+      ),
       title: Text(
-        "${widget.page_name}",
-        style: TextStyle(fontSize: 16, color: MyTheme.accent_color),
+        widget.page_name,
+        style: const TextStyle(fontSize: 16, color: MyTheme.accent_color),
       ),
       elevation: 0.0,
       titleSpacing: 0,

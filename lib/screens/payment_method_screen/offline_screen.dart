@@ -76,10 +76,6 @@ class _OfflineState extends State<OfflineScreen> {
     var amount = _amountController.text.toString();
     var name = _nameController.text.toString();
     var trx_id = _trxIdController.text.toString();
-    print('amount --- ${amount}');
-    print('name --- ${name}');
-    print('trx_id --- ${trx_id}');
-    print('_photo_path --- ${_photo_path}');
     if (amount == "") {
       ToastComponent.showDialog(AppLocalizations.of(context)!.amount,
           gravity: Toast.center, duration: Toast.lengthLong);
@@ -189,7 +185,6 @@ class _OfflineState extends State<OfflineScreen> {
     );
 
     if (imageUpdateResponse.result == false) {
-      print(imageUpdateResponse.message);
       ToastComponent.showDialog(imageUpdateResponse.message,
           gravity: Toast.center, duration: Toast.lengthLong);
       return;
@@ -206,7 +201,6 @@ class _OfflineState extends State<OfflineScreen> {
   @override
   void initState() {
     _amountController.text = widget.rechargeAmount.toString();
-    print("get Order Id--------------->${widget.order_id}");
     // TODO: implement initState
     super.initState();
   }

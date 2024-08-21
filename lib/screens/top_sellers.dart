@@ -82,7 +82,6 @@ class _TopSellersState extends State<TopSellers> {
 
   Widget buildTopSellerList(context) {
     if (isInit) {
-      //print(productResponse.toString());
       return GridView.builder(
         // 2
         //addAutomaticKeepAlives: true,

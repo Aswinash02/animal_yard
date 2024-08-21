@@ -9,25 +9,19 @@ class InputDecorations {
         fillColor: MyTheme.white,
         hintStyle: TextStyle(fontSize: 12.0, color: MyTheme.textfield_grey),
         enabledBorder: OutlineInputBorder(
-          borderSide: BorderSide(
-              color: MyTheme.textfield_grey,
-              width: 0.2),
+          borderSide: BorderSide(color: MyTheme.textfield_grey, width: 0.2),
           borderRadius: const BorderRadius.all(
             const Radius.circular(6.0),
           ),
         ),
         focusedBorder: OutlineInputBorder(
-          borderSide: BorderSide(
-              color: MyTheme.accent_color,
-              width: 0.5),
+          borderSide: BorderSide(color: MyTheme.accent_color, width: 0.5),
           borderRadius: const BorderRadius.all(
             const Radius.circular(6.0),
           ),
         ),
         disabledBorder: OutlineInputBorder(
-          borderSide: BorderSide(
-              color: MyTheme.textfield_grey,
-              width: 0.2),
+          borderSide: BorderSide(color: MyTheme.textfield_grey, width: 0.2),
           borderRadius: const BorderRadius.all(
             const Radius.circular(6.0),
           ),

@@ -12,14 +12,10 @@ import 'package:active_ecommerce_flutter/helpers/shared_value_helper.dart';
 import 'package:active_ecommerce_flutter/repositories/api-request.dart';
 
 class AuthRepository {
-  Future<LoginResponse> getLoginResponse(
-      String? email, String password, String loginBy) async {
+  Future<LoginResponse> getLoginResponse(String? email, String loginBy) async {
     var post_body = jsonEncode({
       "email": "$email",
-      "password": "$password",
-      "identity_matrix": AppConfig.purchase_code,
       "login_by": loginBy,
-      "temp_user_id": temp_user_id.$
     });
 
     String url = ("${AppConfig.BASE_URL}/auth/login");
@@ -28,11 +24,8 @@ class AuthRepository {
         headers: {
           "Accept": "*/*",
           "Content-Type": "application/json",
-          "App-Language": app_language.$!,
         },
         body: post_body);
-    print("response Body Login---------------->${post_body}");
-    print("response Body Login---------------->${response.body}");
 
     return loginResponseFromJson(response.body);
   }
@@ -125,28 +118,21 @@ class AuthRepository {
   Future<LoginResponse> getSignupResponseSeller(
     String name,
     String? email_or_phone,
-    String password,
-    String passowrd_confirmation,
+    // String password,
+    // String passowrd_confirmation,
     String register_by,
     String user_type,
-    // String shop_name,
-    // String address,
     String phone,
-    // int countryId,
-    // int stateId,
-    // int cityId,
-    // String postalCode
   ) async {
     var post_body = jsonEncode({
       "name": "$name",
       "email_or_phone": "$email_or_phone",
-      "password": "$password",
-      "password_confirmation": "$passowrd_confirmation",
+      // "password": "$password",
+      // "password_confirmation": "$passowrd_confirmation",
       "register_by": "$register_by",
       "user_type": "$user_type",
       "phone": "+91$phone",
     });
-    print('post_body ======== > ${post_body}');
     String url = ("${AppConfig.BASE_URL}/auth/signupStore");
     final response = await ApiRequest.post(
         url: url,
@@ -155,8 +141,6 @@ class AuthRepository {
           "App-Language": app_language.$!,
         },
         body: post_body);
-    print("response Signup Body========>${post_body}");
-    print("response Signup Body========>${response.body}");
 
     return loginResponseFromJson(response.body);
   }
@@ -174,9 +158,9 @@ class AuthRepository {
     return resendCodeResponseFromJson(response.body);
   }
 
-  Future<ConfirmCodeResponse> getConfirmCodeResponse(
-      String verification_code) async {
-    var post_body = jsonEncode({"verification_code": "$verification_code"});
+  Future<LoginResponse> getConfirmCodeResponse(
+      String otp, String phone) async {
+    var post_body = jsonEncode({"phone": phone, "otp": otp});
 
     String url = ("${AppConfig.BASE_URL}/auth/confirm_code");
     final response = await ApiRequest.post(
@@ -187,8 +171,7 @@ class AuthRepository {
           "Authorization": "Bearer ${access_token.$}",
         },
         body: post_body);
-    print("response body------------->${response.body}");
-    return confirmCodeResponseFromJson(response.body);
+    return loginResponseFromJson(response.body);
   }
 
   Future<PasswordForgetResponse> getPasswordForgetResponse(

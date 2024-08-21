@@ -11,7 +11,6 @@ class LanguageRepository {
       "App-Language": app_language.$!,
     }
     );
-    print("get Language List ${response.body.toString()}");
     return languageListResponseFromJson(response.body);
   }
 

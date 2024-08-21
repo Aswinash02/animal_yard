@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:active_ecommerce_flutter/custom/toast_component.dart';
+import 'package:active_ecommerce_flutter/data_model/animal_product_response.dart';
 import 'package:active_ecommerce_flutter/data_model/slider_response.dart';
 import 'package:active_ecommerce_flutter/repositories/category_repository.dart';
 import 'package:active_ecommerce_flutter/repositories/flash_deal_repository.dart';
@@ -47,6 +48,7 @@ class HomePresenter extends ChangeNotifier {
   bool isFlashDeal = false;
 
   var allProductList = [];
+  List<AnimalData> animalProductList = [];
   bool isAllProductInitial = true;
   int? totalAllProductData = 0;
   int allProductPage = 1;
@@ -54,19 +56,21 @@ class HomePresenter extends ChangeNotifier {
   int cartCount = 0;
 
   String? foodBannerImage = '';
+  String? foodSlug = '';
   bool loadingState = false;
 
   fetchAll() {
-    fetchCarouselImages();
-    fetchBannerOneImages();
-    fetchBannerTwoImages();
+    // fetchCarouselImages();
+    // fetchBannerOneImages();
+    // fetchBannerTwoImages();
     fetchFoodBannerImages();
     fetchFeaturedCategories();
-    fetchFeaturedProducts();
-    fetchBestSellingProducts();
-    fetchAllProducts();
-    fetchTodayDealData();
-    fetchFlashDealData();
+    // fetchFeaturedProducts();
+    // fetchBestSellingProducts();
+    // fetchAllProducts();
+    fetchAllAnimalProducts();
+    // fetchTodayDealData();
+    // fetchFlashDealData();
   }
 
   fetchTodayDealData() async {
@@ -109,6 +113,7 @@ class HomePresenter extends ChangeNotifier {
     loadingState = true;
     var bannerOneResponse = await SlidersRepository().getFoodBannerImage();
     foodBannerImage = bannerOneResponse.banner;
+    foodSlug = bannerOneResponse.link;
     loadingState = false;
     notifyListeners();
   }
@@ -123,8 +128,18 @@ class HomePresenter extends ChangeNotifier {
   }
 
   fetchFeaturedCategories() async {
+    featuredCategoryList.clear();
     var categoryResponse = await CategoryRepository().getFeturedCategories();
-    featuredCategoryList.addAll(categoryResponse.categories!);
+
+    if (categoryResponse.categories != null) {
+      for (var category in categoryResponse.categories!) {
+        if (!featuredCategoryList
+            .any((existingCategory) => existingCategory.id == category.id)) {
+          featuredCategoryList.add(category);
+        }
+      }
+    }
+
     isCategoryInitial = false;
     notifyListeners();
   }
@@ -162,6 +177,22 @@ class HomePresenter extends ChangeNotifier {
     allProductList.addAll(productResponse.products!);
     isAllProductInitial = false;
     totalAllProductData = productResponse.meta!.total;
+    showAllLoadingContainer = false;
+    notifyListeners();
+  }
+
+  fetchAllAnimalProducts() async {
+    animalProductList.clear();
+    var productResponse = await ProductRepository().fetchAllAnimalProducts();
+    if (productResponse.data != null) {
+      for (var product in productResponse.data!) {
+        if (!animalProductList
+            .any((existingProduct) => existingProduct.id == product.id)) {
+          animalProductList.add(product);
+        }
+      }
+    }
+    isAllProductInitial = false;
     showAllLoadingContainer = false;
     notifyListeners();
   }
@@ -218,8 +249,6 @@ class HomePresenter extends ChangeNotifier {
 
   mainScrollListener() {
     mainScrollController.addListener(() {
-      //print("position: " + xcrollController.position.pixels.toString());
-      //print("max: " + xcrollController.position.maxScrollExtent.toString());
 
       if (mainScrollController.position.pixels ==
           mainScrollController.position.maxScrollExtent) {
@@ -228,6 +257,7 @@ class HomePresenter extends ChangeNotifier {
             gravity: Toast.center);
         // showAllLoadingContainer = true;
         fetchAllProducts();
+        fetchAllAnimalProducts();
       }
     });
   }

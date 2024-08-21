@@ -123,7 +123,6 @@ class _GuestCheckoutAddressState extends State<GuestCheckoutAddress> {
         await GuestCheckoutRepository().guestCustomerInfoCheck(postBody);
 
     Loading.close();
-    // print(response.result);
     // if email and phone matched return to page with massage
     if (response.result!) {
       ToastComponent.showDialog(LangText(context).local.already_have_account,
@@ -401,7 +400,6 @@ class _GuestCheckoutAddressState extends State<GuestCheckoutAddress> {
                       );
                     },
                     itemBuilder: (context, dynamic state) {
-                      //print(suggestion.toString());
                       return ListTile(
                         dense: true,
                         title: Text(
@@ -471,7 +469,6 @@ class _GuestCheckoutAddressState extends State<GuestCheckoutAddress> {
                       );
                     },
                     itemBuilder: (context, dynamic city) {
-                      //print(suggestion.toString());
                       return ListTile(
                         dense: true,
                         title: Text(

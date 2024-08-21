@@ -479,7 +479,7 @@ class _ClassifiedAdsDetailsState extends State<ClassifiedAdsDetails>
                           onTap: () {
                             Navigator.push(context,
                                 MaterialPageRoute(builder: (context) {
-                              return CommonWebviewScreen(
+                              return CommonWebViewScreen(
                                 url:
                                     "${AppConfig.RAW_BASE_URL}/mobile-page/seller-policy",
                                 page_name: AppLocalizations.of(context)!
@@ -523,7 +523,7 @@ class _ClassifiedAdsDetailsState extends State<ClassifiedAdsDetails>
                           onTap: () {
                             Navigator.push(context,
                                 MaterialPageRoute(builder: (context) {
-                              return CommonWebviewScreen(
+                              return CommonWebViewScreen(
                                 url:
                                     "${AppConfig.RAW_BASE_URL}/mobile-page/return-policy",
                                 page_name: AppLocalizations.of(context)!
@@ -567,7 +567,7 @@ class _ClassifiedAdsDetailsState extends State<ClassifiedAdsDetails>
                           onTap: () {
                             Navigator.push(context,
                                 MaterialPageRoute(builder: (context) {
-                              return CommonWebviewScreen(
+                              return CommonWebViewScreen(
                                 url:
                                     "${AppConfig.RAW_BASE_URL}/mobile-page/support-policy",
                                 page_name: AppLocalizations.of(context)!
@@ -1025,7 +1025,11 @@ class _ClassifiedAdsDetailsState extends State<ClassifiedAdsDetails>
                 PhotoView(
                   enableRotation: true,
                   heroAttributes: const PhotoViewHeroAttributes(tag: "someTag"),
-                  imageProvider: NetworkImage(path),
+                  imageProvider: FadeInImage.assetNetwork(
+                    placeholder: 'assets/placeholder.png',
+                    image: path,
+                    fit: BoxFit.cover,
+                  ).image,
                 ),
                 Align(
                   alignment: Alignment.topRight,

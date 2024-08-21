@@ -80,7 +80,6 @@ class OrderRepository {
 
     final response = await ApiRequest.get(
         url: url, headers: header, middleware: BannedUser());
-    print("Order Details Data=========================>${response.body}");
 
     return orderItemlResponseFromJson(response.body);
   }

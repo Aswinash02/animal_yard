@@ -15,8 +15,9 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 
 class CategoryProducts extends StatefulWidget {
-  CategoryProducts({Key? key, required this.slug}) : super(key: key);
+  CategoryProducts({Key? key, required this.slug, this.isFood = false}) : super(key: key);
   final String slug;
+  final bool isFood;
 
   @override
   _CategoryProductsState createState() => _CategoryProductsState();
@@ -48,7 +49,6 @@ class _CategoryProductsState extends State<CategoryProducts> {
 
   getCategoryInfo(String slug) async {
     var res = await CategoryRepository().getCategoryInfo(slug);
-    print(res.categories.toString());
     if (res.categories?.isNotEmpty ?? false) {
       categoryInfo = res.categories?.first ?? null;
     }
@@ -63,8 +63,6 @@ class _CategoryProductsState extends State<CategoryProducts> {
     fetchAllDate(widget.slug);
 
     _xcrollController.addListener(() {
-      //print("position: " + _xcrollController.position.pixels.toString());
-      //print("max: " + _xcrollController.position.maxScrollExtent.toString());
 
       if (_xcrollController.position.pixels ==
           _xcrollController.position.maxScrollExtent) {
@@ -154,9 +152,6 @@ class _CategoryProductsState extends State<CategoryProducts> {
   AppBar buildAppBar(BuildContext context) {
     return AppBar(
       automaticallyImplyLeading: false,
-      // toolbarHeight: _subCategoryList.isEmpty
-      //     ? DeviceInfo(context).height! / 10
-      //     : DeviceInfo(context).height! / 6.5,
       flexibleSpace: Container(
         height: DeviceInfo(context).height! / 4,
         width: DeviceInfo(context).width,
@@ -166,36 +161,9 @@ class _CategoryProductsState extends State<CategoryProducts> {
           "assets/background_1.png",
         ),
       ),
-      // bottom: PreferredSize(
-      //     child: AnimatedContainer(
-      //       //color: MyTheme.textfield_grey,
-      //       height: _subCategoryList.isEmpty ? 0 : 60,
-      //       duration: Duration(milliseconds: 500),
-      //       child: !_isInitial ? buildSubCategory() : buildSubCategory(),
-      //     ),
-      //     preferredSize: Size.fromHeight(0.0)),
-      /*leading: Builder(
-        builder: (context) => IconButton(
-          icon: Icon(CupertinoIcons.arrow_left, color: MyTheme.dark_grey),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
-      ),*/
       title: buildAppBarTitle(context),
       elevation: 0.0,
       titleSpacing: 0,
-      /*actions: <Widget>[
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 0.0, horizontal: 0.0),
-          child: IconButton(
-            icon: Icon(Icons.search, color: MyTheme.dark_grey),
-            onPressed: () {
-              _searchKey = _searchController.text.toString();
-              reset();
-              fetchData();
-            },
-          ),
-        ),
-      ],*/
     );
   }
 
@@ -261,15 +229,7 @@ class _CategoryProductsState extends State<CategoryProducts> {
         onChanged: (txt) {
           _searchKey = txt;
           searchProduct(txt);
-
-          // reset();
-          // fetchData(slug!);
         },
-        // onSubmitted: (txt) {
-        //   // _searchKey = txt;
-        //   // reset();
-        //   // fetchData(slug!);
-        // },
         autofocus: false,
         decoration: InputDecoration(
           suffixIcon: IconButton(
@@ -386,6 +346,7 @@ class _CategoryProductsState extends State<CategoryProducts> {
                   : _searchProductList[index];
               return ProductCard(
                 product: data,
+                isFood: widget.isFood,
               );
             },
           ),

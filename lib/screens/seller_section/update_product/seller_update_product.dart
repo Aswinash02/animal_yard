@@ -202,10 +202,9 @@ class _UpdateProductState extends State<UpdateProduct> {
       TextEditingController(text: "0");
   TextEditingController flashDiscountEditTextController =
       TextEditingController();
-  TextEditingController unitPriceEditTextController =
-      TextEditingController(text: "0");
+  TextEditingController unitPriceEditTextController = TextEditingController();
   TextEditingController productQuantityEditTextController =
-      TextEditingController(text: "0");
+      TextEditingController();
   TextEditingController skuEditTextController = TextEditingController();
   TextEditingController externalLinkEditTextController =
       TextEditingController();
@@ -223,25 +222,33 @@ class _UpdateProductState extends State<UpdateProduct> {
       TextEditingController();
   TextEditingController lowStockQuantityTextEditTextController =
       TextEditingController(text: "1");
-  TextEditingController _TextEditTextController = TextEditingController();
 
   GlobalKey<FlutterSummernoteState> productDescriptionKey = GlobalKey();
 
-  getCategories() async {
+  getCategories(productInfo) async {
     var categoryResponse = await SellerProductRepository().getCategoryRes();
     categoryResponse.data!.forEach((element) {
       CategoryModel model = CategoryModel(
           id: element.id.toString(),
           title: element.name,
+          icon: element.icon,
           isExpanded: false,
           isSelected: false,
           height: 0.0,
+          child: element.child!,
           children: setChildCategory(categoryResponse.data!));
       categories.add(model);
-      _productName.add(model.title ?? '');
     });
 
+    categories.forEach((element) {
+      if (element.id == categoryId?.toString()) {
+        element.child!.forEach((element) {
+          _productName.add(element.name ?? '');
+        });
+      }
+    });
     isCategoryInit = true;
+    _selectedProductName = productInfo.productName ?? '';
     setState(() {});
   }
 
@@ -277,14 +284,6 @@ class _UpdateProductState extends State<UpdateProduct> {
           children: children.isNotEmpty ? setChildCategory(children) : []);
 
       list.add(model);
-
-      // if (element.level > 0) {
-      //   model.setLevelText();
-      // }
-      // categories.add(model);
-      // if (element.child!.isNotEmpty) {
-      //
-      // }
     });
     return list;
   }
@@ -373,8 +372,8 @@ class _UpdateProductState extends State<UpdateProduct> {
     videoType.addAll([
       CommonDropDownItem("youtube", LangText(context).local!.youtube_ucf),
       CommonDropDownItem(
-          "dailymotion", LangText(context).local!.dailymotion_ucf),
-      CommonDropDownItem("vimeo", LangText(context).local!.vimeo_ucf),
+          "dailymotion", LangText(context).local.dailymotion_ucf),
+      CommonDropDownItem("vimeo", LangText(context).local.vimeo_ucf),
     ]);
     selectedVideoType = videoType.first;
 
@@ -450,17 +449,11 @@ class _UpdateProductState extends State<UpdateProduct> {
                   canMultiSelect: true,
                   prevData: tmp,
                 )));
-    // ////print(images != null);
     if (images != null) {
       productGalleryImages = images;
       setChange();
     }
   }
-
-/*
-  Future<XFile> pickSingleImage() async {
-    return await pickImage.pickImage(source: ImageSource.gallery);
-  }*/
 
   createProductVariation() {
     productVariations.clear();
@@ -607,7 +600,7 @@ class _UpdateProductState extends State<UpdateProduct> {
     choiceAttributes = [];
     choiceNo = [];
     choice = [];
-    if (choice_options != null) choice_options.clear();
+    choice_options.clear();
 
     selectedAttributes.forEach((element) {
       choiceAttributes!.add(element.name.key);
@@ -657,9 +650,6 @@ class _UpdateProductState extends State<UpdateProduct> {
     setColors();
     colorsActive = isColorActive ? "1" : "0";
     unitPrice = unitPriceEditTextController.text.trim().toString();
-    //print("#########################");
-    //print(unitPrice);
-    //print("#########################");
     dateRange = dateTimeRange!.start.toString() +
         " to " +
         dateTimeRange!.end.toString();
@@ -683,8 +673,6 @@ class _UpdateProductState extends State<UpdateProduct> {
     if (pdfDes != null) pdf = "${pdfDes!.id}";
     metaTitle = metaTitleEditTextController.text.trim().toString();
     slug = slugEditTextController.text.trim().toString();
-    ////print("slug");
-    ////print(slug);
 
     metaDescription = metaDescriptionEditTextController.text.trim().toString();
     if (metaImage != null) metaImg = "${metaImage!.id}";
@@ -702,14 +690,41 @@ class _UpdateProductState extends State<UpdateProduct> {
   }
 
   bool requiredFieldVerification() {
-    if (productNameEditTextController.text.trim().toString().isEmpty) {
+    if (_selectedProductName == null) {
       ToastComponent.showDialog("Product Name Required", gravity: Toast.center);
       return false;
-    } else if (minimumEditTextController.text.trim().toString().isEmpty) {
-      ToastComponent.showDialog("Product Minimum Quantity Required");
+    } else if (categoryId == null && categoryIds.isEmpty) {
+      ToastComponent.showDialog("Product Category Required");
+      return false;
+    } else if (ageEditTextController.text.trim().toString().isEmpty) {
+      ToastComponent.showDialog("Age Required");
+      return false;
+    }
+    // else if (milkEditTextController.text.trim().toString().isEmpty) {
+    //   ToastComponent.showDialog("Milk Required");
+    //   return false;
+    // } else if (pregnancyEditTextController.text.trim().toString().isEmpty) {
+    //   ToastComponent.showDialog("Pregnancy Required");
+    //   return false;
+    // }
+    else if (thumbnailImage == null) {
+      ToastComponent.showDialog("Product Image Required");
       return false;
     } else if (unitEditTextController.text.trim().toString().isEmpty) {
       ToastComponent.showDialog("Product Unit Required");
+      return false;
+    } else if (unitPriceEditTextController.text.trim().toString().isEmpty) {
+      ToastComponent.showDialog("Product Unit Price Required");
+      return false;
+    } else if (productQuantityEditTextController.text
+        .trim()
+        .toString()
+        .isEmpty) {
+      ToastComponent.showDialog("Product Quantity Required");
+      return false;
+    } else if (_addressController.text.trim().toString().isEmpty) {
+      ToastComponent.showDialog("Product Address Required",
+          gravity: Toast.center);
       return false;
     }
     return true;
@@ -727,9 +742,9 @@ class _UpdateProductState extends State<UpdateProduct> {
     setChoiceAtt();
     Map postValue = Map();
     postValue.addAll({
-      "name": productName,
+      "name": _selectedProductName,
       "category_id": categoryId,
-      "category_ids": categoryIds,
+      "category_ids": [categoryId],
       "brand_id": brandId,
       "unit": unit,
       "weight": weight,
@@ -770,8 +785,6 @@ class _UpdateProductState extends State<UpdateProduct> {
         "flat_shipping_cost": flatShippingCost
       });
     }
-    print('_selected_state!.id ${_selected_state!.id}');
-    print('_selected_city!.id ${_selected_city!.id}');
     postValue.addAll({
       "description": descriptionEditTextController.text,
       "pdf": pdf,
@@ -796,18 +809,15 @@ class _UpdateProductState extends State<UpdateProduct> {
       "postal_code": _postalCodeController.text,
       "lat": lat,
       "long": long,
+      "animal": 1
     });
-
-    ////print("lang");
-    ////print(lang);
-    ////print(postValue);
-
+    print('postValue========== > $postValue');
     var postBody = jsonEncode(postValue);
     var response = await SellerProductRepository()
         .updateProductResponse(postBody, widget.productId, lang);
 
     Loading().hide();
-    if (response.result!) {
+    if (response.result) {
       List errorMessages = response.message;
       ToastComponent.showDialog(errorMessages.join(","), gravity: Toast.center);
 
@@ -871,18 +881,15 @@ class _UpdateProductState extends State<UpdateProduct> {
     isColorActive = productInfo.colors!.isNotEmpty;
     isRefundable = productInfo.refundable == 1 ? true : false;
 
-    ////print(productInfo.refundable);
-    ////print("productInfo.refundable");
-
     isCashOnDelivery = productInfo.cashOnDelivery == 1 ? true : false;
 
     isProductQuantityMultiply =
         productInfo.isQuantityMultiplied == 1 ? true : false;
-    // isFeatured = productInfo.featured == 1 ? true : false;
     isTodaysDeal = productInfo.todaysDeal == 1 ? true : false;
     tmpColorList.addAll(productInfo.colors!);
     getColors();
-
+    print('lat ===== > ${productInfo.latitude}');
+// lat= ;
     tmpAttribute.clear();
     tmpAttribute.addAll(productInfo.choiceOptions!);
     getAttributes();
@@ -910,8 +917,7 @@ class _UpdateProductState extends State<UpdateProduct> {
 
     categoryId = productInfo.categoryId?.toString();
     categoryIds.addAll(productInfo.categories);
-    //print("cate = $categoryIds");
-    getCategories();
+    getCategories(productInfo);
 
     tmpBrand = productInfo.brandId?.toString();
     getBrands();
@@ -944,8 +950,6 @@ class _UpdateProductState extends State<UpdateProduct> {
 
     var start = DateTime.tryParse(productInfo.discountStartDate)!;
     var end = DateTime.tryParse(productInfo.discountEndDate)!;
-    ////print(start);
-    ////print(end);
     dateTimeRange = DateTimeRange(start: start, end: end);
 
     _statAndEndTime =
@@ -956,15 +960,6 @@ class _UpdateProductState extends State<UpdateProduct> {
     if (productInfo.tags!.isNotEmpty) {
       tags!.addAll(productInfo.tags!.split(","));
     }
-
-    print('productInfo.stateId ========== ${productInfo.stateId}');
-    print('productInfo.tags len========== ${productInfo.tags!.length}');
-    print('productInfo.tags ========== ${productInfo.tags}');
-    print('productInfo.cityId ========== ${productInfo.cityId}');
-    print('productInfo.pregnancy ========== ${productInfo.pregnancy}');
-    print('productInfo.address ========== ${productInfo.address}');
-    productNameEditTextController.text = productInfo.productName ?? '';
-    _selectedProductName = productInfo.productName ?? '';
     unitEditTextController.text = productInfo.productUnit ?? '';
     weightEditTextController.text =
         productInfo.weight == null ? '' : productInfo.weight.toString();
@@ -980,8 +975,8 @@ class _UpdateProductState extends State<UpdateProduct> {
         productInfo.discount == null ? '' : productInfo.discount.toString();
     _addressController.text = productInfo.address ?? '';
     _postalCodeController.text = productInfo.postalCode ?? '';
-    print('_addressController ${_addressController.text}');
-    ageEditTextController.text = productInfo.age ?? '';
+    ageEditTextController.text =
+        productInfo.age == '0' ? '' : productInfo.age ?? '';
     milkEditTextController.text = productInfo.milk ?? '';
     pregnancyEditTextController.text = productInfo.pregnancy ?? '';
     _selected_state = MyState(
@@ -1034,7 +1029,6 @@ class _UpdateProductState extends State<UpdateProduct> {
     Loading().hide();
     if (productResponse.result!) {
       isProductDetailsInit = true;
-      ////print("result true");
       setInitialValue(productResponse.data!);
     }
   }
@@ -1065,6 +1059,22 @@ class _UpdateProductState extends State<UpdateProduct> {
     super.initState();
   }
 
+  void _onSelectedMainCategory(String mainCategory) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _selectedProductName = null;
+      categoryId = mainCategory;
+      _productName.clear();
+      categories.forEach((element) {
+        if (element.id == categoryId) {
+          element.child!.forEach((element) {
+            _productName.add(element.name ?? '');
+          });
+        }
+      });
+      setChange(); // Calls setState() safely after the build phase.
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     mHeight = MediaQuery.of(context).size.height;
@@ -1077,14 +1087,16 @@ class _UpdateProductState extends State<UpdateProduct> {
           app_language_rtl.$! ? TextDirection.rtl : TextDirection.ltr,
       child: Scaffold(
         appBar: buildAppBar(context) as PreferredSizeWidget?,
-        body: SingleChildScrollView(child: buildBodyContainer()),
+        body: SingleChildScrollView(
+            child: Column(
+          children: [
+            buildGeneral(),
+            buildPriceNStock(),
+          ],
+        )),
         bottomNavigationBar: buildBottomAppBar(context),
       ),
     );
-  }
-
-  Widget buildBodyContainer() {
-    return changeMainContent(_selectedTabIndex);
   }
 
   BottomAppBar buildBottomAppBar(BuildContext context) {
@@ -1103,20 +1115,6 @@ class _UpdateProductState extends State<UpdateProduct> {
     );
   }
 
-  changeMainContent(int index) {
-    switch (index) {
-      case 0:
-        return buildGeneral();
-      case 1:
-        return buildMedia();
-
-      case 2:
-        return buildPriceNStock();
-      default:
-        return Container();
-    }
-  }
-
   Widget buildGeneral() {
     return Padding(
       padding: EdgeInsets.only(
@@ -1125,7 +1123,7 @@ class _UpdateProductState extends State<UpdateProduct> {
         top: AppStyles.itemMargin,
       ),
       child: buildTabViewItem(
-        LangText(context).local.product_information_ucf,
+        '',
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -1145,7 +1143,6 @@ class _UpdateProductState extends State<UpdateProduct> {
                     value: _selectedProductName,
                     onChanged: onChangeProductName,
                     items: _productName.map((item) {
-                      print('item -------- $item');
                       return DropdownMenuItem(
                         value: item,
                         child: Text(item),
@@ -1160,208 +1157,130 @@ class _UpdateProductState extends State<UpdateProduct> {
               ),
             ),
             itemSpacer(),
-            buildEditTextField(
-              "Age",
-              "Age",
-              ageEditTextController,
-              isMandatory: true,
-            ),
+            buildEditTextField("Age", "Age", ageEditTextController,
+                keyboardType: TextInputType.number,
+                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                isMandatory: true),
             itemSpacer(),
             buildEditTextField(
               "Milk",
               "Milk",
               milkEditTextController,
-              isMandatory: false,
             ),
             itemSpacer(),
             buildEditTextField(
               "Pregnancy",
               "Pregnancy",
               pregnancyEditTextController,
-              isMandatory: false,
             ),
             itemSpacer(),
-            buildEditTextField(LangText(context).local.unit_ucf,
-                LangText(context).local.unit_ucf, unitEditTextController),
-            itemSpacer(),
-            buildTagsEditTextField(
-                LangText(context).local.tags_ucf,
-                LangText(context).local.type_and_hit_enter_to_add_a_tag_ucf,
-                tagEditTextController,
+            buildEditTextField("Unit", "Unit", unitEditTextController,
+                keyboardType: TextInputType.number,
+                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                 isMandatory: true),
-            if (refund_addon_installed.$)
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  itemSpacer(),
-                  buildSwitchField(
-                      LangText(context).local.refundable_ucf, isRefundable,
-                      (value) {
-                    isRefundable = value;
-                    setChange();
-                  }),
-                ],
-              ),
-            itemSpacer(),
-            buildEditTextField(
-                LangText(context).local.product_description_ucf,
-                LangText(context).local.description_ucf,
-                descriptionEditTextController),
-            itemSpacer(),
-            buildSwitchField(
-              LangText(context).local.cash_on_delivery_ucf,
-              isCashOnDelivery,
-              (onChanged) {
-                isCashOnDelivery = onChanged;
-                setChange();
-              },
-            ),
-            SizedBox(
-              height: 10,
-            ),
-            buildMedia(),
-            buildPriceNStock(),
+            itemSpacer(height: 1),
           ],
         ),
       ),
     );
   }
 
-  Widget buildMedia() {
-    return buildTabViewItem(
-      AppLocalizations.of(context)!.product_images_ucf,
-      Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          chooseGalleryImageField(),
-          itemSpacer(),
-          chooseSingleImageField(
-              AppLocalizations.of(context)!.thumbnail_image_300_ucf,
-              AppLocalizations.of(context)!.thumbnail_image_300_des,
-              (onChosenImage) {
-            thumbnailImage = onChosenImage;
-            setChange();
-          }, thumbnailImage),
-          // itemSpacer(),
-          // buildGroupItems(
-          //     AppLocalizations.of(context)!.product_videos_ucf,
-          //     _buildDropDownField(
-          //         AppLocalizations.of(context)!.video_provider_ucf, (newValue) {
-          //       selectedVideoType = newValue;
-          //       setChange();
-          //     }, selectedVideoType, videoType),),
-          itemSpacer(),
-          buildEditTextField(
-              AppLocalizations.of(context)!.video_link_ucf,
-              AppLocalizations.of(context)!.video_link_ucf,
-              videoLinkEditTextController),
-          itemSpacer(height: 10),
-          smallTextForMessage(AppLocalizations.of(context)!.video_link_des),
-          itemSpacer(),
-          buildGroupItems(
-              AppLocalizations.of(context)!.pdf_description_ucf,
-              chooseSingleFileField(
-                  AppLocalizations.of(context)!.pdf_specification_ucf, "",
-                  (onChosenFile) {
-                pdfDes = onChosenFile;
-                setChange();
-              }, pdfDes)),
-          SizedBox(
-            height: 10,
-          )
-        ],
-      ),
-    );
-  }
-
   Widget buildPriceNStock() {
-    return buildTabViewItem(
-      "",
-      Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          buildPriceEditTextField(LangText(context).local!.unit_price_ucf, "0",
-              unitPriceEditTextController),
-          itemSpacer(),
-          if (productVariations.isEmpty)
+    return Padding(
+      padding: EdgeInsets.only(
+        left: AppStyles.itemMargin,
+        right: AppStyles.itemMargin,
+      ),
+      child: buildTabViewItem(
+        "",
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            buildPriceEditTextField(
+                LangText(context).local.unit_price_ucf,
+                LangText(context).local.unit_price_ucf,
+                unitPriceEditTextController,
+                isMandatory: true),
+            itemSpacer(),
+            buildEditTextField(
+                LangText(context).local.quantity_ucf,
+                LangText(context).local.quantity_ucf,
+                productQuantityEditTextController,
+                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                keyboardType: TextInputType.number,
+                isMandatory: true),
+            itemSpacer(),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                itemSpacer(),
-                buildEditTextField(LangText(context).local!.quantity_ucf, "0",
-                    productQuantityEditTextController,
-                    isMandatory: true),
-                itemSpacer(),
-                buildEditTextField(
-                    LangText(context).local!.sku_all_capital,
-                    LangText(context).local!.sku_all_capital,
-                    skuEditTextController),
+                chooseSingleImageField(
+                    AppLocalizations.of(context)!.image_300_ucf,
+                    AppLocalizations.of(context)!.thumbnail_image_300_des,
+                    (onChosenImage) {
+                  thumbnailImage = onChosenImage;
+                  setChange();
+                }, thumbnailImage),
               ],
             ),
-          itemSpacer(),
-          Padding(
-            padding: const EdgeInsets.only(bottom: 8.0),
-            child: Text("${LangText(context).local.address_ucf} *",
-                style: TextStyle(color: MyTheme.dark_font_grey, fontSize: 12)),
-          ),
-          Container(
-            height: 46,
-            decoration: BoxDecoration(
-              color: MyTheme.white,
-              borderRadius: BorderRadius.circular(10),
-              // border: Border.all(color: Color.fromRGBO(255, 255, 255, 0), width: 1),
-              boxShadow: [
-                BoxShadow(
-                  color: MyTheme.textfield_grey,
-                  offset: Offset(0, 6),
-                  blurRadius: 20,
+            itemSpacer(),
+            Container(
+              child: buildCommonSingleField(
+                LangText(context).local.product_description_ucf,
+                MyWidget.customCardView(
+                  backgroundColor: MyTheme.white,
+                  elevation: 5,
+                  width: DeviceInfo(context).width!,
+                  height: 75,
+                  borderRadius: 10,
+                  child: TextField(
+                      controller: descriptionEditTextController,
+                      maxLines: 3,
+                      cursorColor: MyTheme.accent_color,
+                      decoration: InputDecoration(
+                          hintText:
+                              LangText(context).local.product_description_ucf,
+                          filled: true,
+                          fillColor: MyTheme.white,
+                          hintStyle: TextStyle(
+                              fontSize: 12.0, color: MyTheme.textfield_grey),
+                          enabledBorder: OutlineInputBorder(
+                            borderSide: BorderSide(
+                                color: MyTheme.textfield_grey, width: 0.2),
+                            borderRadius: const BorderRadius.all(
+                              const Radius.circular(6.0),
+                            ),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderSide: BorderSide(
+                                color: MyTheme.accent_color, width: 0.5),
+                            borderRadius: const BorderRadius.all(
+                              const Radius.circular(6.0),
+                            ),
+                          ),
+                          disabledBorder: OutlineInputBorder(
+                            borderSide: BorderSide(
+                                color: MyTheme.textfield_grey, width: 0.2),
+                            borderRadius: const BorderRadius.all(
+                              const Radius.circular(6.0),
+                            ),
+                          ),
+                          contentPadding: EdgeInsets.symmetric(
+                              horizontal: 16.0, vertical: 10))),
                 ),
-              ],
+              ),
             ),
-            child: TypeAheadField(
-              textFieldConfiguration: TextFieldConfiguration(
-                  controller: _addressController,
-                  decoration: InputDecorations.buildInputDecoration_1(
-                      hint_text: LangText(context).local.enter_address_ucf)),
-              suggestionsCallback: (pattern) async {
-                return await getSuggestions(pattern);
-              },
-              itemBuilder: (context, suggestion) {
-                return ListTile(
-                  title: Text(suggestion['description']),
-                );
-              },
-              onSuggestionSelected: (suggestion) async {
-                var placeId = suggestion['place_id'];
-                var details = await getPlaceDetails(placeId);
-                List<dynamic> addressComponents = details['address_components'];
-
-                _addressController.text = addressComponents.first['long_name'];
-                var location = details['geometry']['location'];
-                lat = location['lat'];
-                long = location['lng'];
-                mapController?.animateCamera(
-                  CameraUpdate.newLatLng(
-                    LatLng(lat, long),
-                  ),
-                );
-              },
+            itemSpacer(),
+            Padding(
+              padding: const EdgeInsets.only(bottom: 8.0),
+              child: Text("${LangText(context).local.address_ucf}",
+                  style:
+                      TextStyle(color: MyTheme.dark_font_grey, fontSize: 12)),
             ),
-          ),
-          itemSpacer(),
-          Padding(
-            padding: const EdgeInsets.only(bottom: 8.0),
-            child: Text("${LangText(context).local.state_ucf} *",
-                style: TextStyle(color: MyTheme.font_grey, fontSize: 12)),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(bottom: 16.0),
-            child: Container(
+            Container(
               height: 46,
               decoration: BoxDecoration(
                 color: MyTheme.white,
                 borderRadius: BorderRadius.circular(10),
-                // border: Border.all(color: Color.fromRGBO(255, 255, 255, 0), width: 1),
                 boxShadow: [
                   BoxShadow(
                     color: MyTheme.textfield_grey,
@@ -1371,164 +1290,37 @@ class _UpdateProductState extends State<UpdateProduct> {
                 ],
               ),
               child: TypeAheadField(
-                suggestionsCallback: (name) async {
-                  if (_selected_country == null) {
-                    var stateResponse = await AddressRepository()
-                        .getStateListByCountry(); // blank response
-                    return stateResponse.states;
-                  }
-                  var stateResponse = await AddressRepository()
-                      .getStateListByCountry(
-                          country_id: _selected_country, name: name);
-                  print('_selected_country ---- ${_selected_country}');
-                  print('name ---- ${name}');
-                  print('stateResponse.states ${stateResponse.states}');
-                  return stateResponse.states;
+                textFieldConfiguration: TextFieldConfiguration(
+                    cursorColor: MyTheme.accent_color,
+                    controller: _addressController,
+                    decoration: InputDecorations.buildInputDecoration_1(
+                        hint_text: LangText(context).local.enter_address_ucf)),
+                suggestionsCallback: (pattern) async {
+                  return await getSuggestions(pattern);
                 },
-                loadingBuilder: (context) {
-                  return Container(
-                    height: 50,
-                    child: Center(
-                        child: Text(LangText(context).local.loading_states_ucf,
-                            style: TextStyle(color: MyTheme.medium_grey))),
+                itemBuilder: (context, suggestion) {
+                  return ListTile(
+                    title: Text(suggestion['description']),
                   );
                 },
-                itemBuilder: (context, dynamic state) {
-                  //print(suggestion.toString());
-                  return ListTile(
-                    dense: true,
-                    title: Text(
-                      state.name,
-                      style: TextStyle(color: MyTheme.font_grey),
+                onSuggestionSelected: (suggestion) async {
+                  var placeId = suggestion['place_id'];
+                  var details = await getPlaceDetails(placeId);
+                  _addressController.text = suggestion['description'];
+                  var location = details['geometry']['location'];
+                  lat = location['lat'];
+                  long = location['lng'];
+                  mapController?.animateCamera(
+                    CameraUpdate.newLatLng(
+                      LatLng(lat, long),
                     ),
                   );
                 },
-                noItemsFoundBuilder: (context) {
-                  return Container(
-                    height: 50,
-                    child: Center(
-                        child: Text(LangText(context).local.no_state_available,
-                            style: TextStyle(color: MyTheme.medium_grey))),
-                  );
-                },
-                onSuggestionSelected: (dynamic state) {
-                  onSelectStateDuringAdd(state, setState);
-                },
-                textFieldConfiguration: TextFieldConfiguration(
-                    onTap: () {},
-                    controller: _stateController,
-                    onSubmitted: (txt) {},
-                    decoration: InputDecorations.buildInputDecoration_1(
-                        hint_text: LangText(context).local.enter_state_ucf)),
               ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(bottom: 8.0),
-            child: Text("${LangText(context).local.city_ucf} *",
-                style: TextStyle(color: MyTheme.font_grey, fontSize: 12)),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(bottom: 16.0),
-            child: Container(
-              height: 46,
-              decoration: BoxDecoration(
-                color: MyTheme.white,
-                borderRadius: BorderRadius.circular(10),
-                // border: Border.all(color: Color.fromRGBO(255, 255, 255, 0), width: 1),
-                boxShadow: [
-                  BoxShadow(
-                    color: MyTheme.textfield_grey,
-                    offset: Offset(0, 6),
-                    blurRadius: 20,
-                  ),
-                ],
-              ),
-              child: TypeAheadField(
-                suggestionsCallback: (name) async {
-                  if (_selected_state == null) {
-                    var cityResponse = await AddressRepository()
-                        .getCityListByState(); // blank response
-                    return cityResponse.cities;
-                  }
-                  var cityResponse = await AddressRepository()
-                      .getCityListByState(
-                          state_id: _selected_state!.id, name: name);
-                  return cityResponse.cities;
-                },
-                loadingBuilder: (context) {
-                  return Container(
-                    height: 50,
-                    child: Center(
-                        child: Text(LangText(context).local.loading_cities_ucf,
-                            style: TextStyle(color: MyTheme.medium_grey))),
-                  );
-                },
-                itemBuilder: (context, dynamic city) {
-                  //print(suggestion.toString());
-                  return ListTile(
-                    dense: true,
-                    title: Text(
-                      city.name,
-                      style: TextStyle(color: MyTheme.font_grey),
-                    ),
-                  );
-                },
-                noItemsFoundBuilder: (context) {
-                  return Container(
-                    height: 50,
-                    child: Center(
-                        child: Text(LangText(context).local.no_city_available,
-                            style: TextStyle(color: MyTheme.medium_grey))),
-                  );
-                },
-                onSuggestionSelected: (dynamic city) {
-                  onSelectCityDuringAdd(city, setState);
-                },
-                textFieldConfiguration: TextFieldConfiguration(
-                    onTap: () {},
-                    //autofocus: true,
-                    controller: _cityController,
-                    onSubmitted: (txt) {
-                      // keep blank
-                    },
-                    decoration: InputDecorations.buildInputDecoration_1(
-                        hint_text: LangText(context).local.enter_city_ucf)),
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(bottom: 8.0),
-            child: Text(
-              LangText(context).local.postal_code,
-              style: TextStyle(color: MyTheme.font_grey, fontSize: 12),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(bottom: 16.0),
-            child: MyWidget.customCardView(
-              backgroundColor: MyTheme.white,
-              elevation: 5,
-              width: DeviceInfo(context).width!,
-              height: 46,
-              borderRadius: 10,
-              child: TextField(
-                controller: _postalCodeController,
-                keyboardType: TextInputType.numberWithOptions(
-                  signed: true,
-                  decimal: true,
-                ),
-                decoration: InputDecorations.buildInputDecoration_1(
-                  hint_text: LangText(context).local.enter_postal_code_ucf,
-                ),
-                inputFormatters: [
-                  PhoneNumberInputFormatter(),
-                  LengthLimitingTextInputFormatter(6),
-                ],
-              ),
-            ),
-          ),
-        ],
+            SizedBox(height: 100),
+          ],
+        ),
       ),
     );
   }
@@ -1553,132 +1345,6 @@ class _UpdateProductState extends State<UpdateProduct> {
     );
   }
 
-  Widget buildGroupItems(groupTitle, Widget children) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        buildGroupTitle(groupTitle),
-        itemSpacer(height: 14.0),
-        children,
-      ],
-    );
-  }
-
-  Text buildGroupTitle(title) {
-    return Text(
-      title,
-      style: const TextStyle(
-          fontSize: 14, fontWeight: FontWeight.bold, color: MyTheme.font_grey),
-    );
-  }
-
-  Widget chooseGalleryImageField() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              LangText(context).local.gallery_images_600,
-              style: TextStyle(
-                  fontSize: 12,
-                  color: MyTheme.font_grey,
-                  fontWeight: FontWeight.bold),
-            ),
-            SizedBox(
-              height: 10,
-            ),
-            Buttons(
-              padding: EdgeInsets.zero,
-              onPressed: () {
-                pickGalleryImages();
-              },
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(6)),
-              child: MyWidget().myContainer(
-                  width: DeviceInfo(context).width!,
-                  height: 46,
-                  borderRadius: 6.0,
-                  borderColor: MyTheme.light_grey,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.only(left: 14.0),
-                        child: Text(
-                          LangText(context).local!.choose_file,
-                          style:
-                              TextStyle(fontSize: 12, color: MyTheme.grey_153),
-                        ),
-                      ),
-                      Container(
-                          alignment: Alignment.center,
-                          height: 46,
-                          width: 80,
-                          color: MyTheme.light_grey,
-                          child: Text(
-                            LangText(context).local!.browse_ucf,
-                            style: TextStyle(
-                                fontSize: 12, color: MyTheme.grey_153),
-                          )),
-                    ],
-                  )),
-            ),
-          ],
-        ),
-        SizedBox(
-          height: 10,
-        ),
-        Text(
-          LangText(context)
-              .local
-              .these_images_are_visible_in_product_details_page_gallery_600,
-          style: TextStyle(fontSize: 8, color: MyTheme.grey_153),
-        ),
-        SizedBox(
-          height: 10,
-        ),
-        if (productGalleryImages.isNotEmpty)
-          Wrap(
-            children: List.generate(
-              productGalleryImages.length,
-              (index) => Stack(
-                children: [
-                  MyWidget.imageWithPlaceholder(
-                      height: 60.0,
-                      width: 60.0,
-                      url: productGalleryImages[index].url),
-                  Positioned(
-                    top: 0,
-                    right: 5,
-                    child: Container(
-                      height: 15,
-                      width: 15,
-                      decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(30),
-                          color: MyTheme.white),
-                      child: InkWell(
-                        onTap: () {
-                          productGalleryImages.removeAt(index);
-                          setState(() {});
-                        },
-                        child: Icon(
-                          Icons.close,
-                          size: 12,
-                          color: MyTheme.brick_red,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-      ],
-    );
-  }
-
   Widget chooseSingleImageField(String title, String shortMessage,
       dynamic onChosenImage, FileInfo? selectedFile) {
     return Column(
@@ -1687,12 +1353,23 @@ class _UpdateProductState extends State<UpdateProduct> {
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              title,
-              style: TextStyle(
-                  fontSize: 12,
-                  color: MyTheme.font_grey,
-                  fontWeight: FontWeight.bold),
+            Row(
+              children: [
+                Text(
+                  title,
+                  style: TextStyle(
+                      fontSize: 12,
+                      color: MyTheme.font_grey,
+                      fontWeight: FontWeight.bold),
+                ),
+                Text(
+                  '*',
+                  style: TextStyle(
+                      fontSize: 12,
+                      color: MyTheme.brick_red,
+                      fontWeight: FontWeight.bold),
+                ),
+              ],
             ),
             SizedBox(
               height: 10,
@@ -1701,75 +1378,6 @@ class _UpdateProductState extends State<UpdateProduct> {
           ],
         ),
       ],
-    );
-  }
-
-  Widget chooseSingleFileField(String title, String shortMessage,
-      dynamic onChosenFile, FileInfo? selectedFile) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              title,
-              style: TextStyle(
-                  fontSize: 12,
-                  color: MyTheme.font_grey,
-                  fontWeight: FontWeight.bold),
-            ),
-            SizedBox(
-              height: 10,
-            ),
-            fileField("document", shortMessage, onChosenFile, selectedFile)
-          ],
-        ),
-      ],
-    );
-  }
-
-  Widget buildShowSelectedOptions(
-      List<CommonDropDownItem> options, dynamic remove) {
-    return SizedBox(
-      width: DeviceInfo(context).width! - 34,
-      child: Wrap(
-        children: List.generate(
-            options.length,
-            (index) => Container(
-                decoration: BoxDecoration(
-                    color: MyTheme.white,
-                    borderRadius: BorderRadius.circular(5),
-                    border: Border.all(width: 2, color: MyTheme.grey_153)),
-                constraints: BoxConstraints(
-                    maxWidth: (DeviceInfo(context).width! - 50) / 4),
-                margin: const EdgeInsets.only(right: 5, bottom: 5),
-                child: Stack(
-                  children: [
-                    Container(
-                        padding: const EdgeInsets.only(
-                            left: 10, right: 20, top: 5, bottom: 5),
-                        constraints: BoxConstraints(
-                            maxWidth: (DeviceInfo(context).width! - 50) / 4),
-                        child: Text(
-                          options[index].value!.toString(),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(fontSize: 12),
-                        )),
-                    Positioned(
-                      right: 2,
-                      child: InkWell(
-                        onTap: () {
-                          remove(index);
-                        },
-                        child: Icon(Icons.highlight_remove,
-                            size: 15, color: MyTheme.brick_red),
-                      ),
-                    )
-                  ],
-                ))),
-      ),
     );
   }
 
@@ -1882,173 +1490,7 @@ class _UpdateProductState extends State<UpdateProduct> {
     );
   }
 
-  Widget fileField(String fileType, String shortMessage, dynamic onChosenFile,
-      FileInfo? selectedFile) {
-    print('commit mgs');
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Buttons(
-          padding: EdgeInsets.zero,
-          onPressed: () async {
-            List<FileInfo> chooseFile = await (Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => UploadFileSeller(
-                  fileType: fileType,
-                  canSelect: true,
-                ),
-              ),
-            ));
-            ////print("chooseFile.url");
-            ////print(chooseFile.first.url);
-            if (chooseFile.isNotEmpty) {
-              onChosenFile(chooseFile.first);
-            }
-          },
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
-          child: MyWidget().myContainer(
-            width: DeviceInfo(context).width!,
-            height: 46,
-            borderRadius: 6.0,
-            borderColor: MyTheme.light_grey,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(left: 14.0),
-                  child: Text(
-                    LangText(context).local!.choose_file,
-                    style: TextStyle(fontSize: 12, color: MyTheme.grey_153),
-                  ),
-                ),
-                Container(
-                  alignment: Alignment.center,
-                  height: 46,
-                  width: 80,
-                  color: MyTheme.light_grey,
-                  child: Text(
-                    LangText(context).local.browse_ucf,
-                    style: TextStyle(fontSize: 12, color: MyTheme.grey_153),
-                  ),
-                ),
-              ],
-
-            ),
-          ),
-        ),
-        SizedBox(
-          height: 10,
-        ),
-
-        if (shortMessage.isNotEmpty)
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                shortMessage,
-                style: TextStyle(fontSize: 8, color: MyTheme.grey_153),
-              ),
-              SizedBox(
-                height: 10,
-              ),
-            ],
-          ),
-        if (selectedFile != null)
-          Stack(
-            children: [
-              Container(
-                padding: EdgeInsets.all(3),
-                height: 40,
-                alignment: Alignment.center,
-                width: 40,
-                decoration: BoxDecoration(
-                  color: MyTheme.grey_153,
-                ),
-                child: Text(
-                  selectedFile.fileOriginalName! +
-                      "." +
-                      selectedFile.extension!,
-                  style: TextStyle(fontSize: 9, color: MyTheme.white),
-                ),
-              ),
-              Positioned(
-                top: 0,
-                right: 5,
-                child: Container(
-                  height: 15,
-                  width: 15,
-                  decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(30),
-                      color: MyTheme.white),
-                  // remove the selected file button
-                  child: InkWell(
-                    onTap: () {
-                      onChosenFile(null);
-                    },
-                    child: Icon(
-                      Icons.close,
-                      size: 12,
-                      color: MyTheme.brick_red,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-      ],
-    );
-  }
-
-  summerNote(title) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          title,
-          style: const TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.bold,
-              color: MyTheme.font_grey),
-        ),
-        const SizedBox(
-          height: 10,
-        ),
-        Container(
-          height: 250,
-          width: mWidht,
-          //child: summernote??Container(),
-          child: FlutterSummernote(
-              showBottomToolbar: false,
-              returnContent: (text) {
-                description = text;
-                ////print(description);
-              },
-              hint: "",
-              value: description,
-              key: productDescriptionKey),
-        ),
-      ],
-    );
-    // FlutterSummernote(
-    // hint: "Your text here...",
-    // key: productDescriptionKey,
-    // customToolbar: """
-    //         [
-    //             ['style', ['bold', 'italic', 'underline', 'clear']],
-    //             ['font', ['strikethrough', 'superscript', 'subscript']]
-    //         ]"""
-    // )
-  }
-
-  Widget smallTextForMessage(String txt) {
-    return Text(
-      txt,
-      style: TextStyle(fontSize: 8, color: MyTheme.grey_153),
-    );
-  }
-
-  setChange() {
+  void setChange() {
     setState(() {});
   }
 
@@ -2058,23 +1500,14 @@ class _UpdateProductState extends State<UpdateProduct> {
     );
   }
 
-  Widget _buildDropDownField(String title, dynamic onchange,
-      CommonDropDownItem? selectedValue, List<CommonDropDownItem> itemList,
-      {bool isMandatory = false, double? width}) {
-    return buildCommonSingleField(
-        title, _buildDropDown(onchange, selectedValue, itemList, width: width),
-        isMandatory: isMandatory);
-  }
-
   Widget _buildMultiCategory(String title,
       {bool isMandatory = false, double? width}) {
-    //print("object $categoryIds");
     return buildCommonSingleField(
         title,
         Container(
-            height: 250,
             width: width ?? mWidht,
-            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+            padding:
+                const EdgeInsets.only(left: 18, right: 18, top: 10, bottom: 20),
             decoration: MDecoration.decoration1(),
             child: SingleChildScrollView(
               child: isProductDetailsInit
@@ -2082,10 +1515,23 @@ class _UpdateProductState extends State<UpdateProduct> {
                       isCategoryInit: isCategoryInit,
                       categories: categories,
                       onSelectedCategories: (categories) {
-                        categoryIds = categories;
+                        categoryIds.clear();
+                        categoryIds.addAll(categories);
                       },
                       onSelectedMainCategory: (mainCategory) {
-                        categoryId = mainCategory;
+                        WidgetsBinding.instance.addPostFrameCallback((_) {
+                          _selectedProductName = null;
+                          categoryId = mainCategory;
+                          _productName.clear();
+                          categories.forEach((element) {
+                            if (element.id == categoryId) {
+                              element.child!.forEach((element) {
+                                _productName.add(element.name ?? '');
+                              });
+                            }
+                          });
+                          setChange(); // Calls setState() safely after the build phase.
+                        });
                       },
                       initialCategoryIds: categoryIds,
                       initialMainCategory: categoryId,
@@ -2095,173 +1541,11 @@ class _UpdateProductState extends State<UpdateProduct> {
         isMandatory: isMandatory);
   }
 
-  Widget _buildDropDown(dynamic onchange, CommonDropDownItem? selectedValue,
-      List<CommonDropDownItem> itemList,
-      {double? width}) {
-    return Container(
-      height: 46,
-      width: width ?? mWidht,
-      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
-      decoration: MDecoration.decoration1(),
-      child: DropdownButton<CommonDropDownItem>(
-        menuMaxHeight: 300,
-        isDense: true,
-        underline: Container(),
-        isExpanded: true,
-        onChanged: (CommonDropDownItem? value) {
-          onchange(value);
-        },
-        icon: const Icon(Icons.arrow_drop_down),
-        value: selectedValue,
-        items: itemList
-            .map(
-              (value) => DropdownMenuItem<CommonDropDownItem>(
-                value: value,
-                child: Text(
-                  value.value!,
-                ),
-              ),
-            )
-            .toList(),
-      ),
-    );
-  }
-
-  Widget _buildLanguageDropDown(
-      dynamic onchange, Language? selectedValue, List<Language> itemList,
-      {double? width}) {
-    return Container(
-      height: 46,
-      width: DeviceInfo(context).width! / 2.6,
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-      //decoration: MDecoration,
-      child: DropdownButton<Language>(
-        menuMaxHeight: 300,
-        isDense: true,
-        underline: Container(),
-        isExpanded: true,
-        onChanged: (Language? value) {
-          onchange(value);
-        },
-        icon: const Icon(Icons.arrow_drop_down),
-        value: selectedValue,
-        items: itemList
-            .map(
-              (value) => DropdownMenuItem<Language>(
-                value: value,
-                child: Row(
-                  children: [
-                    SizedBox(
-                        width: 40,
-                        height: 40,
-                        child: Padding(
-                            padding: const EdgeInsets.all(6.0),
-                            child:
-                                /*Image.asset(
-                          _list[index].image,
-                          fit: BoxFit.fitWidth,
-                        ),*/
-                                FadeInImage.assetNetwork(
-                              placeholder: 'assets/logo/placeholder.png',
-                              image: value.image!,
-                              fit: BoxFit.fitWidth,
-                            ))),
-                    Text(
-                      value.name!,
-                    ),
-                  ],
-                ),
-              ),
-            )
-            .toList(),
-      ),
-    );
-  }
-
-  Widget _buildColorDropDown(dynamic onchange,
-      CommonDropDownItem? selectedValue, List<CommonDropDownItem> itemList,
-      {double? width}) {
-    return Container(
-      height: 46,
-      width: width ?? mWidht,
-      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
-      decoration: MDecoration.decoration1(),
-      child: DropdownButton<CommonDropDownItem>(
-        menuMaxHeight: 300,
-        isDense: true,
-        underline: Container(),
-        isExpanded: true,
-        onChanged: (CommonDropDownItem? value) {
-          onchange(value);
-        },
-        icon: const Icon(Icons.arrow_drop_down),
-        value: selectedValue,
-        items: itemList
-            .map(
-              (value) => DropdownMenuItem<CommonDropDownItem>(
-                value: value,
-                child: Row(
-                  children: [
-                    Container(
-                      margin: EdgeInsets.symmetric(horizontal: 5),
-                      height: 20,
-                      width: 20,
-                      decoration: BoxDecoration(
-                          color: Color(
-                              int.parse(value.key!.replaceAll("#", "0xFF"))),
-                          borderRadius: BorderRadius.circular(4)),
-                    ),
-                    Text(
-                      value.value!,
-                    ),
-                  ],
-                ),
-              ),
-            )
-            .toList(),
-      ),
-    );
-  }
-
-  Widget _buildFlatDropDown(String title, dynamic onchange,
-      CommonDropDownItem selectedValue, List<CommonDropDownItem> itemList,
-      {bool isMandatory = false, double? width}) {
-    return buildCommonSingleField(
-        title,
-        Container(
-          height: 46,
-          width: width ?? mWidht,
-          decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(8),
-              color: MyTheme.app_accent_color_extra_light),
-          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
-          child: DropdownButton<CommonDropDownItem>(
-            isDense: true,
-            underline: Container(),
-            isExpanded: true,
-            onChanged: (value) {
-              onchange(value);
-            },
-            icon: const Icon(Icons.arrow_drop_down),
-            value: selectedValue,
-            items: itemList
-                .map(
-                  (value) => DropdownMenuItem<CommonDropDownItem>(
-                    value: value,
-                    child: Text(
-                      value.value!,
-                    ),
-                  ),
-                )
-                .toList(),
-          ),
-        ),
-        isMandatory: isMandatory);
-  }
-
   Widget buildEditTextField(
       String title, String hint, TextEditingController textEditingController,
-      {isMandatory = false}) {
+      {isMandatory = false,
+      List<TextInputFormatter>? inputFormatters,
+      TextInputType? keyboardType}) {
     return Container(
       child: buildCommonSingleField(
         title,
@@ -2273,6 +1557,9 @@ class _UpdateProductState extends State<UpdateProduct> {
           borderRadius: 10,
           child: TextField(
             controller: textEditingController,
+            keyboardType: keyboardType,
+            inputFormatters: inputFormatters,
+            cursorColor: MyTheme.accent_color,
             decoration: InputDecorations.buildInputDecoration_1(
               hint_text: hint,
             ),
@@ -2281,101 +1568,6 @@ class _UpdateProductState extends State<UpdateProduct> {
         isMandatory: isMandatory,
       ),
     );
-  }
-
-  Widget buildTagsEditTextField(
-      String title, String hint, TextEditingController textEditingController,
-      {isMandatory = false}) {
-    //textEditingController.buildTextSpan(context: context, withComposing: true);
-    return buildCommonSingleField(
-      title,
-      Container(
-        padding: EdgeInsets.only(top: 14, bottom: 10, left: 14, right: 14),
-        alignment: Alignment.centerLeft,
-        constraints: BoxConstraints(
-          minWidth: DeviceInfo(context).width!,
-          minHeight: 46,
-        ),
-        decoration: MDecoration.decoration1(),
-        child: Wrap(
-          alignment: WrapAlignment.start,
-          crossAxisAlignment: WrapCrossAlignment.center,
-          runAlignment: WrapAlignment.start,
-          clipBehavior: Clip.antiAlias,
-          children: List.generate(tags!.length + 1, (index) {
-            if (index == tags!.length) {
-              return TextField(
-                onSubmitted: (string) {
-                  var tag = textEditingController.text
-                      .trim()
-                      .replaceAll(",", "")
-                      .toString();
-                  addTag(tag);
-                },
-                onChanged: (string) {
-                  if (string.trim().contains(",")) {
-                    var tag = string.trim().replaceAll(",", "").toString();
-                    addTag(tag);
-                  }
-                },
-                controller: textEditingController,
-                keyboardType: TextInputType.text,
-                maxLines: 1,
-                style: TextStyle(fontSize: 16),
-                decoration: InputDecoration.collapsed(
-                        hintText: "Type and hit submit",
-                        hintStyle: TextStyle(fontSize: 12))
-                    .copyWith(constraints: BoxConstraints(maxWidth: 150)),
-              );
-            }
-            return Container(
-                decoration: BoxDecoration(
-                    color: MyTheme.white,
-                    borderRadius: BorderRadius.circular(5),
-                    border: Border.all(width: 2, color: MyTheme.grey_153)),
-                constraints: BoxConstraints(
-                    maxWidth: (DeviceInfo(context).width! - 50) / 4),
-                margin: const EdgeInsets.only(right: 5, bottom: 5),
-                child: Stack(
-                  fit: StackFit.loose,
-                  children: [
-                    Container(
-                        padding: const EdgeInsets.only(
-                            left: 10, right: 20, top: 5, bottom: 5),
-                        constraints: BoxConstraints(
-                            maxWidth: (DeviceInfo(context).width! - 50) / 4),
-                        child: Text(
-                          tags![index]!.toString(),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(fontSize: 12),
-                        )),
-                    Positioned(
-                      right: 2,
-                      child: InkWell(
-                        onTap: () {
-                          tags!.removeAt(index);
-                          setChange();
-                        },
-                        child: Icon(Icons.highlight_remove,
-                            size: 15, color: MyTheme.brick_red),
-                      ),
-                    )
-                  ],
-                ));
-          }),
-        ),
-      ),
-      isMandatory: isMandatory,
-    );
-  }
-
-  addTag(String string) {
-    if (string.trim().isNotEmpty) {
-      tags!.add(string.trim());
-    }
-    tagEditTextController.clear();
-    setChange();
   }
 
   Widget buildPriceEditTextField(
@@ -2392,38 +1584,11 @@ class _UpdateProductState extends State<UpdateProduct> {
           borderRadius: 10,
           child: TextField(
             controller: textEditingController,
+            cursorColor: MyTheme.accent_color,
             onChanged: (string) {
-              ////print(string);
-              if (string.isEmpty) {
-                textEditingController.text = "0";
-              }
               createProductVariation();
             },
             keyboardType: TextInputType.number,
-            decoration: InputDecorations.buildInputDecoration_1(
-              hint_text: hint,
-            ),
-          ),
-        ),
-        isMandatory: isMandatory,
-      ),
-    );
-  }
-
-  Widget buildFlatEditTextField(
-      String title, String hint, TextEditingController textEditingController,
-      {isMandatory = false}) {
-    return Container(
-      child: buildCommonSingleField(
-        title,
-        Container(
-          decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(8),
-              color: MyTheme.app_accent_color_extra_light),
-          width: DeviceInfo(context).width!,
-          height: 45,
-          child: TextField(
-            controller: textEditingController,
             decoration: InputDecorations.buildInputDecoration_1(
               hint_text: hint,
             ),
@@ -2466,276 +1631,6 @@ class _UpdateProductState extends State<UpdateProduct> {
     );
   }
 
-  variationViewModel(int index) {
-    return buildExpansionTile(index, (onExpand) {
-      productVariations[index].isExpended = onExpand;
-      setChange();
-    }, productVariations[index].isExpended);
-  }
-
-  buildExpansionTile(int index, dynamic onExpand, isExpanded) {
-    return Container(
-      height: isExpanded
-          ? productVariations[index].photo == null
-              ? 274
-              : 334
-          : 100,
-      decoration: MDecoration.decoration1(),
-      padding: EdgeInsets.symmetric(horizontal: 14, vertical: 14),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            alignment: Alignment.center,
-            width: 20,
-            height: 20,
-            decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10),
-                color: MyTheme.light_grey),
-            constraints: BoxConstraints(),
-            child: IconButton(
-              splashRadius: 5,
-              splashColor: MyTheme.noColor,
-              constraints: BoxConstraints(),
-              iconSize: 12,
-              padding: EdgeInsets.zero,
-              onPressed: () {
-                isExpanded = !isExpanded;
-                onExpand(isExpanded);
-              },
-              icon: Image.asset(
-                isExpanded ? "assets/icon/remove.png" : "assets/icon/add.png",
-                color: MyTheme.brick_red,
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(left: 14.0),
-            child: Column(
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Container(
-                        width: (mWidht / 3),
-                        child: Text(
-                          productVariations[index].name!,
-                          style: MyTextStyle.smallFontSize()
-                              .copyWith(color: MyTheme.font_grey),
-                        )),
-                    Container(
-                      decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(8),
-                          color: MyTheme.app_accent_color_extra_light),
-                      width: (mWidht / 3),
-                      child: TextField(
-                        keyboardType: TextInputType.number,
-                        controller:
-                            productVariations[index].priceEditTextController,
-                        decoration: InputDecorations.buildInputDecoration_1(
-                          hint_text: "0",
-                        ),
-                      ),
-                    )
-                  ],
-                ),
-                if (isExpanded)
-                  Column(
-                    children: [
-                      itemSpacer(height: 14),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Container(
-                              width: 80,
-                              child: Text(
-                                LangText(context).local!.sku_all_capital,
-                                style: MyTextStyle.smallFontSize()
-                                    .copyWith(color: MyTheme.font_grey),
-                              )),
-                          Container(
-                            decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(8),
-                                color: MyTheme.white),
-                            width: (mWidht * 0.6),
-                            child: TextField(
-                              controller: productVariations[index]
-                                  .skuEditTextController,
-                              decoration:
-                                  InputDecorations.buildInputDecoration_1(
-                                hint_text: "sku",
-                              ),
-                            ),
-                          )
-                        ],
-                      ),
-                      itemSpacer(height: 10),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Container(
-                            width: 80,
-                            child: Text(
-                              LangText(context).local!.quantity_ucf,
-                              style: MyTextStyle.smallFontSize()
-                                  .copyWith(color: MyTheme.font_grey),
-                            ),
-                          ),
-                          Container(
-                            decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(8),
-                                color: MyTheme.white),
-                            width: (mWidht * 0.6),
-                            child: TextField(
-                              inputFormatters: [
-                                FilteringTextInputFormatter.allow(
-                                    RegExp(r'[0-9]'))
-                              ],
-                              keyboardType: TextInputType.number,
-                              controller: productVariations[index]
-                                  .quantityEditTextController,
-                              decoration:
-                                  InputDecorations.buildInputDecoration_1(
-                                hint_text: "0",
-                              ),
-                            ),
-                          )
-                        ],
-                      ),
-                      itemSpacer(height: 10),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 14.0),
-                            child: Text(
-                              LangText(context).local!.photo_ucf,
-                              style: MyTextStyle.smallFontSize()
-                                  .copyWith(color: MyTheme.font_grey),
-                            ),
-                          ),
-                          SizedBox(
-                            width: (mWidht * 0.6),
-                            child: imageField("", (onChosenImage) {
-                              productVariations[index].photo = onChosenImage;
-                              setChange();
-                            }, productVariations[index].photo),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  buildSwitchField(String title, value, onChanged, {isMandatory = false}) {
-    return Row(
-      children: [
-        if (title.isNotEmpty) buildFieldTitle(title),
-        if (isMandatory)
-          Text(
-            " *",
-            style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.bold,
-                color: MyTheme.brick_red),
-          ),
-        const Spacer(),
-        Container(
-          height: 30,
-          child: Switch(
-            value: value,
-            onChanged: onChanged,
-            activeColor: MyTheme.green,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Future<DateTimeRange?> _buildPickDate() async {
-    DateTimeRange? p;
-    p = await showDateRangePicker(
-        context: context,
-        firstDate: DateTime.now(),
-        lastDate: DateTime.utc(2050),
-        builder: (context, child) {
-          return Container(
-            width: 500,
-            height: 500,
-            child: DateRangePickerDialog(
-              initialDateRange:
-                  DateTimeRange(start: DateTime.now(), end: DateTime.now()),
-              saveText: LangText(context).local.select_ucf,
-              initialEntryMode: DatePickerEntryMode.calendarOnly,
-              firstDate: DateTime.now(),
-              lastDate: DateTime.utc(2050),
-            ),
-          );
-        });
-
-    return p;
-  }
-
-  Widget buildTapBar() {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: Row(
-        children: [
-          buildTopTapBarItem(LangText(context).local!.general_ucf, 0),
-          tabBarDivider(),
-          buildTopTapBarItem(LangText(context).local!.media_ucf, 1),
-          tabBarDivider(),
-          buildTopTapBarItem(LangText(context).local!.price_n_stock_ucf, 2),
-          // tabBarDivider(),
-          // buildTopTapBarItem(LangText(context).local!.seo_all_capital, 3),
-          // tabBarDivider(),
-          // buildTopTapBarItem(LangText(context).local!.shipping_ucf, 3),
-        ],
-      ),
-    );
-  }
-
-  Widget tabBarDivider() {
-    return const SizedBox(
-      width: 1,
-      height: 50,
-    );
-  }
-
-  Container buildTopTapBarItem(String text, int index) {
-    return Container(
-        height: 50,
-        width: 100,
-        color: _selectedTabIndex == index
-            ? MyTheme.accent_color
-            : MyTheme.accent_color.withOpacity(0.5),
-        child: Buttons(
-            onPressed: () async {
-              if (productDescriptionKey.currentState != null) {
-                await productDescriptionKey.currentState!.getText();
-                // productDescriptionKey.currentState.getText().then((value) {
-                //   description = value;
-                // });
-              }
-              _selectedTabIndex = index;
-              setState(() {});
-            },
-            child: Text(
-              text,
-              style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.bold,
-                  color: MyTheme.white),
-            )));
-  }
-
   Widget buildAppBar(BuildContext context) {
     return AppBar(
       leadingWidth: 0.0,
@@ -2759,26 +1654,12 @@ class _UpdateProductState extends State<UpdateProduct> {
             width: 10,
           ),
           Text(
-            LangText(context).local!.update_product_ucf,
+            LangText(context).local.update_product_ucf,
             style: MyTextStyle().appbarText(),
           ),
-          // Spacer(),
-          // SizedBox(
-          //   width: DeviceInfo(context).width! / 2.5,
-          //   child: _buildLanguageDropDown((onchange) {
-          //     selectedLanguage = onchange;
-          //     setChange();
-          //     getProductCurrentValues();
-          //   }, selectedLanguage, languages,
-          //       width: DeviceInfo(context).width! / 2.5),
-          // )
         ],
       ),
       backgroundColor: Colors.white,
-      // bottom: PreferredSize(
-      //   preferredSize: Size(mWidht, 50),
-      //   child: buildTapBar(),
-      // ),
     );
   }
 }
@@ -2794,22 +1675,12 @@ class VariationModel {
 
   VariationModel(
       this.name,
-      //this.id,
       this.photo,
       this.priceEditTextController,
       this.quantityEditTextController,
       this.skuEditTextController,
       this.isExpended);
 }
-
-// class AttributeItemsModel {
-//   List<CommonDropDownItem> attributeItems;
-//   List<CommonDropDownItem> selectedAttributeItems;
-//   CommonDropDownItem selectedAttributeItem;
-//
-//   AttributeItemsModel(this.attributeItems, this.selectedAttributeItems,
-//       this.selectedAttributeItem);
-// }
 
 class Tags {
   static List<String> tags = [];

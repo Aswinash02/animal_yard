@@ -136,7 +136,6 @@ class _KhaltiScreenState extends State<KhaltiScreen> {
       if (responseJSON.runtimeType == String) {
         responseJSON = jsonDecode(responseJSON);
       }
-      //print(data.toString());
       if (responseJSON["result"] == false) {
         ToastComponent.showDialog(responseJSON["message"],
             duration: Toast.lengthLong, gravity: Toast.center);
@@ -168,7 +167,6 @@ class _KhaltiScreenState extends State<KhaltiScreen> {
   }
 
   buildBody() {
-    //print(initial_url);
     if (_order_init == false &&
         _combined_order_id == 0 &&
         widget.payment_type == "cart_payment") {

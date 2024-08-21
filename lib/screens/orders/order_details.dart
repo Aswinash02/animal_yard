@@ -95,8 +95,6 @@ class _OrderDetailsState extends State<OrderDetails> {
     FlutterDownloader.registerCallback(downloadCallback);
 
     super.initState();
-
-    print(widget.id);
   }
 
   @override
@@ -118,9 +116,6 @@ class _OrderDetailsState extends State<OrderDetails> {
             "System-Key": AppConfig.system_key
           });
     } on Exception catch (e) {
-      print("e.toString()");
-      print(e.toString());
-      // TODO
     }
   }
 
@@ -130,7 +125,6 @@ class _OrderDetailsState extends State<OrderDetails> {
       var iosPath = await getApplicationDocumentsDirectory();
       mPath = iosPath.path;
     }
-    // print("path = $mPath");
     final dir = Directory(mPath);
 
     var status = await Permission.storage.status;
@@ -202,14 +196,9 @@ class _OrderDetailsState extends State<OrderDetails> {
   _onPressReorder(id) async {
     Loading.show(context);
     var response = await OrderRepository().reOrder(id: id);
-    print("success " + response.successMsgs.toString());
-    print("failed " + response.failedMsgs.toString());
     Loading.close();
     Widget success = SizedBox.shrink(), failed = SizedBox.shrink();
-    print(response.successMsgs.toString());
-    print(response.failedMsgs.toString());
     if (response.successMsgs!.isNotEmpty) {
-      print('yes enteerdd -----------');
       success = Text(
         response.successMsgs?.join("\n") ?? "",
         style: TextStyle(fontSize: 14, color: MyTheme.green_light),
@@ -227,22 +216,6 @@ class _OrderDetailsState extends State<OrderDetails> {
       ToastComponent.showDialog("Reorder Failed",
           gravity: Toast.center, duration: Toast.lengthLong);
     }
-
-    // InfoDialog.show(
-    //     title: LangText(context).local.info_ucf,
-    //     content: SizedBox(
-    //       child: Column(
-    //         mainAxisSize: MainAxisSize.min,
-    //         crossAxisAlignment: CrossAxisAlignment.start,
-    //         children: [
-    //           success,
-    //           SizedBox(
-    //             height: 3,
-    //           ),
-    //           failed
-    //         ],
-    //       ),
-    //     ));
   }
 
   _showCancelDialog(id) {
@@ -286,8 +259,7 @@ class _OrderDetailsState extends State<OrderDetails> {
   }
 
   _make_re_payment(amount) {
-    // print('make re payment');
-    // print(amount);
+
     String currencyPattern = r"^[A-Z]{3}(?:[,.]?)";
     String amountWithoutCountryCode =
         amount.replaceAll(RegExp(currencyPattern), "");
@@ -300,13 +272,11 @@ class _OrderDetailsState extends State<OrderDetails> {
         return double.parse(amountWithoutCurrency.replaceAll(
             ",", "")); // Replace comma with empty string
       } on FormatException catch (e) {
-        print("Invalid double format: $e");
         return double.nan; // Or throw an exception if preferred
       }
     }
 
     double convertedAmount = convertToDouble(amount);
-    print(convertedAmount);
     return Navigator.push(
       context,
       MaterialPageRoute(

@@ -186,9 +186,6 @@ class _CouponsState extends State<Coupons> {
                                 ),
                                 GestureDetector(
                                   onTap: () {
-                                    // print(_couponsList[index].userType);
-                                    // print(_couponsList[index].shopId);
-
                                     if (_couponsList[index].userType ==
                                         'seller') {
                                       Navigator.push(context,

@@ -1,5 +1,6 @@
 import 'package:active_ecommerce_flutter/data_model/category_model.dart';
 import 'package:active_ecommerce_flutter/helpers/aiz_typdef_helpers.dart';
+import 'package:active_ecommerce_flutter/my_theme.dart';
 import 'package:flutter/material.dart';
 
 import '../../../helpers/shimmer_helper.dart';
@@ -7,12 +8,12 @@ import '../../../helpers/shimmer_helper.dart';
 class MultiCategory extends StatefulWidget {
   MultiCategory(
       {super.key,
-        required this.categories,
-        required this.isCategoryInit,
-        this.initialCategoryIds = const [],
-        this.initialMainCategory,
-        this.onSelectedCategories,
-        this.onSelectedMainCategory});
+      required this.categories,
+      required this.isCategoryInit,
+      this.initialCategoryIds = const [],
+      this.initialMainCategory,
+      this.onSelectedCategories,
+      this.onSelectedMainCategory});
 
   List<CategoryModel> categories;
   bool isCategoryInit;
@@ -53,13 +54,8 @@ class _MultiCategoryState extends State<MultiCategory> {
     return widget.isCategoryInit
         ? _buildCategoryListView(widget.categories)
         : Container(
-      //   color: Colors.red,
-        height: 250,
-        child: ShimmerHelper().buildListShimmer(item_height: 16.0)
-      /*const Center(child:
-            CircularProgressIndicator()
-            )*/
-    );
+            height: 250,
+            child: ShimmerHelper().buildListShimmer(item_height: 16.0));
   }
 
   _buildCategoryListView(List<CategoryModel> categories,
@@ -76,59 +72,88 @@ class _MultiCategoryState extends State<MultiCategory> {
                 children: [
                   Container(
                     padding: EdgeInsets.only(top: 10, right: 10),
-                    // color: Colors.yellow,
                     child: Row(
                       children: [
                         Container(
-                          margin: EdgeInsets.only(right: 5),
-                          height: 20,
-                          width: 20,
-                          child: categories[index].children.isNotEmpty
-                              ? InkWell(
+                          height: 35,
+                          width: 35,
+                          decoration: BoxDecoration(
+                              image: DecorationImage(
+                                  image: NetworkImage(
+                                      categories[index].icon ?? ''),
+                                  fit: BoxFit.fill),
+                              shape: BoxShape.circle),
+                          child: InkWell(
                             onTap: () {
-                              if (categories[index].height == null)
-                                categories[index].height = 0.0;
-                              else
-                                categories[index].height = null;
+                              _selectedMainCategory = categories[index].id;
                               setChange();
                             },
-                            child: Icon(
-                              categories[index].height != null
-                                  ? Icons.add
-                                  : Icons.remove,
-                              size: 18,
-                            ),
-                          )
-                              : SizedBox.shrink(),
-                        ),
-                        Container(
-                          height: 18,
-                          width: 18,
-                          child: Transform.scale(
-                            scale: 0.7,
-                            child: Checkbox(
-                                value: _selectedCategoryIds
-                                    .contains(categories[index].id),
-                                onChanged: (newValue) {
-                                  if (newValue ?? false) {
-                                    _selectedCategoryIds
-                                        .add(categories[index].id!);
-                                  } else {
-                                    _selectedCategoryIds
-                                        .remove(categories[index].id);
-                                  }
 
-                                  if (categories[index].children.isNotEmpty) {
-                                    onSelectedCategory(
-                                        categories[index].children,
-                                        newValue ?? false);
-                                  }
-                                  setChange();
-                                }),
+                            // Transform.scale(
+                            //   scale: 0.7,
+                            //   child: Radio(
+                            //       materialTapTargetSize:
+                            //       MaterialTapTargetSize.shrinkWrap,
+                            //       value: categories[index].id,
+                            //       groupValue: _selectedMainCategory,
+                            //       onChanged: (newValue) {
+                            //         _selectedMainCategory = newValue;
+                            //         setChange();
+                            //       }),
+                            // ),
                           ),
                         ),
+                        // Container(
+                        //   margin: EdgeInsets.only(right: 5),
+                        //   height: 20,
+                        //   width: 20,
+                        //   child:
+                        //   // categories[index].children.isNotEmpty
+                        //   //     ? InkWell(
+                        //   //   onTap: () {
+                        //   //     if (categories[index].height == null)
+                        //   //       categories[index].height = 0.0;
+                        //   //     else
+                        //   //       categories[index].height = null;
+                        //   //     setChange();
+                        //   //   },
+                        //   //   child: Icon(
+                        //   //     categories[index].height != null
+                        //   //         ? Icons.add
+                        //   //         : Icons.remove,
+                        //   //     size: 18,
+                        //   //   ),
+                        //   // )
+                        //   //     : SizedBox.shrink(),
+                        // ),
+                        // Container(
+                        //   height: 18,
+                        //   width: 18,
+                        //   child: Transform.scale(
+                        //     scale: 0.7,
+                        //     child: Checkbox(
+                        //         value: _selectedCategoryIds
+                        //             .contains(categories[index].id),
+                        //         onChanged: (newValue) {
+                        //           if (newValue ?? false) {
+                        //             _selectedCategoryIds
+                        //                 .add(categories[index].id!);
+                        //           } else {
+                        //             _selectedCategoryIds
+                        //                 .remove(categories[index].id);
+                        //           }
+                        //
+                        //           if (categories[index].children.isNotEmpty) {
+                        //             onSelectedCategory(
+                        //                 categories[index].children,
+                        //                 newValue ?? false);
+                        //           }
+                        //           setChange();
+                        //         }),
+                        //   ),
+                        // ),
                         SizedBox(
-                          width: 8,
+                          width: 12,
                         ),
                         Text(
                           categories[index].title ?? "",
@@ -148,7 +173,9 @@ class _MultiCategoryState extends State<MultiCategory> {
                               scale: 0.7,
                               child: Radio(
                                   materialTapTargetSize:
-                                  MaterialTapTargetSize.shrinkWrap,
+                                      MaterialTapTargetSize.shrinkWrap,
+                                  fillColor: MaterialStateColor.resolveWith(
+                                      (states) => MyTheme.accent_color),
                                   value: categories[index].id,
                                   groupValue: _selectedMainCategory,
                                   onChanged: (newValue) {
@@ -161,16 +188,16 @@ class _MultiCategoryState extends State<MultiCategory> {
                       ],
                     ),
                   ),
-                  if (categories[index].children!.isNotEmpty)
-                    _buildCategoryListView(categories[index].children!,
+                  if (categories[index].children.isNotEmpty)
+                    _buildCategoryListView(categories[index].children,
                         padding: 14.0, height: categories[index].height)
                 ],
               ),
             );
           },
           separatorBuilder: (context, index) => SizedBox(
-            height: 0,
-          ),
+                height: 0,
+              ),
           itemCount: categories.length),
     );
   }

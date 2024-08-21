@@ -16,8 +16,6 @@ class SlidersRepository {
         "App-Language": app_language.$!,
       },
     );
-    print(response.body.toString());
-    print("sliders ${AppConfig.BASE_URL}/sliders");
     return sliderResponseFromJson(response.body);
   }
 
@@ -29,8 +27,6 @@ class SlidersRepository {
         "App-Language": app_language.$!,
       },
     );
-    /*print(response.body.toString());
-    print("sliders");*/
     return sliderResponseFromJson(response.body);
   }
 
@@ -42,22 +38,17 @@ class SlidersRepository {
         "App-Language": app_language.$!,
       },
     );
-    /*print(response.body.toString());
-    print("sliders");*/
     return FoodBannerModel.fromJson(jsonDecode(response.body));
   }
 
   Future<SliderResponse> getBannerTwoImages() async {
     String url = ("${AppConfig.BASE_URL}/banners-two");
-    print(url.toString());
     final response = await ApiRequest.get(
       url: url,
       headers: {
         "App-Language": app_language.$!,
       },
     );
-    /*print(response.body.toString());
-    print("sliders");*/
     return sliderResponseFromJson(response.body);
   }
 
@@ -69,8 +60,6 @@ class SlidersRepository {
         "App-Language": app_language.$!,
       },
     );
-    /*print(response.body.toString());
-    print("sliders");*/
     return sliderResponseFromJson(response.body);
   }
 }

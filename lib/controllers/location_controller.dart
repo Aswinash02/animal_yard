@@ -37,18 +37,15 @@ class LocationController extends GetxController {
             .then((Position _position) {
           position = _position;
           update();
-          print("Positon Gotted=====>${position}");
         }).catchError((e) {
           debugPrint(e);
         });
-        print(
-            'Location permission granted: ${position!.latitude} : ${position!.longitude}');
+
         await fetchLocationData(position!);
       } else {
         throw Exception('Location permission not granted');
       }
     } catch (e) {
-      print('Error fetching user location: $e');
     }
   }
 
@@ -64,14 +61,8 @@ class LocationController extends GetxController {
         currentLocation.value = data['results'][0]['formatted'];
         pincodeData.value =
             await getAddressPincode(position.latitude, position.longitude);
-        // pincodeData.value = '890230';
-        print("fetched pincoded Value========>${pincodeData.value}");
-      } else {
-        print(
-            'Failed to get location details. Status code: ${response.statusCode}');
       }
     } catch (e) {
-      print('Error fetching location data: $e');
     }
   }
 
@@ -85,7 +76,6 @@ class LocationController extends GetxController {
       update();
       return place.postalCode ?? "";
     } catch (e) {
-      print('Error fetching address: $e');
       return "";
     }
   }

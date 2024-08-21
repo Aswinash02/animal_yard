@@ -114,8 +114,6 @@ class _SslCommerzScreenState extends State<SslCommerzScreen> {
 
     setState(() {});
     sslcommerz();
-    //print(_initial_url);
-    //print(_initial_url_fetched);
   }
 
   @override
@@ -140,7 +138,6 @@ class _SslCommerzScreenState extends State<SslCommerzScreen> {
       if (responseJSON.runtimeType == String) {
         responseJSON = jsonDecode(responseJSON);
       }
-      //print(data.toString());
       if (responseJSON["result"] == false) {
         ToastComponent.showDialog(responseJSON["message"],
             duration: Toast.lengthLong, gravity: Toast.center);

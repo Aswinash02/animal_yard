@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:active_ecommerce_flutter/common/no_internet_screen.dart';
 import 'package:active_ecommerce_flutter/controllers/local_controller.dart';
 import 'package:active_ecommerce_flutter/custom/aiz_route.dart';
 import 'package:active_ecommerce_flutter/helpers/main_helpers.dart';
@@ -34,8 +35,7 @@ import 'package:active_ecommerce_flutter/screens/product/product_details.dart';
 import 'package:active_ecommerce_flutter/screens/product/todays_deal_products.dart';
 import 'package:active_ecommerce_flutter/screens/profile.dart';
 import 'package:active_ecommerce_flutter/screens/seller_details.dart';
-import 'package:active_ecommerce_flutter/services/push_notification_service.dart';
-import 'package:firebase_core/firebase_core.dart';
+import 'package:active_ecommerce_flutter/screens/splash_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
@@ -47,10 +47,8 @@ import 'package:provider/provider.dart';
 import 'package:shared_value/shared_value.dart';
 import 'package:get/get.dart';
 import 'app_config.dart';
-import 'lang_config.dart';
 
 main() async {
-  print("open");
   WidgetsFlutterBinding.ensureInitialized();
   FlutterDownloader.initialize(
       debug: true,
@@ -84,12 +82,16 @@ var routes = GoRouter(
         path: '/',
         name: "Home",
         pageBuilder: (BuildContext context, GoRouterState state) =>
-            MaterialPage(child: Index()),
+            MaterialPage(child: SplashScreen()),
         routes: [
           GoRoute(
               path: "customer_products",
               pageBuilder: (BuildContext context, GoRouterState state) =>
                   MaterialPage(child: MyClassifiedAds())),
+          GoRoute(
+              path: "no_internet",
+              pageBuilder: (BuildContext context, GoRouterState state) =>
+                  MaterialPage(child: NoInternetScreen())),
           GoRoute(
               path: "initial",
               name: "main",
@@ -247,7 +249,6 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   @override
   void deactivate() {
-    // print("deactivate");
     // TODO: implement deactivate
     super.deactivate();
   }
@@ -255,41 +256,15 @@ class _MyAppState extends State<MyApp> {
   @override
   void didChangeDependencies() {
     // TODO: implement didChangeDependencies
-    // print("didChangeDependencies");
     super.didChangeDependencies();
   }
 
   @override
   void initState() {
     routes.routerDelegate.addListener(() {
-      // print("objectobject");
     });
-
-    /*bc = Widget Function(context,Container(),onGenerateRoute: (route){
-      print("data ${route.name}");
-      return MaterialPageRoute(builder:(context)=> Container());
-    },onUnknownRoute: (route){
-      print("data2 ${route.name}");
-      return MaterialPageRoute(builder:(context)=> Container());
-    },
-      initialRoute: "/"
-    );*/
-    routes.routeInformationProvider.addListener(() {
-      // print("123123");
-    });
+    routes.routeInformationProvider.addListener(() {});
     super.initState();
-    //print("Type of ${bc.runtimeType}");
-    // Future.delayed(Duration.zero).then(
-    //   (value) async {
-    //     Firebase.initializeApp().then((value) {
-    //       if (OtherConfig.USE_PUSH_NOTIFICATION) {
-    //         Future.delayed(Duration(milliseconds: 10), () async {
-    //           PushNotificationService().initialise();
-    //         });
-    //       }
-    //     });
-    //   },
-    // );
   }
 
   @override
@@ -348,8 +323,6 @@ class _MyAppState extends State<MyApp> {
               supportedLocales: [
                 Locale('en', ''), // English
                 Locale('ta', ''), // Tamil
-                Locale('ar', ''), // Arabic
-                // Add other supported locales here
               ],
               localeResolutionCallback: (deviceLocale, supportedLocales) {
                 for (var locale in supportedLocales) {

@@ -34,13 +34,10 @@ class CartRepository {
         },
         body: postBody,
         middleware: BannedUser());
-    print("response body===========>${response.body}");
-
     return cartResponseFromJson(response.body);
   }
 
   Future<dynamic> getCartCount() async {
-    print('access token -- ${access_token.$}');
     try {
       String url = ("${AppConfig.BASE_URL}/cart-count");
 
@@ -58,48 +55,6 @@ class CartRepository {
       print(e);
     }
   }
-
-  // cart count
-  // Future<dynamic> getCartCount() async {
-  //   var postBody;
-  //   if (guest_checkout_status.$ && !is_logged_in.$) {
-  //     postBody = jsonEncode({"temp_user_id": temp_user_id.$});
-  //   } else {
-  //     postBody = jsonEncode({"user_id": user_id.$});
-  //   }
-  //
-  //   // if (guest_checkout_status.$ && !is_logged_in.$) {
-  //   // var postBody = jsonEncode({"temp_user_id": temp_user_id.$});
-  //   String url = ("${AppConfig.BASE_URL}/cart-count");
-  //   final response = await ApiRequest.post(
-  //     url: url,
-  //     headers: {
-  //       "Content-Type": "application/json",
-  //       "App-Language": app_language.$!,
-  //     },
-  //     body: postBody,
-  //   );
-  //   print('response  getCounter +  ${response.body}');
-  //   return cartCountResponseFromJson(response.body);
-  // }
-  // else if (guest_checkout_status.$ && is_logged_in.$) {
-  //   String url = ("${AppConfig.BASE_URL}/cart-count");
-  //   var postBody =
-  //       jsonEncode({"temp_user_id": temp_user_id.$, "user_id": user_id.$});
-  //   final response = await ApiRequest.post(
-  //     url: url,
-  //     body: postBody,
-  //     headers: {
-  //       "Content-Type": "application/json",
-  //       "Authorization": "Bearer ${access_token.$}",
-  //       "App-Language": app_language.$!,
-  //     },
-  //   );
-  //   return cartCountResponseFromJson(response.body);
-  // }
-  // else {
-  //   return CartCountResponse(count: 0, status: false);
-  // }
 
   // cart item delete
   Future<dynamic> getCartDeleteResponse(
@@ -159,16 +114,6 @@ class CartRepository {
       });
     }
 
-    // var post_body = jsonEncode({
-    //   "id": "${id}",
-    //   "variant": variant,
-    //   "user_id": "$user_id",
-    //   "quantity": "$quantity",
-    //   "cost_matrix": AppConfig.purchase_code,
-    //   "temp_user_id": temp_user_id.$
-    // });
-
-    // print(post_body);
     String url = ("${AppConfig.BASE_URL}/carts/add");
     final response = await ApiRequest.post(
       url: url,
@@ -180,34 +125,8 @@ class CartRepository {
       body: post_body,
       middleware: BannedUser(),
     );
-
-    // print(response.body);
-
     return cartAddResponseFromJson(response.body);
   }
-  //
-  // Future<dynamic> getCartSummaryResponse() async {
-  //   var postBody;
-  //
-  //   if (guest_checkout_status.$ && !is_logged_in.$) {
-  //     postBody = jsonEncode({"temp_user_id": temp_user_id.$});
-  //   } else {
-  //     postBody = jsonEncode({"user_id": user_id.$});
-  //   }
-  //
-  //   String url = ("${AppConfig.BASE_URL}/cart-summary");
-  //   final response = await ApiRequest.post(
-  //       url: url,
-  //       body: postBody,
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //         "Authorization": "Bearer ${access_token.$}",
-  //         "App-Language": app_language.$!,
-  //       },
-  //       middleware: BannedUser());
-  //
-  //   return cartSummaryResponseFromJson(response.body);
-  // }
 
   Future<dynamic> getCartSummaryResponse() async {
     String url = ("${AppConfig.BASE_URL}/cart-summary");
@@ -219,8 +138,6 @@ class CartRepository {
           "App-Language": app_language.$!,
         },
         middleware: BannedUser());
-    print("cart Summary response===============>${response.body}");
-
     return cartSummaryResponseFromJson(response.body);
   }
 }

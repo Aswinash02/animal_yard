@@ -1,9 +1,7 @@
 import 'package:active_ecommerce_flutter/helpers/auth_helper.dart';
 import 'package:active_ecommerce_flutter/my_theme.dart';
 import 'package:active_ecommerce_flutter/screens/auth/login.dart';
-import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
-
+import 'package:active_ecommerce_flutter/services/local_db.dart';
 import 'package:flutter/material.dart';
 
 Future<void> showLogoutDialog(BuildContext context) {
@@ -39,24 +37,18 @@ Future<void> showLogoutDialog(BuildContext context) {
               style: TextStyle(color: MyTheme.accent_color),
             ),
             onPressed: () {
-              // Close any open dialogs/popups
               Navigator.of(context).pop();
 
-              // Clear user data
               AuthHelper().clearUserData();
-
-              // Navigate to the Login screen and then show the SnackBar
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => Login()),
-              ).then((_) {
-                // This callback is executed after navigation completes
-                final snackBar = SnackBar(
-                  content: Text('Logout Successfully!'),
-                  backgroundColor: MyTheme.accent_color,
-                );
-                ScaffoldMessenger.of(context).showSnackBar(snackBar);
-              });
+              SharedPreference().setLogin(false);
+              SharedPreference().setUserData('');
+              Navigator.pushReplacement(
+                  context, MaterialPageRoute(builder: (context) => Login()));
+              final snackBar = SnackBar(
+                content: Text('Logout Successfully!'),
+                backgroundColor: MyTheme.accent_color,
+              );
+              ScaffoldMessenger.of(context).showSnackBar(snackBar);
             },
           ),
         ],

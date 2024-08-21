@@ -98,8 +98,6 @@ class _BkashScreenState extends State<BkashScreen> {
     setState(() {});
     bkash();
 
-    // print(_initial_url);
-    // print(_initial_url_fetched);
   }
 
   bkash() {

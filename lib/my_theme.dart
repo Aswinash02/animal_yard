@@ -59,7 +59,6 @@ class MyTheme {
       colors: [MyTheme.polo_blue, MyTheme.gigas],
     );
   }
-
   static LinearGradient buildLinearGradient2() {
     return LinearGradient(
       begin: Alignment.centerLeft,

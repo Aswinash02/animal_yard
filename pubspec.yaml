@@ -90,6 +90,9 @@ dependencies:
   get:
   geolocator:
   geocoding:
+  connectivity_plus: ^4.0.0
+
+
 
 
 dev_dependencies:

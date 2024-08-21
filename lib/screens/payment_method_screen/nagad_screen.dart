@@ -109,12 +109,6 @@ class _NagadScreenState extends State<NagadScreen> {
             if (page.contains("/nagad/verify/") ||
                 page.contains('/check-out/confirm-payment/')) {
               getData();
-            } else {
-              if (page.contains('confirm-payment')) {
-                print('yessssssss');
-              } else {
-                print('nooooooooo');
-              }
             }
           },
         ),

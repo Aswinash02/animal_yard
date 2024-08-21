@@ -1,6 +1,9 @@
+import 'package:active_ecommerce_flutter/data_model/seller_category_response.dart';
+
 class CategoryModel {
   String? id;
   String? name;
+  String? icon;
   String? title;
   bool? isExpanded = false;
   bool? isSelected;
@@ -9,14 +12,17 @@ class CategoryModel {
   String? levelText;
   String? parentLevel;
   List<CategoryModel> children;
+  List<Categories>? child;
 
   CategoryModel(
       {this.id,
       this.name,
+      this.icon,
       this.title,
       this.isExpanded,
       this.isSelected,
       this.children = const [],
+      this.child,
       this.height,
       this.level,
       this.parentLevel,

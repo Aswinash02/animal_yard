@@ -80,7 +80,7 @@ class MapLocationState extends State<MapLocation>
 
   void setCurrentLocationAsInitial() async {
     kInitialPosition = await _getCurrentLocation();
-    setState(() {});
+    if (mounted) setState(() {});
   }
 
   // onTapPickHere and other methods remain the same

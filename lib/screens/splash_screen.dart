@@ -1,14 +1,24 @@
+import 'dart:async';
+
 import 'package:active_ecommerce_flutter/app_config.dart';
+import 'package:active_ecommerce_flutter/common/no_internet_screen.dart';
+import 'package:active_ecommerce_flutter/controllers/local_controller.dart';
 import 'package:active_ecommerce_flutter/custom/device_info.dart';
 import 'package:active_ecommerce_flutter/helpers/addons_helper.dart';
 import 'package:active_ecommerce_flutter/helpers/auth_helper.dart';
 import 'package:active_ecommerce_flutter/helpers/shared_value_helper.dart';
+import 'package:active_ecommerce_flutter/helpers/system_config.dart';
 import 'package:active_ecommerce_flutter/my_theme.dart';
+import 'package:active_ecommerce_flutter/presenter/currency_presenter.dart';
 import 'package:active_ecommerce_flutter/screens/auth/login.dart';
 import 'package:active_ecommerce_flutter/screens/main.dart';
+import 'package:active_ecommerce_flutter/services/local_db.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:go_router/go_router.dart';
 import 'package:package_info/package_info.dart';
-
+import 'package:provider/provider.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({Key? key}) : super(key: key);
@@ -18,6 +28,10 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
+  final LocaleController localeController = Get.put(LocaleController());
+  ConnectivityResult _connectionStatus = ConnectivityResult.none;
+  final Connectivity _connectivity = Connectivity();
+  bool isLoggedIn = false;
   PackageInfo _packageInfo = PackageInfo(
     appName: AppConfig.app_name,
     packageName: 'Unknown',
@@ -32,37 +46,56 @@ class _SplashScreenState extends State<SplashScreen> {
     });
   }
 
-  // @override
-  // void initState() {
-  //   // TODO: implement initState
-  //   super.initState();
-  //   _initPackageInfo();
-  // }
-
   @override
   void initState() {
     super.initState();
     _initPackageInfo();
-    getSharedValueHelperData().then((value) {
-      Future.delayed(const Duration(seconds: 2)).then((value) {
-        print(' is_logged_in ${is_logged_in.$}');
-        if (is_logged_in.$) {
-          Navigator.of(context).push(
-            MaterialPageRoute(builder: (context) => Main()),
-          );
-        } else {
-          Navigator.of(context).push(
-            MaterialPageRoute(builder: (context) => Login()),
-          );
-        }
-      });
+    initCall();
+  }
+
+
+
+  Future<void> _checkConnection() async {
+    ConnectivityResult result;
+    result = await _connectivity.checkConnectivity();
+    setState(() {
+      _connectionStatus = result;
     });
+  }
+
+  Future<void> initCall() async {
+    await _checkConnection();
+    isLoggedIn = await SharedPreference().getLogin();
+    if (_connectionStatus != ConnectivityResult.none) {
+      getSharedValueHelperData().then((value) {
+        Future.delayed(const Duration(seconds: 3)).then((value) async {
+          SystemConfig.isShownSplashScreed = true;
+
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            localeController.setLocale(app_mobile_language.$!);
+          });
+          if (isLoggedIn) {
+            AuthHelper().set().then((value) {
+              context.pushReplacement('/initial');
+            });
+          } else {
+            context.pushReplacement('/users/login');
+          }
+        });
+      });
+    } else {
+      context.push('/no_internet');
+    }
   }
 
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(body: splashScreen());
+    SystemConfig.context ??= context;
+    return Scaffold(
+        body: isLoggedIn && SystemConfig.isShownSplashScreed
+            ? Main()
+            : splashScreen());
   }
 
   Widget splashScreen() {
@@ -72,8 +105,6 @@ class _SplashScreenState extends State<SplashScreen> {
       color: MyTheme.splash_screen_color,
       child: InkWell(
         child: Stack(
-          // mainAxisAlignment: MainAxisAlignment.start,
-          // crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
             CircleAvatar(
               backgroundColor: Colors.transparent,
@@ -166,14 +197,11 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   Future<String?> getSharedValueHelperData() async {
-    access_token.load().whenComplete(() {
-      AuthHelper().fetch_and_set();
-    });
-    AddonsHelper().setAddonsData();
     await app_language.load();
     await app_mobile_language.load();
     await app_language_rtl.load();
     await system_currency.load();
+    Provider.of<CurrencyPresenter>(context, listen: false).fetchListData();
     return app_mobile_language.$;
   }
 }

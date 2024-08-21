@@ -25,7 +25,8 @@ class SellerProductRepository {
       "App-Language": app_language.$!,
       "Authorization": "Bearer ${access_token.$}",
     });
-    //print("product res  "+response.body.toString());
+    print('token ------- > ${access_token.$}');
+    print('res ------- > ${response.body}');
     return sellerProductsResponseFromJson(response.body);
   }
 
@@ -177,7 +178,6 @@ class SellerProductRepository {
 
   Future<CommonResponseSeller> addProductResponse(postBody) async {
     String url = ("${AppConfig.BASE_URL_WITH_PREFIX}/products/add");
-
     var reqHeader = {
       "App-Language": app_language.$!,
       "Authorization": "Bearer ${access_token.$}",
@@ -186,13 +186,8 @@ class SellerProductRepository {
     };
 
     print(postBody);
-    //print(access_token.$);
-
     final response =
         await ApiRequest.post(url: url, headers: reqHeader, body: postBody);
-
-    print("product res  " + response.body.toString());
-
     return commonResponseSellerFromJson(response.body);
   }
 
@@ -200,7 +195,7 @@ class SellerProductRepository {
       postBody, productId, lang) async {
     String url =
         ("${AppConfig.BASE_URL_WITH_PREFIX}/products/update/$productId?lang=$lang");
-    //print(url.toString());
+    print(url.toString());
 
     var reqHeader = {
       "App-Language": app_language.$!,
@@ -233,7 +228,6 @@ class SellerProductRepository {
       "Authorization": "Bearer ${access_token.$}",
     });
     print("product res===========   " + response.body.toString());
-    print("product res statuscode " + response.statusCode.toString());
     return productEditResponseFromJson(response.body);
   }
 }

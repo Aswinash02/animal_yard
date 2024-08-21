@@ -69,7 +69,6 @@ class _ShippingInfoState extends State<ShippingInfo> {
               false)) {
         shippingId = element.carriers!.data!.first.id;
       }
-      print("carrier_base_shipping.${carrier_base_shipping.$}");
 
       _sellerWiseShippingOption.add(
           new SellerWithShipping(element.ownerId, shippingOption, shippingId));
@@ -153,7 +152,6 @@ class _ShippingInfoState extends State<ShippingInfo> {
 
     var _sellerWiseShippingOptionErrors =
         _sellerWiseShippingOption.where((element) {
-      print(element.shippingId);
       if ((element.shippingId == 0 || element.shippingId == null) &&
           !element.isAllDigital) {
         return true;
@@ -161,8 +159,6 @@ class _ShippingInfoState extends State<ShippingInfo> {
       return false;
     });
 
-    print(_sellerWiseShippingOptionErrors.length);
-    print(jsonEncode(_sellerWiseShippingOption));
 
     if (_sellerWiseShippingOptionErrors.isNotEmpty && carrier_base_shipping.$) {
       ToastComponent.showDialog(
@@ -197,10 +193,7 @@ class _ShippingInfoState extends State<ShippingInfo> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    print("shipping Address Id=============>${widget.shippingInfoId}");
-    // if (is_logged_in.$ == true) {
     fetchAll();
-    // }
   }
 
   @override

@@ -30,7 +30,6 @@ class _FlashDealListState extends State<FlashDealList> {
 
   @override
   Widget build(BuildContext context) {
-    // print("object");
     return Directionality(
       textDirection:
           app_language_rtl.$! ? TextDirection.rtl : TextDirection.ltr,

@@ -99,7 +99,6 @@ class ChatRepository {
     return conversationCreateResponseFromJson(response.body);
   }
 
-
   Future<ChatListResponse> getChatList() async {
     String url = ("${AppConfig.BASE_URL_WITH_PREFIX}/conversations");
 
@@ -111,8 +110,6 @@ class ChatRepository {
         "Authorization": "Bearer ${access_token.$}",
       },
     );
-
-    print("chat list " + response.body.toString());
 
     return chatListResponseFromJson(response.body);
   }
@@ -129,14 +126,12 @@ class ChatRepository {
       },
     );
 
-    // print("chat list " + response.body.toString());
-
     return messageResponseFromJson(response.body);
   }
 
   Future<CommonResponse> sendMessages(@required id, @required message) async {
     String url =
-    ("${AppConfig.BASE_URL_WITH_PREFIX}/conversations/message/store");
+        ("${AppConfig.BASE_URL_WITH_PREFIX}/conversations/message/store");
 
     var post_body = jsonEncode({"conversation_id": id, "message": message});
     // print(post_body);
@@ -149,8 +144,6 @@ class ChatRepository {
           "Authorization": "Bearer ${access_token.$}",
         },
         body: post_body);
-
-    // print("chat list " + response.body.toString());
 
     return commonResponseFromJson(response.body);
   }

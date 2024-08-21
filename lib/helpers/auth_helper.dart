@@ -1,6 +1,9 @@
+import 'dart:convert';
+
 import 'package:active_ecommerce_flutter/helpers/shared_value_helper.dart';
 import 'package:active_ecommerce_flutter/helpers/system_config.dart';
 import 'package:active_ecommerce_flutter/repositories/auth_repository.dart';
+import 'package:active_ecommerce_flutter/services/local_db.dart';
 
 import '../data_model/login_response.dart';
 
@@ -58,5 +61,11 @@ class AuthHelper {
     } else {
       clearUserData();
     }
+  }
+
+  Future<void> set() async {
+    String data = await SharedPreference().getUserData();
+    LoginResponse decodeData = LoginResponse.fromJson(jsonDecode(data));
+    setUserData(decodeData);
   }
 }

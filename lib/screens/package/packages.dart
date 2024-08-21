@@ -75,56 +75,6 @@ class _UpdatePackageState extends State<UpdatePackage> {
     return Future.delayed(const Duration(seconds: 0));
   }
 
-  // sendPaymentPage({int package_id,String payment_method_key, amount}) {
-  //   switch (payment_method_key) {
-  //     case "stripe":
-  //       MyTransaction(context: context).push(StripeScreen(
-  //         amount: double.parse(amount.toString()),
-  //         payment_method_key: payment_method_key,
-  //         payment_type: "seller_package_payment",
-  //       ));
-  //       break;
-  //
-  //     case "iyzico":
-  //       MyTransaction(context: context).push(
-  //           IyzicoScreen(
-  //         amount: double.parse(amount.toString()),
-  //         payment_method_key: payment_method_key,
-  //         payment_type: "seller_package_payment",
-  //       ));
-  //       break;
-  //
-  //     case "bkash":
-  //       MyTransaction(context: context).push(
-  //           BkashScreen(
-  //         amount: double.parse(amount.toString()),
-  //         payment_method_key: payment_method_key,
-  //         payment_type: "seller_package_payment",
-  //       ));
-  //       break;
-  //
-  //     case "paytm":
-  //       MyTransaction(context: context).push(
-  //           PaytmScreen(
-  //         amount: double.parse(amount.toString()),
-  //         payment_method_key: payment_method_key,
-  //         payment_type: "seller_package_payment",
-  //       ));
-  //       break;
-  //     case "paypal_payment":
-  //       MyTransaction(context: context).push(PaypalScreen(
-  //         amount: double.parse(amount.toString()),
-  //         payment_method_key: payment_method_key,
-  //         payment_type: "seller_package_payment",
-  //       ));
-  //       break;
-  //
-  //     default:
-  //       print("Die ");
-  //       print("$payment_method_key ");
-  //       break;
-  //   }
-  // }
 
   @override
   void initState() {
@@ -217,7 +167,6 @@ class _UpdatePackageState extends State<UpdatePackage> {
       String packageProduct,
       price,
       package_id) {
-    print(url);
     return Container(
         padding: EdgeInsets.symmetric(horizontal: 12, vertical: 12),
         decoration: BoxDecorations.buildBoxDecoration_1(),

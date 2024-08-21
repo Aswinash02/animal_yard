@@ -106,8 +106,6 @@ class _AddressState extends State<Address> {
         _selected_city_list_for_update
             .add(City(id: address.city_id, name: address.city_name));
       });
-
-      // print("fetchShippingAddressList");
     }
 
     setState(() {});
@@ -266,6 +264,12 @@ class _AddressState extends State<Address> {
 
     if (_selected_city == null) {
       ToastComponent.showDialog(AppLocalizations.of(context)!.select_a_city,
+          gravity: Toast.center, duration: Toast.lengthLong);
+      return;
+    }
+
+    if (_phoneController.text.length < 10) {
+      ToastComponent.showDialog("Enter Valid Phone Number",
           gravity: Toast.center, duration: Toast.lengthLong);
       return;
     }
@@ -613,7 +617,6 @@ class _AddressState extends State<Address> {
                               );
                             },
                             itemBuilder: (context, dynamic country) {
-                              //print(suggestion.toString());
                               return ListTile(
                                 dense: true,
                                 title: Text(
@@ -687,7 +690,6 @@ class _AddressState extends State<Address> {
                               );
                             },
                             itemBuilder: (context, dynamic state) {
-                              //print(suggestion.toString());
                               return ListTile(
                                 dense: true,
                                 title: Text(
@@ -876,7 +878,7 @@ class _AddressState extends State<Address> {
                             side: BorderSide(
                                 color: MyTheme.light_grey, width: 1)),
                         child: Text(
-                          LangText(context).local!.close_ucf,
+                          LangText(context).local.close_ucf,
                           style: TextStyle(
                             color: MyTheme.accent_color,
                             fontSize: 16,
@@ -901,7 +903,7 @@ class _AddressState extends State<Address> {
                           borderRadius: BorderRadius.circular(6.0),
                         ),
                         child: Text(
-                          LangText(context).local!.add_ucf,
+                          LangText(context).local.add_ucf,
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 16,

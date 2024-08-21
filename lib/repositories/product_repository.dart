@@ -1,12 +1,12 @@
 import 'dart:convert';
 
 import 'package:active_ecommerce_flutter/app_config.dart';
+import 'package:active_ecommerce_flutter/data_model/animal_product_response.dart';
 import 'package:active_ecommerce_flutter/data_model/category.dart';
 import 'package:active_ecommerce_flutter/data_model/product_details_response.dart';
 import 'package:active_ecommerce_flutter/data_model/product_mini_response.dart';
 import 'package:active_ecommerce_flutter/data_model/variant_response.dart';
 import 'package:active_ecommerce_flutter/helpers/shared_value_helper.dart';
-import 'package:active_ecommerce_flutter/helpers/system_config.dart';
 import 'package:active_ecommerce_flutter/repositories/api-request.dart';
 
 import '../data_model/variant_price_response.dart';
@@ -31,7 +31,6 @@ class ProductRepository {
     final response = await ApiRequest.get(url: url, headers: {
       "App-Language": app_language.$!,
     });
-    print("featured Products=======>${response.body}");
     return productMiniResponseFromJson(response.body);
   }
 
@@ -39,9 +38,6 @@ class ProductRepository {
     String url = ("${AppConfig.BASE_URL}/products/best-seller");
     final response = await ApiRequest.get(url: url, headers: {
       "App-Language": app_language.$!,
-      // "Currency-Code": SystemConfig.systemCurrency!.code!,
-      // "Currency-Exchange-Rate":
-      //     SystemConfig.systemCurrency!.exchangeRate.toString(),
     });
 
     return productMiniResponseFromJson(response.body);
@@ -102,7 +98,6 @@ class ProductRepository {
     final response = await ApiRequest.get(url: url, headers: {
       "App-Language": app_language.$!,
     });
-    // print(url.toString());
     return productMiniResponseFromJson(response.body);
   }
 
@@ -117,47 +112,47 @@ class ProductRepository {
     String url = ("${AppConfig.BASE_URL}/products/search" +
         "?page=$page&name=${name}&sort_key=${sort_key}&brands=${brands}&categories=${categories}&min=${min}&max=${max}");
 
-    // print(url.toString());
     final response = await ApiRequest.get(url: url, headers: {
       "App-Language": app_language.$!,
     });
-
     return productMiniResponseFromJson(response.body);
+  }
+
+  Future<AnimalProductModel> fetchAllAnimalProducts() async {
+    String url = ("${AppConfig.BASE_URL}/get-animal");
+
+    final response = await ApiRequest.get(url: url, headers: {
+      "App-Language": app_language.$!,
+    });
+    return AnimalProductModel.fromJson(jsonDecode(response.body));
   }
 
   Future<ProductMiniResponse> getDigitalProducts({
     page = 1,
   }) async {
     String url = ("${AppConfig.BASE_URL}/products/digital?page=$page");
-    // print(url.toString());
-
     final response = await ApiRequest.get(url: url, headers: {
       "App-Language": app_language.$!,
     });
-    // print(response.body);
     return productMiniResponseFromJson(response.body);
   }
 
   Future<ProductDetailsResponse> getProductDetails(
       {String? slug = "", dynamic userId = ''}) async {
     String url = ("${AppConfig.BASE_URL}/products/" + slug.toString());
-
+    print('url ----------- > $url');
     final response = await ApiRequest.get(url: url, headers: {
       "App-Language": app_language.$!,
     });
-    print("Product Details===================>${response.body}");
-
+    print('product details ---------- > ${response.body}');
     return productDetailsResponseFromJson(response.body);
   }
 
   Future<ProductDetailsResponse> getDigitalProductDetails({int id = 0}) async {
     String url = ("${AppConfig.BASE_URL}/products/" + id.toString());
-    // print(url.toString());
     final response = await ApiRequest.get(url: url, headers: {
       "App-Language": app_language.$!,
     });
-
-    //print(response.body.toString());
     return productDetailsResponseFromJson(response.body);
   }
 
@@ -176,10 +171,6 @@ class ProductRepository {
     final response = await ApiRequest.get(url: url, headers: {
       "App-Language": app_language.$!,
     });
-
-    print("top selling product url ${url.toString()}");
-    print("top selling product ${response.body.toString()}");
-
     return productMiniResponseFromJson(response.body);
   }
 
@@ -197,8 +188,6 @@ class ProductRepository {
           "Content-Type": "application/json",
         },
         body: postBody);
-    print("variant info response------------${response.body}");
-
     return variantResponseFromJson(response.body);
   }
 
@@ -206,8 +195,6 @@ class ProductRepository {
     String url = ("${AppConfig.BASE_URL}/varient-price");
 
     var post_body = jsonEncode({"id": id, "quantity": quantity});
-    // print(url.toString());
-    // print(post_body.toString());
     final response = await ApiRequest.post(
         url: url,
         headers: {
@@ -229,5 +216,4 @@ class ProductRepository {
 
     return productMiniResponseFromJson(response.body);
   }
-
 }

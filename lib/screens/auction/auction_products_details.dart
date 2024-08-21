@@ -106,7 +106,6 @@ class _AuctionProductsDetailsState extends State<AuctionProductsDetails>
           }
         }
       }
-      print("opachity{} $_scrollPosition");
 
       setState(() {});
     });
@@ -270,7 +269,6 @@ class _AuctionProductsDetailsState extends State<AuctionProductsDetails>
                             style: TextStyle(color: Colors.white),
                           ),
                           onPressed: () {
-                            // print("share links ${_auctionproductDetails.link}");
                             SocialShare.shareOptions(
                                 _auctionproductDetails.link);
                           },
@@ -870,7 +868,7 @@ class _AuctionProductsDetailsState extends State<AuctionProductsDetails>
                           onTap: () {
                             Navigator.push(context,
                                 MaterialPageRoute(builder: (context) {
-                              return CommonWebviewScreen(
+                              return CommonWebViewScreen(
                                 url:
                                     "${AppConfig.RAW_BASE_URL}/mobile-page/seller-policy",
                                 page_name: AppLocalizations.of(context)!
@@ -914,7 +912,7 @@ class _AuctionProductsDetailsState extends State<AuctionProductsDetails>
                           onTap: () {
                             Navigator.push(context,
                                 MaterialPageRoute(builder: (context) {
-                              return CommonWebviewScreen(
+                              return CommonWebViewScreen(
                                 url:
                                     "${AppConfig.RAW_BASE_URL}/mobile-page/return-policy",
                                 page_name: AppLocalizations.of(context)!
@@ -958,7 +956,7 @@ class _AuctionProductsDetailsState extends State<AuctionProductsDetails>
                           onTap: () {
                             Navigator.push(context,
                                 MaterialPageRoute(builder: (context) {
-                              return CommonWebviewScreen(
+                              return CommonWebViewScreen(
                                 url:
                                     "${AppConfig.RAW_BASE_URL}/mobile-page/support-policy",
                                 page_name: AppLocalizations.of(context)!
@@ -1022,7 +1020,6 @@ class _AuctionProductsDetailsState extends State<AuctionProductsDetails>
   }
 
   Widget buildSellerRow(BuildContext context) {
-    //print("sl:" +  _productDetails.shop_logo);
     return Container(
       color: MyTheme.light_grey,
       padding: EdgeInsets.symmetric(horizontal: 14, vertical: 14),
@@ -1050,7 +1047,6 @@ class _AuctionProductsDetailsState extends State<AuctionProductsDetails>
                         borderRadius: BorderRadius.circular(6.0),
                         border: Border.all(
                             color: Color.fromRGBO(112, 112, 112, .3), width: 1),
-                        //shape: BoxShape.rectangle,
                       ),
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(6.0),
@@ -1092,13 +1088,6 @@ class _AuctionProductsDetailsState extends State<AuctionProductsDetails>
                   children: [
                     InkWell(
                         onTap: () {
-                          if (is_logged_in == false) {
-                            ToastComponent.showDialog("You need to log in",
-                                gravity: Toast.center,
-                                duration: Toast.lengthLong);
-                            return;
-                          }
-
                           onTapSellerChat();
                         },
                         child: Image.asset('assets/chat.png',
@@ -1126,8 +1115,6 @@ class _AuctionProductsDetailsState extends State<AuctionProductsDetails>
       },
     );
 
-    // set up the AlertDialog
-    // show the dialog
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -1223,7 +1210,6 @@ class _AuctionProductsDetailsState extends State<AuctionProductsDetails>
                         }
 
                         return null;
-                        ;
                       },
                     ),
                     Row(
@@ -1784,7 +1770,6 @@ class _AuctionProductsDetailsState extends State<AuctionProductsDetails>
                       return GestureDetector(
                         onTap: () {
                           _currentImage = itemIndex;
-                          // print(_currentImage);
                           setState(() {});
                         },
                         child: Container(
@@ -1856,7 +1841,6 @@ class _AuctionProductsDetailsState extends State<AuctionProductsDetails>
             enlargeCenterPage: false,
             scrollDirection: Axis.horizontal,
             onPageChanged: (index, reason) {
-              print(index);
               setState(() {
                 _currentImage = index;
               });

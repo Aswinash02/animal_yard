@@ -246,13 +246,11 @@ class _ProductFormState extends State<ProductForm> {
                       child: CustomInternationalPhoneNumberInput(
                         countries: countries_code,
                         onInputChanged: (PhoneNumber number) {
-                          print(number.phoneNumber);
                           setState(() {
                             _phone = number.phoneNumber;
                           });
                         },
                         onInputValidated: (bool value) {
-                          print(value);
                         },
                         selectorConfig: SelectorConfig(
                           selectorType: PhoneInputSelectorType.DIALOG,
@@ -268,7 +266,6 @@ class _ProductFormState extends State<ProductForm> {
                             InputDecorations.buildInputDecoration_phone(
                                 hint_text: "01XXX XXX XXX"),
                         onSaved: (PhoneNumber number) {
-                          //print('On Saved: $number');
                         },
                       ),
                     ),
@@ -326,7 +323,6 @@ class _ProductFormState extends State<ProductForm> {
                       );
                     },
                     itemBuilder: (context, dynamic country) {
-                      //print(suggestion.toString());
                       return ListTile(
                         dense: true,
                         title: Text(
@@ -347,7 +343,6 @@ class _ProductFormState extends State<ProductForm> {
                     },
                     onSuggestionSelected: (dynamic country) {
                       onSelectCountryDuringAdd(country);
-                      print("Country Data ${_countryController}");
                     },
                     textFieldConfiguration: TextFieldConfiguration(
                       onTap: () {},
@@ -401,7 +396,6 @@ class _ProductFormState extends State<ProductForm> {
                       );
                     },
                     itemBuilder: (context, dynamic state) {
-                      //print(suggestion.toString());
                       return ListTile(
                         dense: true,
                         title: Text(
@@ -470,7 +464,6 @@ class _ProductFormState extends State<ProductForm> {
                       );
                     },
                     itemBuilder: (context, dynamic city) {
-                      //print(suggestion.toString());
                       return ListTile(
                         dense: true,
                         title: Text(

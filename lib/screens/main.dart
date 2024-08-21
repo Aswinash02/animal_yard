@@ -40,8 +40,8 @@ class SellerDashBoard extends StatefulWidget {
 class _SellerDashBoardState extends State<SellerDashBoard> {
   int _selectedIndex = 0;
 
-  List<Widget> _buildSellerPageList() {
-    return [
+  List<Widget> _buildSellerPageList =
+     [
       Home(),
       ProductSeller(
         fromBottomBar: false,
@@ -49,12 +49,11 @@ class _SellerDashBoardState extends State<SellerDashBoard> {
       ChatList(),
       Profile(),
     ];
-  }
+
 
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
-      print('_selectedIndex $_selectedIndex');
     });
   }
 
@@ -66,28 +65,18 @@ class _SellerDashBoardState extends State<SellerDashBoard> {
           setState(() {
             _selectedIndex = 0;
           });
-          print('_selectedIndex-- if -- $_selectedIndex');
           return false;
         }
-        print('_selectedIndex---- $_selectedIndex');
         return true;
       },
       child: Scaffold(
-        body: IndexedStack(
-          index: _selectedIndex,
-          children: _buildSellerPageList(),
-        ),
+        body: _buildSellerPageList[_selectedIndex],
         floatingActionButton: FloatingActionButton(
           backgroundColor: MyTheme.accent_color,
           onPressed: () {
             Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => AddNewProduct()
-                  //     CommonWebviewScreen(
-                  //   url:
-                  //       "https://animalyard.in/info/seller/login/products/${user_phone.$}",
-                  //   page_name: "Add Product",
-                  // ),
                   ),
             );
           },

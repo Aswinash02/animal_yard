@@ -92,8 +92,6 @@ class _FlutterwaveScreenState extends State<FlutterwaveScreen> {
     setState(() {});
 
     flutter_wave();
-    //print(_initial_url);
-    //print(_initial_url_fetched);
   }
 
   flutter_wave() {
@@ -135,7 +133,6 @@ class _FlutterwaveScreenState extends State<FlutterwaveScreen> {
       if (responseJSON.runtimeType == String) {
         responseJSON = jsonDecode(responseJSON);
       }
-      //print(data.toString());
       if (responseJSON["result"] == false) {
         ToastComponent.showDialog(responseJSON["message"],
             duration: Toast.lengthLong, gravity: Toast.center);

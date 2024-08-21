@@ -8,8 +8,6 @@ class LocaleController extends GetxController {
   void setLocale(String code) {
     locale.value = Locale(code, '');
     localData.value = code;
-    print("SET lOCALE ----------------------->${locale.value}");
-    print("SET lOCALE Data----------------------->${code}");
   }
 
   void clearLocale() {

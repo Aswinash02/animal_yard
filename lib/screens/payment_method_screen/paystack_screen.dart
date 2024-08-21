@@ -62,7 +62,6 @@ class _PaystackScreenState extends State<PaystackScreen> {
         NavigationDelegate(
           onWebResourceError: (error) {},
           onPageFinished: (page) {
-            print(page.toString());
             getData();
           },
         ),
@@ -118,9 +117,7 @@ class _PaystackScreenState extends State<PaystackScreen> {
           return OrderList(from_checkout: true);
         }));
       } else if (responseJSON["result"] == true) {
-        // print("payment details ${responseJSON['payment_details']}");
         payment_details = responseJSON['payment_details'];
-        // print("payment details $payment_details}");
         onPaymentSuccess(payment_details);
       }
     });
@@ -156,8 +153,6 @@ class _PaystackScreenState extends State<PaystackScreen> {
   }
 
   buildBody() {
-    //print("init url");
-    //print(initial_url);
 
     if (_order_init == false &&
         _combined_order_id == 0 &&

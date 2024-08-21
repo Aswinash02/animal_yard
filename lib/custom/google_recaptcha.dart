@@ -40,27 +40,16 @@ class CaptchaState extends State<Captcha> {
           ..addJavaScriptChannel(
             'Captcha',
             onMessageReceived: (JavaScriptMessage message) {
-              //This is where you receive message from
-              //javascript code and handle in Flutter/Dart
-              //like here, the message is just being printed
-              //in Run/LogCat window of android studio
-              //print(message.message);
               widget.callback(message.message);
-              //Navigator.of(context).pop();
+
             },
           )
           ..addJavaScriptChannel(
             'CaptchaShowValidation',
             onMessageReceived: (JavaScriptMessage message) {
-              //This is where you receive message from
-              //javascript code and handle in Flutter/Dart
-              //like here, the message is just being printed
-              //in Run/LogCat window of android studio
-              // print("message.message");
               bool value = message.message == "true";
               widget.handleCaptcha!(value);
-              // widget.callback(message.message);
-              //Navigator.of(context).pop();
+
             },
           );
       });
@@ -85,7 +74,6 @@ class CaptchaState extends State<Captcha> {
   }
 
   String html(url) {
-    // print(url);
     return '''
 <!DOCTYPE html>
 <html>

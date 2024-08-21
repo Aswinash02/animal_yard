@@ -31,27 +31,6 @@ class CartSummaryResponse {
   bool? coupon_applied;
 
   factory CartSummaryResponse.fromJson(Map<String, dynamic> json) {
-    print('++++++++++++++++++++++++++++++++++++++++++++++++++++');
-    print(double.tryParse(json["grand_total_value"].toString()));
-    print(
-      "sub_total ${json["sub_total"]}",
-    );
-    print(
-      "shipping_cost ${json["shipping_cost"]}",
-    );
-    print(
-      "discount ${json["discount"]}",
-    );
-    print(
-      "grand_total ${json["grand_total"]}",
-    );
-    print(
-      "coupon_applied ${json["coupon_applied"]}",
-    );
-    print(
-      "coupon_code ${json["coupon_code"]}",
-    );
-    print('++++++++++++++++++++++++++++++++++++++++++++++++++++');
     return CartSummaryResponse(
       sub_total: json["sub_total"],
       tax: json["tax"],

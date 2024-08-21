@@ -70,6 +70,7 @@ class _AddNewProductState extends State<AddNewProduct> {
 
   // bool isFeatured = false;
   bool isTodaysDeal = false;
+  bool isContinue = true;
 
   List<CategoryModel> categories = [];
   bool isCategoryInit = false;
@@ -106,6 +107,8 @@ class _AddNewProductState extends State<AddNewProduct> {
       // categoryId,
       brandId,
       unit,
+      milk,
+      age,
       weight,
       minQuantity,
       refundable,
@@ -186,10 +189,9 @@ class _AddNewProductState extends State<AddNewProduct> {
       TextEditingController(text: "0");
   TextEditingController flashDiscountEditTextController =
       TextEditingController();
-  TextEditingController unitPriceEditTextController =
-      TextEditingController(text: "0");
+  TextEditingController unitPriceEditTextController = TextEditingController();
   TextEditingController productQuantityEditTextController =
-      TextEditingController(text: "0");
+      TextEditingController();
   TextEditingController skuEditTextController = TextEditingController();
   TextEditingController externalLinkEditTextController =
       TextEditingController();
@@ -207,7 +209,6 @@ class _AddNewProductState extends State<AddNewProduct> {
       TextEditingController();
   TextEditingController lowStockQuantityTextEditTextController =
       TextEditingController(text: "1");
-  TextEditingController _TextEditTextController = TextEditingController();
 
   GlobalKey<FlutterSummernoteState> productDescriptionKey = GlobalKey();
 
@@ -257,12 +258,13 @@ class _AddNewProductState extends State<AddNewProduct> {
       CategoryModel model = CategoryModel(
           id: element.id.toString(),
           title: element.name,
+          icon: element.icon,
           isExpanded: false,
           isSelected: false,
           height: 0.0,
+          child: element.child!,
           children: setChildCategory(element.child!));
       categories.add(model);
-      _productName.add(model.title ?? '');
     });
     if (categories.isNotEmpty) {
       selectedCategory = categories.first;
@@ -330,7 +332,7 @@ class _AddNewProductState extends State<AddNewProduct> {
   setConstDropdownValues() {
     videoType.clear();
     videoType.addAll([
-      CommonDropDownItem("youtube", LangText(context).local!.youtube_ucf),
+      CommonDropDownItem("youtube", LangText(context).local.youtube_ucf),
       CommonDropDownItem(
           "dailymotion", LangText(context).local.dailymotion_ucf),
       CommonDropDownItem("vimeo", LangText(context).local.vimeo_ucf),
@@ -395,7 +397,6 @@ class _AddNewProductState extends State<AddNewProduct> {
                   canMultiSelect: true,
                   prevData: tmp,
                 )));
-    // print(images != null);
     if (images != null) {
       productGalleryImages = images;
       setChange();
@@ -416,7 +417,6 @@ class _AddNewProductState extends State<AddNewProduct> {
         List<String> attributeList = generateAttributeVariation();
         if (attributeList.isNotEmpty) {
           attributeList.forEach((element) {
-            print(element);
             productVariations.add(VariationModel(
                 colorName! + "-" + element,
                 FileInfo(),
@@ -557,11 +557,12 @@ class _AddNewProductState extends State<AddNewProduct> {
   }
 
   setProductValues() async {
-    // productName = productNameEditTextController.text.trim();
-    print('_selectedProductName ======= $_selectedProductName');
     productName = _selectedProductName;
     if (selectedBrand != null) brandId = selectedBrand!.key;
-
+    milk = milkEditTextController.text.isEmpty
+        ? 'null'
+        : milkEditTextController.text;
+    age = ageEditTextController.text.isEmpty ? '0' : ageEditTextController.text;
     unit = unitEditTextController.text.trim();
     weight = weightEditTextController.text.trim();
     minQuantity = minimumEditTextController.text.trim();
@@ -656,23 +657,49 @@ class _AddNewProductState extends State<AddNewProduct> {
     if (_selectedProductName == null) {
       ToastComponent.showDialog("Product Name Required", gravity: Toast.center);
       return false;
-    } else if (selectedCategory == null) {
+    } else if (mainCategoryId == null && categoryIds.isEmpty) {
       ToastComponent.showDialog("Product Category Required",
           gravity: Toast.center);
       return false;
-    } else if (minimumEditTextController.text.trim().toString().isEmpty) {
-      ToastComponent.showDialog("Product Minimum Quantity Required",
+    } else if (ageEditTextController.text.trim().toString().isEmpty) {
+      ToastComponent.showDialog("Age Required", gravity: Toast.center);
+      return false;
+    }
+    // else if (milkEditTextController.text.trim().toString().isEmpty) {
+    //   ToastComponent.showDialog("Milk Required", gravity: Toast.center);
+    //   return false;
+    // } else if (pregnancyEditTextController.text.trim().toString().isEmpty) {
+    //   ToastComponent.showDialog("Pregnancy Required", gravity: Toast.center);
+    //   return false;
+    // }
+    else if (unitEditTextController.text.trim().toString().isEmpty) {
+      ToastComponent.showDialog("Product Unit Required", gravity: Toast.center);
+      return false;
+    } else if (unitPriceEditTextController.text.trim().toString().isEmpty) {
+      ToastComponent.showDialog("Product Unit Price Required",
           gravity: Toast.center);
       return false;
-    } else if (unitEditTextController.text.trim().toString().isEmpty) {
-      ToastComponent.showDialog("Product Unit Required", gravity: Toast.center);
+    } else if (productQuantityEditTextController.text
+        .trim()
+        .toString()
+        .isEmpty) {
+      ToastComponent.showDialog("Product Quantity Required",
+          gravity: Toast.center);
+      return false;
+    } else if (thumbnailImage == null) {
+      ToastComponent.showDialog("Product Image Required",
+          gravity: Toast.center);
+      return false;
+    } else if (isContinue == false &&
+        _addressController.text.trim().toString().isEmpty) {
+      ToastComponent.showDialog("Product Address Required",
+          gravity: Toast.center);
       return false;
     }
     return true;
   }
 
   submitProduct(String button) async {
-    print('---- tags ${tags}');
     if (!requiredFieldVerification()) {
       return;
     }
@@ -685,73 +712,59 @@ class _AddNewProductState extends State<AddNewProduct> {
     postValue.addAll({
       "name": _selectedProductName,
       "category_id": mainCategoryId,
-      "category_ids": categoryIds,
-      "brand_id": brandId,
+      "category_ids": [mainCategoryId],
+      "brand_id": null,
       "unit": unit,
-      "weight": weight,
+      "weight": 0.0,
       "min_qty": minQuantity,
-      "tags": [tagMap.toString()],
-      "photos": photos,
+      "tags": [[]],
+      "photos": 0,
       "thumbnail_img": thumbnailImg,
       "video_provider": videoProvider,
-      "video_link": videoLink,
-      "colors": colors,
-      "colors_active": colorsActive,
-      "choice_attributes": choiceAttributes,
-      "choice_no": choiceNo,
-      "choice": choice
+      "video_link": "",
+      "colors": [],
+      "colors_active": 0,
+      "choice_attributes": [],
+      "choice_no": [],
+      "choice": [],
+      "unit_price": unitPrice,
+      "date_range": int.parse(discount!) <= 0 ? null : dateRange,
+      "discount": discount,
+      "discount_type": "",
+      "current_stock": int.parse(currentStock ?? '0'),
+      "sku": sku,
+      "external_link": "",
+      "external_link_btn": "",
+      "description": descriptionEditTextController.text,
+      "pdf": null,
+      "meta_title": "",
+      "meta_description": "",
+      "meta_img": null,
+      "low_stock_quantity": int.parse(lowStockQuantity ?? '0'),
+      "stock_visibility_state": stockVisibilityState,
+      "cash_on_delivery": int.parse(cashOnDelivery ?? '0'),
+      "est_shipping_days": "",
+      "tax_id": taxId,
+      "tax": tax,
+      "tax_type": ["amount"],
+      "button": button,
+      "age": int.parse(ageEditTextController.text),
+      "milk": milkEditTextController.text,
+      "pregnancy": pregnancyEditTextController.text,
+      "address": _addressController.text,
+      "state_id": 0,
+      "city_id": 0,
+      "postal_code": 0,
+      "lat": lat,
+      "long": long,
+      "animal": 1
     });
-
     postValue.addAll(choice_options);
     if (refund_addon_installed.$) {
       postValue.addAll({"refundable": refundable});
     }
-
-    postValue.addAll({
-      "unit_price": unitPrice,
-      "date_range": int.parse(discount!) <= 0 ? null : dateRange,
-      "discount": discount,
-      "discount_type": discountType,
-      "current_stock": currentStock,
-      "sku": sku,
-      "external_link": externalLink,
-      "external_link_btn": externalLinkBtn,
-    });
     postValue.addAll(makeVariationMap());
-
-    if (carrier_base_shipping.$) {
-      postValue.addAll({
-        "shipping_type": shippingType,
-        "flat_shipping_cost": flatShippingCost
-      });
-    }
-    print('_selected_state!.id ${_selected_state!.id}');
-    print('_selected_city!.id ${_selected_city!.id}');
-    postValue.addAll({
-      "description": descriptionEditTextController.text,
-      "pdf": pdf,
-      "meta_title": metaTitle,
-      "meta_description": metaDescription,
-      "meta_img": metaImg,
-      "low_stock_quantity": lowStockQuantity,
-      "stock_visibility_state": stockVisibilityState,
-      "cash_on_delivery": cashOnDelivery,
-      "est_shipping_days": estShippingDays,
-      "tax_id": taxId,
-      "tax": tax,
-      "tax_type": taxType,
-      "button": button,
-      "age": ageEditTextController.text,
-      "milk": milkEditTextController.text,
-      "pregnancy": pregnancyEditTextController.text,
-      "address": _addressController.text,
-      "state_id": _selected_state!.id,
-      "city_id": _selected_city!.id,
-      "postal_code": _postalCodeController.text,
-      "lat": lat,
-      "long": long,
-    });
-    print('postValue ====== ${postValue}');
+    print('postValue ======== > $postValue');
     var postBody = jsonEncode(postValue);
     var response = await SellerProductRepository().addProductResponse(postBody);
 
@@ -814,14 +827,17 @@ class _AddNewProductState extends State<AddNewProduct> {
           app_language_rtl.$! ? TextDirection.rtl : TextDirection.ltr,
       child: Scaffold(
         appBar: buildAppBar(context) as PreferredSizeWidget?,
-        body: SingleChildScrollView(child: buildBodyContainer()),
+        body: SingleChildScrollView(
+            child: Column(
+          children: [
+            buildGeneral(),
+            buildPriceNStock(),
+            buildMedia(),
+          ],
+        )),
         bottomNavigationBar: buildBottomAppBar(context),
       ),
     );
-  }
-
-  Widget buildBodyContainer() {
-    return changeMainContent(_selectedTabIndex);
   }
 
   BottomAppBar buildBottomAppBar(BuildContext context) {
@@ -829,58 +845,57 @@ class _AddNewProductState extends State<AddNewProduct> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Container(
-              color: MyTheme.accent_color.withOpacity(0.7),
-              width: mWidht / 2,
-              child: Buttons(
-                  onPressed: () async {
-                    submitProduct("unpublish");
-                  },
-                  child: Text(
-                    LangText(context).local.save_n_unpublish_ucf,
-                    style: TextStyle(color: MyTheme.white),
-                  ))),
-          Container(
-              color: MyTheme.accent_color,
-              width: mWidht / 2,
-              child: Buttons(
-                  onPressed: () async {
-                    submitProduct("publish");
-                  },
-                  child: Text(LangText(context).local.save_n_publish_ucf,
-                      style: TextStyle(color: MyTheme.white))))
+          isContinue
+              ? Container(
+                  color: MyTheme.accent_color,
+                  width: mWidht,
+                  child: Buttons(
+                      onPressed: () async {
+                        if (!requiredFieldVerification()) {
+                          return;
+                        }
+                        isContinue = false;
+                        setChange();
+                      },
+                      child: Text(
+                        "Continue",
+                        style: TextStyle(color: MyTheme.white),
+                      )))
+              : Wrap(
+                  children: [
+                    Container(
+                        color: MyTheme.accent_color.withOpacity(0.7),
+                        width: mWidht / 2,
+                        child: Buttons(
+                            onPressed: () async {
+                              submitProduct("unpublish");
+                            },
+                            child: Text(
+                              LangText(context).local.save_n_unpublish_ucf,
+                              style: TextStyle(color: MyTheme.white),
+                            ))),
+                    Container(
+                        color: MyTheme.accent_color,
+                        width: mWidht / 2,
+                        child: Buttons(
+                            onPressed: () async {
+                              submitProduct("publish");
+                            },
+                            child: Text(
+                                LangText(context).local.save_n_publish_ucf,
+                                style: TextStyle(color: MyTheme.white))))
+                  ],
+                )
         ],
       ),
     );
-  }
-
-  changeMainContent(int index) {
-    switch (index) {
-      case 0:
-        return buildGeneral();
-        break;
-      case 1:
-        return buildMedia();
-        break;
-      case 2:
-        return buildPriceNStock();
-        break;
-      // case 3:
-      //   return buildShipping();
-      //   break;
-      // case 4:
-      //   // return buildShipping();
-      //   break;
-      default:
-        return Container();
-    }
   }
 
   Widget buildGeneral() {
     return Column(
       children: [
         buildTabViewItem(
-          LangText(context).local.product_information_ucf,
+          '',
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -900,7 +915,6 @@ class _AddNewProductState extends State<AddNewProduct> {
                       value: _selectedProductName,
                       onChanged: onChangeProductName,
                       items: _productName.map((item) {
-                        print('item -------- $item');
                         return DropdownMenuItem(
                           value: item,
                           child: Text(item),
@@ -915,130 +929,151 @@ class _AddNewProductState extends State<AddNewProduct> {
                 ),
               ),
               itemSpacer(),
-              buildEditTextField(
-                "Age",
-                "Age",
-                ageEditTextController,
-                keyboardType: TextInputType.number,
-                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                isMandatory: true,
-              ),
-              itemSpacer(),
-              buildEditTextField(
-                "Milk",
-                "Milk",
-                milkEditTextController,
-                isMandatory: false,
-              ),
-              itemSpacer(),
-              buildEditTextField(
-                "Pregnancy",
-                "Pregnancy",
-                pregnancyEditTextController,
-                isMandatory: false,
-              ),
-              itemSpacer(),
-              buildEditTextField(LangText(context).local.unit_ucf,
-                  LangText(context).local.unit_eg_ucf, unitEditTextController,
+              buildEditTextField("Age", "Age", ageEditTextController,
+                  keyboardType: TextInputType.number,
+                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                   isMandatory: true),
               itemSpacer(),
-              buildTagsEditTextField(
-                  LangText(context).local.tags_ucf,
-                  LangText(context).local.type_and_hit_enter_to_add_a_tag_ucf,
-                  tagEditTextController,
-                  isMandatory: true),
-              if (refund_addon_installed.$)
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    itemSpacer(),
-                    buildSwitchField(
-                        LangText(context).local.refundable_ucf, isRefundable,
-                        (value) {
-                      isRefundable = value;
-                      setChange();
-                    }),
-                  ],
-                ),
+              buildEditTextField("Milk", "Milk", milkEditTextController),
               itemSpacer(),
               buildEditTextField(
-                  LangText(context).local.product_description_ucf,
-                  LangText(context).local.product_description_ucf,
-                  descriptionEditTextController,
-                  isMandatory: true),
+                  "Pregnancy", "Pregnancy", pregnancyEditTextController),
               itemSpacer(),
-              buildSwitchField(
-                LangText(context).local.cash_on_delivery_ucf,
-                isCashOnDelivery,
-                (onChanged) {
-                  isCashOnDelivery = onChanged;
-                  setChange();
-                },
-              ),
-              SizedBox(
-                height: 10,
-              )
+              buildEditTextField("Unit", "Unit", unitEditTextController,
+                  keyboardType: TextInputType.number,
+                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                  isMandatory: true),
+              itemSpacer(height: 1),
             ],
           ),
         ),
-        buildMedia(),
-        buildPriceNStock()
       ],
-    );
-  }
-
-  Widget buildVatTax(title, TextEditingController controller, onChangeDropDown,
-      CommonDropDownItem? selectedDropdown, List<CommonDropDownItem> iteams) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 24.0),
-      child: Row(
-        children: [
-          SizedBox(
-            width: (mWidht / 2) - 25,
-            child: buildEditTextField(title, "0", controller),
-          ),
-          Spacer(),
-          _buildDropDownField("", (newValue) {
-            onChangeDropDown(newValue);
-            setChange();
-          }, selectedDropdown, iteams, width: (mWidht / 2) - 25),
-        ],
-      ),
     );
   }
 
   Widget buildMedia() {
     return buildTabViewItem(
-      LangText(context).local.product_images_ucf,
+      '',
       Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          chooseGalleryImageField(),
-          itemSpacer(),
-          chooseSingleImageField(
-              LangText(context).local.thumbnail_image_300_ucf,
+          chooseSingleImageField(LangText(context).local.image_300_ucf,
               LangText(context).local.thumbnail_image_300_des, (onChosenImage) {
             thumbnailImage = onChosenImage;
             setChange();
           }, thumbnailImage),
-          itemSpacer(),
-          buildEditTextField(
-              LangText(context).local.video_link_ucf,
-              LangText(context).local.video_link_ucf,
-              videoLinkEditTextController),
-          itemSpacer(height: 10),
-          smallTextForMessage(LangText(context).local.video_link_des),
-          itemSpacer(),
-          buildGroupItems(
-            LangText(context).local.pdf_description_ucf,
-            chooseSingleFileField(
-                LangText(context).local.pdf_specification_ucf, "",
-                (onChosenFile) {
-              pdfDes = onChosenFile;
-              setChange();
-            }, pdfDes),
+          itemSpacer(height: 1),
+          Container(
+            child: buildCommonSingleField(
+              LangText(context).local.product_description_ucf,
+              MyWidget.customCardView(
+                backgroundColor: MyTheme.white,
+                elevation: 5,
+                width: DeviceInfo(context).width!,
+                height: 75,
+                borderRadius: 10,
+                child: TextField(
+                    controller: descriptionEditTextController,
+                    maxLines: 3,
+                    cursorColor: MyTheme.accent_color,
+                    decoration: InputDecoration(
+                        hintText:
+                            LangText(context).local.product_description_ucf,
+                        filled: true,
+                        fillColor: MyTheme.white,
+                        hintStyle: TextStyle(
+                            fontSize: 12.0, color: MyTheme.textfield_grey),
+                        enabledBorder: OutlineInputBorder(
+                          borderSide: BorderSide(
+                              color: MyTheme.textfield_grey, width: 0.2),
+                          borderRadius: const BorderRadius.all(
+                            const Radius.circular(6.0),
+                          ),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderSide: BorderSide(
+                              color: MyTheme.accent_color, width: 0.5),
+                          borderRadius: const BorderRadius.all(
+                            const Radius.circular(6.0),
+                          ),
+                        ),
+                        disabledBorder: OutlineInputBorder(
+                          borderSide: BorderSide(
+                              color: MyTheme.textfield_grey, width: 0.2),
+                          borderRadius: const BorderRadius.all(
+                            const Radius.circular(6.0),
+                          ),
+                        ),
+                        contentPadding: EdgeInsets.symmetric(
+                            horizontal: 16.0, vertical: 10))),
+              ),
+            ),
           ),
-          // itemSpacer()
+          itemSpacer(),
+          if (isContinue == false)
+            Wrap(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 8.0),
+                  child: Row(
+                    children: [
+                      Text("${LangText(context).local.address_ucf}",
+                          style: TextStyle(
+                              color: MyTheme.dark_font_grey, fontSize: 12)),
+                      Text("*",
+                          style: TextStyle(
+                              color: MyTheme.brick_red, fontSize: 16)),
+                    ],
+                  ),
+                ),
+                Container(
+                  height: 46,
+                  decoration: BoxDecoration(
+                    color: MyTheme.white,
+                    borderRadius: BorderRadius.circular(10),
+                    boxShadow: [
+                      BoxShadow(
+                        color: MyTheme.textfield_grey,
+                        offset: Offset(0, 6),
+                        blurRadius: 20,
+                      ),
+                    ],
+                  ),
+                  child: TypeAheadField(
+                    textFieldConfiguration: TextFieldConfiguration(
+                        controller: _addressController,
+                        cursorColor: MyTheme.accent_color,
+                        decoration: InputDecorations.buildInputDecoration_1(
+                            hint_text:
+                                LangText(context).local.enter_address_ucf)),
+                    suggestionsCallback: (pattern) async {
+                      return await getSuggestions(pattern);
+                    },
+                    itemBuilder: (context, suggestion) {
+                      return ListTile(
+                        title: Text(suggestion['description']),
+                      );
+                    },
+                    onSuggestionSelected: (suggestion) async {
+                      _addressController.text = suggestion['description'];
+                      var placeId = suggestion['place_id'];
+                      var details = await getPlaceDetails(placeId);
+                      var location = details['geometry']['location'];
+                      lat = location['lat'];
+                      long = location['lng'];
+                      print('lat ------------ > $lat');
+                      print('long ------------ > $long');
+                      mapController?.animateCamera(
+                        CameraUpdate.newLatLng(
+                          LatLng(lat, long),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+                itemSpacer(height: 200)
+              ],
+            )
         ],
       ),
     );
@@ -1050,246 +1085,18 @@ class _AddNewProductState extends State<AddNewProduct> {
       Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          buildPriceEditTextField(LangText(context).local.unit_price_ucf, "0"),
-          if (productVariations.isEmpty)
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                itemSpacer(),
-                buildEditTextField(LangText(context).local.quantity_ucf, "0",
-                    productQuantityEditTextController,
-                    isMandatory: true),
-                itemSpacer(),
-                buildEditTextField(
-                    LangText(context).local.sku_all_capital,
-                    LangText(context).local.sku_all_capital,
-                    skuEditTextController),
-              ],
-            ),
+          buildPriceEditTextField(LangText(context).local.unit_price_ucf,
+              LangText(context).local.unit_price_ucf,
+              isMandatory: true),
           itemSpacer(),
-          Padding(
-            padding: const EdgeInsets.only(bottom: 8.0),
-            child: Text("${LangText(context).local.address_ucf} *",
-                style: TextStyle(color: MyTheme.dark_font_grey, fontSize: 12)),
-          ),
-          Container(
-            height: 46,
-            decoration: BoxDecoration(
-              color: MyTheme.white,
-              borderRadius: BorderRadius.circular(10),
-              boxShadow: [
-                BoxShadow(
-                  color: MyTheme.textfield_grey,
-                  offset: Offset(0, 6),
-                  blurRadius: 20,
-                ),
-              ],
-            ),
-            child: TypeAheadField(
-              textFieldConfiguration: TextFieldConfiguration(
-                  controller: _addressController,
-                  decoration: InputDecorations.buildInputDecoration_1(
-                      hint_text: LangText(context).local.enter_address_ucf)),
-              suggestionsCallback: (pattern) async {
-                return await getSuggestions(pattern);
-              },
-              itemBuilder: (context, suggestion) {
-                return ListTile(
-                  title: Text(suggestion['description']),
-                );
-              },
-              onSuggestionSelected: (suggestion) async {
-                var placeId = suggestion['place_id'];
-                var details = await getPlaceDetails(placeId);
-                List<dynamic> addressComponents = details['address_components'];
-
-                _addressController.text = addressComponents.first['long_name'];
-                var location = details['geometry']['location'];
-                lat = location['lat'];
-                long = location['lng'];
-                mapController?.animateCamera(
-                  CameraUpdate.newLatLng(
-                    LatLng(lat, long),
-                  ),
-                );
-              },
-            ),
-          ),
+          buildEditTextField(
+              LangText(context).local.quantity_ucf,
+              LangText(context).local.quantity_ucf,
+              productQuantityEditTextController,
+              keyboardType: TextInputType.number,
+              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+              isMandatory: true),
           itemSpacer(),
-          Padding(
-            padding: const EdgeInsets.only(bottom: 8.0),
-            child: Text("${LangText(context).local.state_ucf} *",
-                style: TextStyle(color: MyTheme.font_grey, fontSize: 12)),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(bottom: 16.0),
-            child: Container(
-              height: 46,
-              decoration: BoxDecoration(
-                color: MyTheme.white,
-                borderRadius: BorderRadius.circular(10),
-                boxShadow: [
-                  BoxShadow(
-                    color: MyTheme.textfield_grey,
-                    offset: Offset(0, 6),
-                    blurRadius: 20,
-                  ),
-                ],
-              ),
-              child: TypeAheadField(
-                suggestionsCallback: (name) async {
-                  if (_selected_country == null) {
-                    var stateResponse = await AddressRepository()
-                        .getStateListByCountry(); // blank response
-                    return stateResponse.states;
-                  }
-                  var stateResponse = await AddressRepository()
-                      .getStateListByCountry(
-                          country_id: _selected_country, name: name);
-                  return stateResponse.states;
-                },
-                loadingBuilder: (context) {
-                  return Container(
-                    height: 50,
-                    child: Center(
-                        child: Text(LangText(context).local.loading_states_ucf,
-                            style: TextStyle(color: MyTheme.medium_grey))),
-                  );
-                },
-                itemBuilder: (context, dynamic state) {
-                  return ListTile(
-                    dense: true,
-                    title: Text(
-                      state.name,
-                      style: TextStyle(color: MyTheme.font_grey),
-                    ),
-                  );
-                },
-                noItemsFoundBuilder: (context) {
-                  return Container(
-                    height: 50,
-                    child: Center(
-                        child: Text(LangText(context).local.no_state_available,
-                            style: TextStyle(color: MyTheme.medium_grey))),
-                  );
-                },
-                onSuggestionSelected: (dynamic state) {
-                  onSelectStateDuringAdd(state, setState);
-                },
-                textFieldConfiguration: TextFieldConfiguration(
-                    onTap: () {},
-                    controller: _stateController,
-                    onSubmitted: (txt) {},
-                    decoration: InputDecorations.buildInputDecoration_1(
-                        hint_text: LangText(context).local.enter_state_ucf)),
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(bottom: 8.0),
-            child: Text("${LangText(context).local.city_ucf} *",
-                style: TextStyle(color: MyTheme.font_grey, fontSize: 12)),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(bottom: 16.0),
-            child: Container(
-              height: 46,
-              decoration: BoxDecoration(
-                color: MyTheme.white,
-                borderRadius: BorderRadius.circular(10),
-                // border: Border.all(color: Color.fromRGBO(255, 255, 255, 0), width: 1),
-                boxShadow: [
-                  BoxShadow(
-                    color: MyTheme.textfield_grey,
-                    offset: Offset(0, 6),
-                    blurRadius: 20,
-                  ),
-                ],
-              ),
-              child: TypeAheadField(
-                suggestionsCallback: (name) async {
-                  if (_selected_state == null) {
-                    var cityResponse = await AddressRepository()
-                        .getCityListByState(); // blank response
-                    return cityResponse.cities;
-                  }
-                  var cityResponse = await AddressRepository()
-                      .getCityListByState(
-                          state_id: _selected_state!.id, name: name);
-                  return cityResponse.cities;
-                },
-                loadingBuilder: (context) {
-                  return Container(
-                    height: 50,
-                    child: Center(
-                        child: Text(LangText(context).local.loading_cities_ucf,
-                            style: TextStyle(color: MyTheme.medium_grey))),
-                  );
-                },
-                itemBuilder: (context, dynamic city) {
-                  //print(suggestion.toString());
-                  return ListTile(
-                    dense: true,
-                    title: Text(
-                      city.name,
-                      style: TextStyle(color: MyTheme.font_grey),
-                    ),
-                  );
-                },
-                noItemsFoundBuilder: (context) {
-                  return Container(
-                    height: 50,
-                    child: Center(
-                        child: Text(LangText(context).local.no_city_available,
-                            style: TextStyle(color: MyTheme.medium_grey))),
-                  );
-                },
-                onSuggestionSelected: (dynamic city) {
-                  onSelectCityDuringAdd(city, setState);
-                },
-                textFieldConfiguration: TextFieldConfiguration(
-                    onTap: () {},
-                    //autofocus: true,
-                    controller: _cityController,
-                    onSubmitted: (txt) {
-                      // keep blank
-                    },
-                    decoration: InputDecorations.buildInputDecoration_1(
-                        hint_text: LangText(context).local.enter_city_ucf)),
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(bottom: 8.0),
-            child: Text(
-              LangText(context).local.postal_code,
-              style: TextStyle(color: MyTheme.font_grey, fontSize: 12),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(bottom: 16.0),
-            child: MyWidget.customCardView(
-              backgroundColor: MyTheme.white,
-              elevation: 5,
-              width: DeviceInfo(context).width!,
-              height: 46,
-              borderRadius: 10,
-              child: TextField(
-                controller: _postalCodeController,
-                keyboardType: TextInputType.numberWithOptions(
-                  signed: true,
-                  decimal: true,
-                ),
-                decoration: InputDecorations.buildInputDecoration_1(
-                  hint_text: LangText(context).local.enter_postal_code_ucf,
-                ),
-                inputFormatters: [
-                  PhoneNumberInputFormatter(),
-                  LengthLimitingTextInputFormatter(6),
-                ],
-              ),
-            ),
-          ),
         ],
       ),
     );
@@ -1322,200 +1129,6 @@ class _AddNewProductState extends State<AddNewProduct> {
     );
   }
 
-  Widget buildAttributeModelView(
-      index,
-      attributeName,
-      List<CommonDropDownItem> attributesValues,
-      selectedValue,
-      dynamic onchange,
-      dynamic remove) {
-    return Column(
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            SizedBox(
-                width: mWidht * 0.15, child: buildFieldTitle(attributeName)),
-            Container(
-              width: mWidht * 0.6,
-              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
-              decoration: MDecoration.decoration1(),
-              child: DropdownButton<CommonDropDownItem>(
-                isDense: true,
-                underline: Container(),
-                isExpanded: true,
-                onChanged: (CommonDropDownItem? value) {
-                  onchange(value);
-                },
-                icon: const Icon(Icons.arrow_drop_down),
-                value: selectedValue,
-                items: attributesValues
-                    .map(
-                      (value) => DropdownMenuItem<CommonDropDownItem>(
-                        value: value,
-                        child: Text(
-                          value.value!,
-                        ),
-                      ),
-                    )
-                    .toList(),
-              ),
-            ),
-            Container(
-              width: mWidht * 0.10,
-              child: IconButton(
-                  onPressed: () {
-                    remove(index);
-                  },
-                  icon: Icon(
-                    Icons.delete,
-                    color: MyTheme.brick_red,
-                  )),
-            )
-          ],
-        ),
-        SizedBox(
-          height: 10,
-        ),
-        buildShowSelectedOptions(
-            selectedAttributes[index].selectedAttributeItems, (deleteIndex) {
-          selectedAttributes[index]
-              .selectedAttributeItems
-              .removeAt(deleteIndex);
-          setChange();
-          createProductVariation();
-        })
-      ],
-    );
-  }
-
-  Widget buildGroupItems(groupTitle, Widget children) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        buildGroupTitle(groupTitle),
-        itemSpacer(height: 14.0),
-        children,
-      ],
-    );
-  }
-
-  Text buildGroupTitle(title) {
-    return Text(
-      title,
-      style: const TextStyle(
-          fontSize: 14, fontWeight: FontWeight.bold, color: MyTheme.font_grey),
-    );
-  }
-
-  Widget chooseGalleryImageField() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              LangText(context).local.gallery_images_600,
-              style: TextStyle(
-                  fontSize: 12,
-                  color: MyTheme.font_grey,
-                  fontWeight: FontWeight.bold),
-            ),
-            SizedBox(
-              height: 10,
-            ),
-            Buttons(
-              padding: EdgeInsets.zero,
-              onPressed: () {
-                pickGalleryImages();
-              },
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(6)),
-              child: MyWidget().myContainer(
-                  width: DeviceInfo(context).width!,
-                  height: 46,
-                  borderRadius: 6.0,
-                  borderColor: MyTheme.light_grey,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.only(left: 14.0),
-                        child: Text(
-                          LangText(context).local.choose_file,
-                          style:
-                              TextStyle(fontSize: 12, color: MyTheme.grey_153),
-                        ),
-                      ),
-                      Container(
-                          alignment: Alignment.center,
-                          height: 46,
-                          width: 80,
-                          color: MyTheme.light_grey,
-                          child: Text(
-                            LangText(context).local.browse_ucf,
-                            style: TextStyle(
-                                fontSize: 12, color: MyTheme.grey_153),
-                          )),
-                    ],
-                  )),
-            ),
-          ],
-        ),
-        SizedBox(
-          height: 10,
-        ),
-        Text(
-          LangText(context)
-              .local
-              .these_images_are_visible_in_product_details_page_gallery_600,
-          style: TextStyle(fontSize: 8, color: MyTheme.grey_153),
-        ),
-        SizedBox(
-          height: 10,
-        ),
-        if (productGalleryImages.isNotEmpty)
-          Wrap(
-            children: List.generate(
-              productGalleryImages.length,
-              (index) => Stack(
-                children: [
-                  MyWidget.imageWithPlaceholder(
-                      height: 60.0,
-                      width: 60.0,
-                      url: productGalleryImages[index].url),
-                  Positioned(
-                    top: 0,
-                    right: 5,
-                    child: Container(
-                      height: 15,
-                      width: 15,
-                      decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(30),
-                          color: MyTheme.white),
-                      child: InkWell(
-                        onTap: () {
-                          print(index);
-                          productGalleryImages.removeAt(index);
-                          setState(() {});
-                        },
-                        child: Icon(
-                          Icons.close,
-                          size: 12,
-                          color: MyTheme.brick_red,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-      ],
-    );
-  }
-
   Widget chooseSingleImageField(String title, String shortMessage,
       dynamic onChosenImage, FileInfo? selectedFile) {
     return Column(
@@ -1524,12 +1137,23 @@ class _AddNewProductState extends State<AddNewProduct> {
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              title,
-              style: TextStyle(
-                  fontSize: 12,
-                  color: MyTheme.font_grey,
-                  fontWeight: FontWeight.bold),
+            Row(
+              children: [
+                Text(
+                  title,
+                  style: TextStyle(
+                      fontSize: 12,
+                      color: MyTheme.font_grey,
+                      fontWeight: FontWeight.bold),
+                ),
+                Text(
+                  '*',
+                  style: TextStyle(
+                      fontSize: 12,
+                      color: MyTheme.brick_red,
+                      fontWeight: FontWeight.bold),
+                ),
+              ],
             ),
             SizedBox(
               height: 10,
@@ -1541,75 +1165,6 @@ class _AddNewProductState extends State<AddNewProduct> {
     );
   }
 
-  Widget chooseSingleFileField(String title, String shortMessage,
-      dynamic onChosenFile, FileInfo? selectedFile) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              title,
-              style: TextStyle(
-                  fontSize: 12,
-                  color: MyTheme.font_grey,
-                  fontWeight: FontWeight.bold),
-            ),
-            SizedBox(
-              height: 10,
-            ),
-            fileField("document", shortMessage, onChosenFile, selectedFile)
-          ],
-        ),
-      ],
-    );
-  }
-
-  Widget buildShowSelectedOptions(
-      List<CommonDropDownItem> options, dynamic remove) {
-    return SizedBox(
-      width: DeviceInfo(context).width! - 34,
-      child: Wrap(
-        children: List.generate(
-            options.length,
-            (index) => Container(
-                decoration: BoxDecoration(
-                    color: MyTheme.white,
-                    borderRadius: BorderRadius.circular(5),
-                    border: Border.all(width: 2, color: MyTheme.grey_153)),
-                constraints: BoxConstraints(
-                    maxWidth: (DeviceInfo(context).width! - 50) / 4),
-                margin: const EdgeInsets.only(right: 5, bottom: 5),
-                child: Stack(
-                  children: [
-                    Container(
-                        padding: const EdgeInsets.only(
-                            left: 10, right: 20, top: 5, bottom: 5),
-                        constraints: BoxConstraints(
-                            maxWidth: (DeviceInfo(context).width! - 50) / 4),
-                        child: Text(
-                          options[index].value.toString(),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(fontSize: 12),
-                        )),
-                    Positioned(
-                      right: 2,
-                      child: InkWell(
-                        onTap: () {
-                          remove(index);
-                        },
-                        child: Icon(Icons.highlight_remove,
-                            size: 15, color: MyTheme.brick_red),
-                      ),
-                    )
-                  ],
-                ))),
-      ),
-    );
-  }
-
   Widget imageField(
       String shortMessage, dynamic onChosenImage, FileInfo? selectedFile) {
     return Column(
@@ -1618,7 +1173,6 @@ class _AddNewProductState extends State<AddNewProduct> {
         Buttons(
           padding: EdgeInsets.zero,
           onPressed: () async {
-            // XFile chooseFile = await pickSingleImage();
             List<FileInfo> chooseFile = await (Navigator.push(
                 context,
                 MaterialPageRoute(
@@ -1626,8 +1180,6 @@ class _AddNewProductState extends State<AddNewProduct> {
                           fileType: "image",
                           canSelect: true,
                         ))));
-            print("chooseFile.url");
-            print(chooseFile.first.url);
             if (chooseFile.isNotEmpty) {
               onChosenImage(chooseFile.first);
             }
@@ -1721,187 +1273,10 @@ class _AddNewProductState extends State<AddNewProduct> {
     );
   }
 
-  Widget fileField(String fileType, String shortMessage, dynamic onChosenFile,
-      FileInfo? selectedFile) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Buttons(
-          padding: EdgeInsets.zero,
-          onPressed: () async {
-            // XFile chooseFile = await pickSingleImage();
-            List<FileInfo> chooseFile = (await (
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => UploadFileSeller(
-                    fileType: fileType,
-                    canSelect: true,
-                  ),
-                ),
-              ),
-            )) as List<FileInfo>;
-            print("chooseFile.url");
-            print(chooseFile.first.url);
-            if (chooseFile.isNotEmpty) {
-              onChosenFile(chooseFile.first);
-            }
-          },
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
-          child: MyWidget().myContainer(
-            width: DeviceInfo(context).width!,
-            height: 46,
-            borderRadius: 6.0,
-            borderColor: MyTheme.light_grey,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(left: 14.0),
-                  child: Text(
-                    LangText(context).local.choose_file,
-                    style: TextStyle(fontSize: 12, color: MyTheme.grey_153),
-                  ),
-                ),
-                Container(
-                  alignment: Alignment.center,
-                  height: 46,
-                  width: 80,
-                  color: MyTheme.light_grey,
-                  child: Text(
-                    LangText(context).local.browse_ucf,
-                    style: TextStyle(fontSize: 12, color: MyTheme.grey_153),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-        SizedBox(
-          height: 10,
-        ),
-        if (shortMessage.isNotEmpty)
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                shortMessage,
-                style: TextStyle(fontSize: 8, color: MyTheme.grey_153),
-              ),
-              SizedBox(
-                height: 10,
-              ),
-            ],
-          ),
-        if (selectedFile != null)
-          Stack(
-            children: [
-              Container(
-                padding: EdgeInsets.all(3),
-                height: 40,
-                alignment: Alignment.center,
-                width: 40,
-                decoration: BoxDecoration(
-                  color: MyTheme.grey_153,
-                ),
-                child: Text(
-                  selectedFile.fileOriginalName! +
-                      "." +
-                      selectedFile.extension!,
-                  style: TextStyle(fontSize: 9, color: MyTheme.white),
-                ),
-              ),
-              Positioned(
-                top: 0,
-                right: 5,
-                child: Container(
-                  height: 15,
-                  width: 15,
-                  decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(30),
-                      color: MyTheme.white),
-                  // remove the selected file button
-                  child: InkWell(
-                    onTap: () {
-                      onChosenFile(null);
-                    },
-                    child: Icon(
-                      Icons.close,
-                      size: 12,
-                      color: MyTheme.brick_red,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-      ],
-    );
-  }
-
-  summerNote(title) {
-    if (productDescriptionKey.currentState != null) {
-      productDescriptionKey.currentState!.getText().then((value) {
-        description = value;
-        print(description);
-        if (description != null) {
-          // productDescriptionKey.currentState.setText(description);
-        }
-      });
-    }
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          title,
-          style: const TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.bold,
-              color: MyTheme.font_grey),
-        ),
-        const SizedBox(
-          height: 10,
-        ),
-        Container(
-          height: 250,
-          width: mWidht,
-          child: FlutterSummernote(
-              showBottomToolbar: false,
-              value: description,
-              key: productDescriptionKey),
-        ),
-      ],
-    );
-    // FlutterSummernote(
-    // hint: "Your text here...",
-    // key: productDescriptionKey,
-    // customToolbar: """
-    //         [
-    //             ['style', ['bold', 'italic', 'underline', 'clear']],
-    //             ['font', ['strikethrough', 'superscript', 'subscript']]
-    //         ]"""
-    // )
-  }
-
-  Widget smallTextForMessage(String txt) {
-    return Text(
-      txt,
-      style: TextStyle(fontSize: 8, color: MyTheme.grey_153),
-    );
-  }
-
   Widget itemSpacer({double height = 24}) {
     return SizedBox(
       height: height,
     );
-  }
-
-  Widget _buildDropDownField(String title, dynamic onchange,
-      CommonDropDownItem? selectedValue, List<CommonDropDownItem> itemList,
-      {bool isMandatory = false, double? width}) {
-    return buildCommonSingleField(
-        title, _buildDropDown(onchange, selectedValue, itemList, width: width),
-        isMandatory: isMandatory);
   }
 
   Widget _buildMultiCategory(String title,
@@ -1909,9 +1284,9 @@ class _AddNewProductState extends State<AddNewProduct> {
     return buildCommonSingleField(
         title,
         Container(
-            height: 250,
             width: width ?? mWidht,
-            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+            padding:
+                const EdgeInsets.only(left: 18, right: 18, top: 10, bottom: 20),
             decoration: MDecoration.decoration1(),
             child: SingleChildScrollView(
               child: MultiCategory(
@@ -1922,126 +1297,22 @@ class _AddNewProductState extends State<AddNewProduct> {
                   categoryIds.addAll(categories);
                 },
                 onSelectedMainCategory: (mainCategory) {
+                  _selectedProductName = null;
                   mainCategoryId = mainCategory;
+                  _productName.clear();
+                  categories.forEach((element) {
+                    if (element.id == mainCategory) {
+                      element.child!.forEach((element) {
+                        _productName.add(element.name ?? '');
+                      });
+                    }
+                  });
+                  setChange();
                 },
                 initialCategoryIds: categoryIds,
                 initialMainCategory: mainCategoryId,
               ),
             )),
-        isMandatory: isMandatory);
-  }
-
-  Widget _buildDropDown(dynamic onchange, CommonDropDownItem? selectedValue,
-      List<CommonDropDownItem> itemList,
-      {double? width}) {
-    return Container(
-      height: 46,
-      width: width ?? mWidht,
-      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
-      decoration: MDecoration.decoration1(),
-      child: DropdownButton<CommonDropDownItem>(
-        menuMaxHeight: 300,
-        isDense: true,
-        underline: Container(),
-        isExpanded: true,
-        onChanged: (CommonDropDownItem? value) {
-          onchange(value);
-          print("on Change Working");
-        },
-        icon: const Icon(Icons.arrow_drop_down),
-        value: selectedValue,
-        items: itemList
-            .map(
-              (value) => DropdownMenuItem<CommonDropDownItem>(
-                value: value,
-                child: Text(
-                  value.value!,
-                ),
-              ),
-            )
-            .toList(),
-      ),
-    );
-  }
-
-  Widget _buildColorDropDown(dynamic onchange,
-      CommonDropDownItem? selectedValue, List<CommonDropDownItem> itemList,
-      {double? width}) {
-    return Container(
-      height: 46,
-      width: width ?? mWidht,
-      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
-      decoration: MDecoration.decoration1(),
-      child: DropdownButton<CommonDropDownItem>(
-        menuMaxHeight: 300,
-        isDense: true,
-        underline: Container(),
-        isExpanded: true,
-        onChanged: (CommonDropDownItem? value) {
-          onchange(value);
-        },
-        icon: const Icon(Icons.arrow_drop_down),
-        value: selectedValue,
-        items: itemList
-            .map(
-              (value) => DropdownMenuItem<CommonDropDownItem>(
-                value: value,
-                child: Row(
-                  children: [
-                    Container(
-                      margin: EdgeInsets.symmetric(horizontal: 5),
-                      height: 20,
-                      width: 20,
-                      decoration: BoxDecoration(
-                          color: Color(
-                              int.parse(value.key!.replaceAll("#", "0xFF"))),
-                          borderRadius: BorderRadius.circular(4)),
-                    ),
-                    Text(
-                      value.value!,
-                    ),
-                  ],
-                ),
-              ),
-            )
-            .toList(),
-      ),
-    );
-  }
-
-  Widget _buildFlatDropDown(String title, dynamic onchange,
-      CommonDropDownItems selectedValue, List<CommonDropDownItems> itemList,
-      {bool isMandatory = false, double? width}) {
-    return buildCommonSingleField(
-        title,
-        Container(
-          height: 46,
-          width: width ?? mWidht,
-          decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(8),
-              color: MyTheme.app_accent_color_extra_light),
-          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
-          child: DropdownButton<CommonDropDownItems>(
-            isDense: true,
-            underline: Container(),
-            isExpanded: true,
-            onChanged: (value) {
-              onchange(value);
-            },
-            icon: const Icon(Icons.arrow_drop_down),
-            value: selectedValue,
-            items: itemList
-                .map(
-                  (value) => DropdownMenuItem<CommonDropDownItems>(
-                    value: value,
-                    child: Text(
-                      value.value!,
-                    ),
-                  ),
-                )
-                .toList(),
-          ),
-        ),
         isMandatory: isMandatory);
   }
 
@@ -2063,6 +1334,7 @@ class _AddNewProductState extends State<AddNewProduct> {
             controller: textEditingController,
             keyboardType: keyboardType,
             inputFormatters: inputFormatters,
+            cursorColor: MyTheme.accent_color,
             decoration: InputDecorations.buildInputDecoration_1(
               hint_text: hint,
             ),
@@ -2071,104 +1343,6 @@ class _AddNewProductState extends State<AddNewProduct> {
         isMandatory: isMandatory,
       ),
     );
-  }
-
-  Widget buildTagsEditTextField(
-      String title, String hint, TextEditingController textEditingController,
-      {isMandatory = false}) {
-    //textEditingController.buildTextSpan(context: context, withComposing: true);
-    return buildCommonSingleField(
-      title,
-      Container(
-        padding: EdgeInsets.only(top: 14, bottom: 10, left: 14, right: 14),
-        alignment: Alignment.centerLeft,
-        constraints: BoxConstraints(
-          minWidth: DeviceInfo(context).width!,
-          minHeight: 46,
-        ),
-        decoration: MDecoration.decoration1(),
-        child: Wrap(
-          alignment: WrapAlignment.start,
-          crossAxisAlignment: WrapCrossAlignment.center,
-          runAlignment: WrapAlignment.start,
-          clipBehavior: Clip.antiAlias,
-          children: List.generate(tags!.length + 1, (index) {
-            if (index == tags!.length) {
-              return TextField(
-                onSubmitted: (string) {
-                  var tag = textEditingController.text
-                      .trim()
-                      .replaceAll(",", "")
-                      .toString();
-                  //print("tag empty ${tag.isEmpty}");
-                  if (tag.isNotEmpty) addTag(tag);
-                },
-                onChanged: (string) {
-                  if (string.trim().contains(",")) {
-                    var tag = string.trim().replaceAll(",", "").toString();
-                    //print("tag empty ${tag.isEmpty}");
-
-                    if (tag.isNotEmpty) addTag(tag);
-                  }
-                },
-                controller: textEditingController,
-                keyboardType: TextInputType.text,
-                maxLines: 1,
-                style: TextStyle(fontSize: 16),
-                decoration: InputDecoration.collapsed(
-                        hintText: "Type and hit submit",
-                        hintStyle: TextStyle(fontSize: 12))
-                    .copyWith(constraints: BoxConstraints(maxWidth: 150)),
-              );
-            }
-            return Container(
-                decoration: BoxDecoration(
-                    color: MyTheme.white,
-                    borderRadius: BorderRadius.circular(5),
-                    border: Border.all(width: 2, color: MyTheme.grey_153)),
-                constraints: BoxConstraints(
-                    maxWidth: (DeviceInfo(context).width! - 50) / 4),
-                margin: const EdgeInsets.only(right: 5, bottom: 5),
-                child: Stack(
-                  fit: StackFit.loose,
-                  children: [
-                    Container(
-                        padding: const EdgeInsets.only(
-                            left: 10, right: 20, top: 5, bottom: 5),
-                        constraints: BoxConstraints(
-                            maxWidth: (DeviceInfo(context).width! - 50) / 4),
-                        child: Text(
-                          tags![index].toString(),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(fontSize: 12),
-                        )),
-                    Positioned(
-                      right: 2,
-                      child: InkWell(
-                        onTap: () {
-                          tags!.removeAt(index);
-                          setChange();
-                        },
-                        child: Icon(Icons.highlight_remove,
-                            size: 15, color: MyTheme.brick_red),
-                      ),
-                    )
-                  ],
-                ));
-          }),
-        ),
-      ),
-      isMandatory: isMandatory,
-    );
-  }
-
-  addTag(String string) {
-    if (string.trim().isNotEmpty) {
-      tags!.add(string.trim());
-    }
-    tagEditTextController.clear();
-    setChange();
   }
 
   Widget buildPriceEditTextField(String title, String hint,
@@ -2187,31 +1361,8 @@ class _AddNewProductState extends State<AddNewProduct> {
             onChanged: (string) {
               createProductVariation();
             },
+            cursorColor: MyTheme.accent_color,
             keyboardType: TextInputType.number,
-            decoration: InputDecorations.buildInputDecoration_1(
-              hint_text: hint,
-            ),
-          ),
-        ),
-        isMandatory: isMandatory,
-      ),
-    );
-  }
-
-  Widget buildFlatEditTextField(
-      String title, String hint, TextEditingController textEditingController,
-      {isMandatory = false}) {
-    return Container(
-      child: buildCommonSingleField(
-        title,
-        Container(
-          decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(8),
-              color: MyTheme.app_accent_color_extra_light),
-          width: DeviceInfo(context).width,
-          height: 45,
-          child: TextField(
-            controller: textEditingController,
             decoration: InputDecorations.buildInputDecoration_1(
               hint_text: hint,
             ),
@@ -2254,278 +1405,6 @@ class _AddNewProductState extends State<AddNewProduct> {
     );
   }
 
-  variationViewModel(int index) {
-    return buildExpansionTile(index, (onExpand) {
-      productVariations[index].isExpended = onExpand;
-      setChange();
-    }, productVariations[index].isExpended);
-  }
-
-  buildExpansionTile(int index, dynamic onExpand, isExpanded) {
-    return Container(
-      height: isExpanded
-          ? productVariations[index].photo == null
-              ? 274
-              : 334
-          : 100,
-      decoration: MDecoration.decoration1(),
-      padding: EdgeInsets.symmetric(horizontal: 14, vertical: 14),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            alignment: Alignment.center,
-            width: 20,
-            height: 20,
-            decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10),
-                color: MyTheme.light_grey),
-            constraints: BoxConstraints(),
-            child: IconButton(
-              splashRadius: 5,
-              splashColor: MyTheme.noColor,
-              constraints: BoxConstraints(),
-              iconSize: 12,
-              padding: EdgeInsets.zero,
-              onPressed: () {
-                isExpanded = !isExpanded;
-                onExpand(isExpanded);
-              },
-              icon: Image.asset(
-                isExpanded ? "assets/icon/remove.png" : "assets/icon/add.png",
-                color: MyTheme.brick_red,
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(left: 14.0),
-            child: Column(
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Container(
-                        width: (mWidht / 3),
-                        child: Text(
-                          productVariations[index].name!,
-                          style: MyTextStyle.smallFontSize()
-                              .copyWith(color: MyTheme.font_grey),
-                        )),
-                    Container(
-                      decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(8),
-                          color: MyTheme.app_accent_color_extra_light),
-                      width: (mWidht / 3),
-                      child: TextField(
-                        keyboardType: TextInputType.number,
-                        controller:
-                            productVariations[index].priceEditTextController,
-                        decoration: InputDecorations.buildInputDecoration_1(
-                          hint_text: "0",
-                          // borderColor: MyTheme.noColor,
-                          // hintTextColor: MyTheme.grey_153
-                        ),
-                      ),
-                    )
-                  ],
-                ),
-                if (isExpanded)
-                  Column(
-                    children: [
-                      itemSpacer(height: 14),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Container(
-                              width: 80,
-                              child: Text(
-                                LangText(context).local.sku_all_capital,
-                                style: MyTextStyle.smallFontSize()
-                                    .copyWith(color: MyTheme.font_grey),
-                              )),
-                          Container(
-                            decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(8),
-                                color: MyTheme.white),
-                            width: (mWidht * 0.6),
-                            child: TextField(
-                              controller: productVariations[index]
-                                  .skuEditTextController,
-                              decoration:
-                                  InputDecorations.buildInputDecoration_1(
-                                // fillColor: MyTheme.noColor,
-                                hint_text: "sku",
-                                // borderColor: MyTheme.grey_153,
-                                // hintTextColor: MyTheme.grey_153
-                              ),
-                            ),
-                          )
-                        ],
-                      ),
-                      itemSpacer(height: 10),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Container(
-                            width: 80,
-                            child: Text(
-                              LangText(context).local.quantity_ucf,
-                              style: MyTextStyle.smallFontSize()
-                                  .copyWith(color: MyTheme.font_grey),
-                            ),
-                          ),
-                          Container(
-                            decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(8),
-                                color: MyTheme.white),
-                            width: (mWidht * 0.6),
-                            child: TextField(
-                              inputFormatters: [
-                                FilteringTextInputFormatter.allow(
-                                    RegExp(r'[0-9]'))
-                              ],
-                              keyboardType: TextInputType.number,
-                              controller: productVariations[index]
-                                  .quantityEditTextController,
-                              decoration:
-                                  InputDecorations.buildInputDecoration_1(
-                                // fillColor: MyTheme.noColor,
-                                hint_text: "0",
-                                // borderColor: MyTheme.grey_153,
-                                // hintTextColor: MyTheme.grey_153
-                              ),
-                            ),
-                          )
-                        ],
-                      ),
-                      itemSpacer(height: 10),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 14.0),
-                            child: Text(
-                              LangText(context).local.photo_ucf,
-                              style: MyTextStyle.smallFontSize()
-                                  .copyWith(color: MyTheme.font_grey),
-                            ),
-                          ),
-                          SizedBox(
-                            width: (mWidht * 0.6),
-                            child: imageField("", (onChosenImage) {
-                              productVariations[index].photo = onChosenImage;
-                              setChange();
-                            }, productVariations[index].photo),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  buildSwitchField(String title, value, onChanged, {isMandatory = false}) {
-    return Row(
-      children: [
-        if (title.isNotEmpty) buildFieldTitle(title),
-        if (isMandatory)
-          Text(
-            " *",
-            style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.bold,
-                color: MyTheme.brick_red),
-          ),
-        const Spacer(),
-        Container(
-          height: 30,
-          child: Switch(
-            value: value,
-            onChanged: onChanged,
-            activeColor: MyTheme.green,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Future<DateTimeRange?> _buildPickDate() async {
-    DateTimeRange? p;
-    p = await showDateRangePicker(
-        context: context,
-        firstDate: DateTime.now(),
-        lastDate: DateTime.utc(2050),
-        builder: (context, child) {
-          return Container(
-            width: 500,
-            height: 500,
-            child: DateRangePickerDialog(
-              initialDateRange:
-                  DateTimeRange(start: DateTime.now(), end: DateTime.now()),
-              saveText: LangText(context).local.select_ucf,
-              initialEntryMode: DatePickerEntryMode.calendarOnly,
-              firstDate: DateTime.now(),
-              lastDate: DateTime.utc(2050),
-            ),
-          );
-        });
-
-    return p;
-  }
-
-  Widget buildTapBar() {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: Row(
-        children: [
-          buildTopTapBarItem(LangText(context).local.general_ucf, 0),
-          tabBarDivider(),
-          buildTopTapBarItem(LangText(context).local.media_ucf, 1),
-          tabBarDivider(),
-          buildTopTapBarItem(LangText(context).local.price_n_stock_ucf, 2),
-          // tabBarDivider(),
-          // buildTopTapBarItem(LangText(context).local.seo_all_capital, 3),
-          // tabBarDivider(),
-          // buildTopTapBarItem(LangText(context).local.shipping_ucf, 3),
-        ],
-      ),
-    );
-  }
-
-  Widget tabBarDivider() {
-    return const SizedBox(
-      width: 1,
-      height: 50,
-    );
-  }
-
-  Container buildTopTapBarItem(String text, int index) {
-    return Container(
-        height: 50,
-        width: 100,
-        color: _selectedTabIndex == index
-            ? MyTheme.accent_color
-            : MyTheme.accent_color.withOpacity(0.5),
-        child: Buttons(
-            onPressed: () {
-              _selectedTabIndex = index;
-              setState(() {});
-            },
-            child: Text(
-              text,
-              style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.bold,
-                  color: MyTheme.white),
-            )));
-  }
-
   Widget buildAppBar(BuildContext context) {
     return AppBar(
       leadingWidth: 0.0,
@@ -2555,10 +1434,6 @@ class _AddNewProductState extends State<AddNewProduct> {
         ],
       ),
       backgroundColor: Colors.white,
-      // bottom: PreferredSize(
-      //   preferredSize: Size(mWidht, 50),
-      //   child: buildTapBar(),
-      // ),
     );
   }
 }
@@ -2582,15 +1457,6 @@ class VariationModel {
       this.isExpended);
 }
 
-// class AttributeItemsModel {
-//   List<CommonDropDownItem> attributeItems;
-//   List<CommonDropDownItem> selectedAttributeItems;
-//   CommonDropDownItem selectedAttributeItem;
-//
-//   AttributeItemsModel(this.attributeItems, this.selectedAttributeItems,
-//       this.selectedAttributeItem);
-// }
-
 class Tags {
   static List<String> tags = [];
 
@@ -2606,15 +1472,5 @@ class Tags {
 
   static string() {
     return jsonEncode(toJson());
-  }
-}
-
-class MHeight {
-  double? _height;
-
-  double? get height => _height;
-
-  set height(double? value) {
-    _height = value;
   }
 }

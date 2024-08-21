@@ -65,10 +65,7 @@ class _RazorpayScreenState extends State<RazorpayScreen> {
         NavigationDelegate(
           onWebResourceError: (error) {},
           onPageFinished: (page) {
-            // print("page");
-            // print(page);
             if (page.contains("/razorpay/success")) {
-              print(page.toString());
               getData();
             }
           },
@@ -102,14 +99,7 @@ class _RazorpayScreenState extends State<RazorpayScreen> {
     setState(() {});
 
     razorpay();
-    // print("-----------");
 
-    // print(_combined_order_id);
-    // print(user_id.$);
-    // print(widget.amount);
-    // print(widget.payment_method_key);
-    // print(widget.payment_type);
-    // print("-----------");
   }
 
   @override
@@ -135,8 +125,6 @@ class _RazorpayScreenState extends State<RazorpayScreen> {
         responseJSON = jsonDecode(responseJSON);
       }
 
-      // print('responseJSON');
-      // print(responseJSON);
       if (responseJSON["result"] == false) {
         ToastComponent.showDialog(responseJSON["message"],
             duration: Toast.lengthLong, gravity: Toast.center);
@@ -160,8 +148,6 @@ class _RazorpayScreenState extends State<RazorpayScreen> {
       Navigator.pop(context);
       return;
     }
-    // print(razorpayPaymentSuccessResponse);
-    // print(razorpayPaymentSuccessResponse.message);
 
     ToastComponent.showDialog(razorpayPaymentSuccessResponse.message!,
         gravity: Toast.center, duration: Toast.lengthLong);

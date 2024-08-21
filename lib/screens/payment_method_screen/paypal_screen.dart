@@ -94,8 +94,6 @@ class _PaypalScreenState extends State<PaypalScreen> {
     _initial_url_fetched = true;
     setState(() {});
     paypal();
-    // print(_initial_url);
-    // print(_initial_url_fetched);
   }
 
   paypal() {
@@ -143,9 +141,6 @@ class _PaypalScreenState extends State<PaypalScreen> {
         responseJSON = jsonDecode(responseJSON);
       }
 
-      print("responseJSON");
-      print('order type${widget.payment_type}');
-      print(responseJSON);
 
       if (responseJSON["result"] == false) {
         ToastComponent.showDialog(responseJSON["message"],

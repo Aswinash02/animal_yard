@@ -57,7 +57,6 @@ class HomeBannerOne extends StatelessWidget {
                       onTap: () {
                         var url =
                             i.url?.split(AppConfig.DOMAIN_PATH).last ?? "";
-                        print(url);
                         GoRouter.of(context).go(url);
                       },
                       child: AIZImage.radiusImage(i.photo, 6),

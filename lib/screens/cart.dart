@@ -49,13 +49,6 @@ class _CartState extends State<Cart> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    print('access_token ========  ${access_token.$}');
-    /*print("user data");
-    print(is_logged_in.$);
-    print(access_token.value);
-    print(user_id.$);
-    print(user_name.$);*/
-
     fetchData();
   }
 
@@ -214,8 +207,6 @@ class _CartState extends State<Cart> {
     var cart_ids_string = cart_ids.join(',').toString();
     var cart_quantities_string = cart_quantities.join(',').toString();
 
-    // print(cart_ids_string);
-    // print(cart_quantities_string);
 
     var cartProcessResponse = await CartRepository()
         .getCartProcessResponse(cart_ids_string, cart_quantities_string);
@@ -225,17 +216,13 @@ class _CartState extends State<Cart> {
           gravity: Toast.center, duration: Toast.lengthLong);
     } else {
       if (mode == "update") {
-        // reset();
         fetchData();
       } else if (mode == "proceed_to_shipping") {
         if (guest_checkout_status.$ && !is_logged_in.$) {
-          print('=========== yes if ');
           Navigator.push(context, MaterialPageRoute(builder: (context) {
             return GuestCheckoutAddress();
           }));
         } else {
-          print('=========== yes else ');
-
           AIZRoute.push(context, SelectAddress()).then((value) {
             onPopped(value);
           });
@@ -313,13 +300,7 @@ class _CartState extends State<Cart> {
 
   Container buildBottomContainer() {
     return Container(
-      // decoration: BoxDecoration(
-      //   color: Colors.red,
-      //
-      // ),
-
       height: widget.has_bottomnav! ? 120 : 120,
-      //color: Colors.white,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 4),
         child: Column(
@@ -447,16 +428,6 @@ class _CartState extends State<Cart> {
   }
 
   buildCartSellerList() {
-    // for guest checkout log in to see cart items is disabled.
-    // if (is_logged_in.$ == false) {
-    //   return Container(
-    //       height: 100,
-    //       child: Center(
-    //           child: Text(
-    //         AppLocalizations.of(context)!.please_log_in_to_see_the_cart_items,
-    //         style: TextStyle(color: MyTheme.font_grey),
-    //       )));
-    // } else
     if (_isInitial && _shopList.length == 0) {
       return SingleChildScrollView(
           child: ShimmerHelper()
@@ -488,12 +459,7 @@ class _CartState extends State<Cart> {
                       ),
                       Spacer(),
                       Text(
-                        convertPrice(_shopList[index].subTotal)
-                            // .replaceAll(
-                            //     SystemConfig.systemCurrency!.code,
-                            //     SystemConfig.systemCurrency!.symbol)
-                            ??
-                            '',
+                        convertPrice(_shopList[index].subTotal),
                         style: TextStyle(
                             color: MyTheme.accent_color,
                             fontWeight: FontWeight.w700,

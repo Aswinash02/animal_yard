@@ -119,7 +119,6 @@ class _StripeScreenState extends State<StripeScreen> {
       if (responseJSON.runtimeType == String) {
         responseJSON = jsonDecode(responseJSON);
       }
-      //print(data.toString());
       if (responseJSON["result"] == false) {
         ToastComponent.showDialog(responseJSON["message"],
             duration: Toast.lengthLong, gravity: Toast.center);
@@ -150,8 +149,6 @@ class _StripeScreenState extends State<StripeScreen> {
   }
 
   buildBody() {
-    //print("init url");
-    //print(initial_url);
 
     if (_order_init == false &&
         _combined_order_id == 0 &&

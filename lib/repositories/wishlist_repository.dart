@@ -46,7 +46,6 @@ class WishListRepository {
           "App-Language": app_language.$!,
         },
         middleware: BannedUser());
-    print("is Product present in wishlist============>${response.body}");
 
     return wishListChekResponseFromJson(response.body);
   }
@@ -61,7 +60,6 @@ class WishListRepository {
           "App-Language": app_language.$!,
         },
         middleware: BannedUser());
-    print("wishlist Repository==========================>${response.body}");
     return wishListChekResponseFromJson(response.body);
   }
 
@@ -75,8 +73,6 @@ class WishListRepository {
           "App-Language": app_language.$!,
         },
         middleware: BannedUser());
-    print(
-        "wishlist remove Repository==========================>${response.body}");
 
     return wishListChekResponseFromJson(response.body);
   }

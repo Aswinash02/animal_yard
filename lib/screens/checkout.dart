@@ -140,8 +140,6 @@ class _CheckoutState extends State<Checkout> {
     if (_paymentTypeList.length > 0) {
       _selected_payment_method = _paymentTypeList[0].payment_type;
       _selected_payment_method_key = _paymentTypeList[0].payment_type_key;
-      print(
-          "selected Payment Method==================================>$_selected_payment_method");
     }
     _isInitial = false;
     setState(() {});
@@ -475,13 +473,11 @@ class _CheckoutState extends State<Checkout> {
       pay_by_cod();
     } else if (_selected_payment_method == "manual_payment" &&
         widget.paymentFor == PaymentFor.Order) {
-      print("manual Success-------------------->");
       pay_by_manual_payment();
     } else if (_selected_payment_method == "manual_payment" &&
         (widget.paymentFor == PaymentFor.ManualPayment ||
             widget.paymentFor == PaymentFor.WalletRecharge ||
             widget.paymentFor == PaymentFor.PackagePay)) {
-      print("manual Success-------------------->");
       Navigator.push(context, MaterialPageRoute(builder: (context) {
         return OfflineScreen(
           order_id: widget.order_id,

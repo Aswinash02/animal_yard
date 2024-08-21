@@ -10,7 +10,6 @@ class CartCounter extends ChangeNotifier{
   getCount()async{
     var res = await CartRepository().getCartCount();
     cartCounter = res.count;
-    print('res ======== ${res.count}');
     notifyListeners();
   }
 

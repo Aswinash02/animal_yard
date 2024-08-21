@@ -32,8 +32,6 @@ class OfflineWalletRechargeRepository {
         },
         body: post_body,
         middleware: BannedUser());
-    print("offline Payment Response----------------${response.body}");
-
     return offlineWalletRechargeResponseFromJson(response.body);
   }
 }

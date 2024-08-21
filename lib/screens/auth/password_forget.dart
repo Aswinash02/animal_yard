@@ -152,13 +152,12 @@ class _PasswordForgetState extends State<PasswordForget> {
                         child: CustomInternationalPhoneNumberInput(
                           countries: countries_code,
                           onInputChanged: (PhoneNumber number) {
-                            //print(number.phoneNumber);
+
                             setState(() {
                               _phone = number.phoneNumber;
                             });
                           },
                           onInputValidated: (bool value) {
-                            //print(value);
                           },
                           selectorConfig: SelectorConfig(
                             selectorType: PhoneInputSelectorType.DIALOG,
@@ -167,7 +166,6 @@ class _PasswordForgetState extends State<PasswordForget> {
                           autoValidateMode: AutovalidateMode.disabled,
                           selectorTextStyle:
                               TextStyle(color: MyTheme.font_grey),
-                          // initialValue: phoneCode,
                           textFieldController: _phoneNumberController,
                           formatInput: true,
                           keyboardType: TextInputType.numberWithOptions(
@@ -176,7 +174,6 @@ class _PasswordForgetState extends State<PasswordForget> {
                               InputDecorations.buildInputDecoration_phone(
                                   hint_text: "01710 333 558"),
                           onSaved: (PhoneNumber number) {
-                            //print('On Saved: $number');
                           },
                         ),
                       ),

@@ -30,9 +30,6 @@ class PaymentRepository {
           "App-Language": app_language.$!,
         },
         middleware: BannedUser());
-
-    print("response Body payment Response------------------------->${response.body}");
-
     return paymentTypeResponseFromJson(response.body);
   }
 
@@ -49,9 +46,6 @@ class PaymentRepository {
         },
         body: post_body,
         middleware: BannedUser());
-
-    // print(response.body);
-
     return orderCreateResponseFromJson(response.body);
   }
 
@@ -145,7 +139,6 @@ class PaymentRepository {
         },
         body: post_body,
         middleware: BannedUser());
-    print("manual Payment Functionality response------------------->${response.body}");
 
     return orderCreateResponseFromJson(response.body);
   }

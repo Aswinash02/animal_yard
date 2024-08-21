@@ -43,7 +43,6 @@ class ShippingRepository {
         "App-Language": app_language.$!,
       },
     );
-    print('deliveryInfoResponseFromJson ========== ${response.body}');
     return deliveryInfoResponseFromJson(response.body);
   }
 }

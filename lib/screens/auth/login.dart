@@ -11,9 +11,11 @@ import 'package:active_ecommerce_flutter/helpers/auth_helper.dart';
 import 'package:active_ecommerce_flutter/helpers/shared_value_helper.dart';
 import 'package:active_ecommerce_flutter/my_theme.dart';
 import 'package:active_ecommerce_flutter/repositories/auth_repository.dart';
+import 'package:active_ecommerce_flutter/screens/auth/otp.dart';
 import 'package:active_ecommerce_flutter/screens/auth/password_forget.dart';
 import 'package:active_ecommerce_flutter/screens/auth/registration.dart';
 import 'package:active_ecommerce_flutter/screens/main.dart';
+import 'package:active_ecommerce_flutter/services/local_db.dart';
 import 'package:active_ecommerce_flutter/social_config.dart';
 import 'package:active_ecommerce_flutter/ui_elements/auth_ui.dart';
 import 'package:crypto/crypto.dart';
@@ -21,6 +23,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
@@ -39,16 +42,12 @@ class _LoginState extends State<Login> {
   String _login_by = "phone"; //phone or email
   String initialCountry = 'US';
 
-  // PhoneNumber phoneCode = PhoneNumber(isoCode: 'US', dialCode: "+1");
   var countries_code = <String?>[];
 
-  String? _phone = "";
-  bool _showPassword = false;
 
   //controllers
   TextEditingController _phoneNumberController = TextEditingController();
   TextEditingController _emailController = TextEditingController();
-  TextEditingController _passwordController = TextEditingController();
 
   @override
   void initState() {
@@ -62,9 +61,7 @@ class _LoginState extends State<Login> {
   }
 
   onPressedLogin() async {
-    // Loading.show(context);
     var email = _emailController.text.toString();
-    var password = _passwordController.text.toString();
     var phone = _phoneNumberController.text.toString();
 
     if (_login_by == 'email' && email == "") {
@@ -77,20 +74,25 @@ class _LoginState extends State<Login> {
           gravity: Toast.center,
           duration: Toast.lengthLong);
       return;
-    } else if (password == "") {
-      ToastComponent.showDialog(AppLocalizations.of(context)!.enter_password,
-          gravity: Toast.center, duration: Toast.lengthLong);
-      return;
     }
     Loading.show(context);
-    var loginResponse = await AuthRepository().getLoginResponse(
-        _login_by == 'email' ? email : phone, password, _login_by);
+    var loginResponse = await AuthRepository()
+        .getLoginResponse(_login_by == 'email' ? email : phone, _login_by);
     Loading.close();
-// empty temp user id after logged in
     temp_user_id.$ = "";
     temp_user_id.save();
 
-    if (loginResponse.result == false) {
+    if (loginResponse.result == true) {
+      ToastComponent.showDialog(loginResponse.message!,
+          gravity: Toast.center, duration: Toast.lengthLong);
+      Navigator.push(context, MaterialPageRoute(builder: (context) {
+        return Otp(
+          title: 'Verify your phone Number',
+          phone: phone,
+        );
+      }));
+      _phoneNumberController.clear();
+    } else {
       if (loginResponse.message.runtimeType == List) {
         ToastComponent.showDialog(loginResponse.message!.join("\n"),
             gravity: Toast.center, duration: 3);
@@ -98,229 +100,11 @@ class _LoginState extends State<Login> {
       }
       ToastComponent.showDialog(loginResponse.message!.toString(),
           gravity: Toast.center, duration: Toast.lengthLong);
-    } else {
-      ToastComponent.showDialog(loginResponse.message!,
-          gravity: Toast.center, duration: Toast.lengthLong);
-      AuthHelper().setUserData(loginResponse);
-      // context.push("/");
-      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) {
-        return Main();
-      }));
-      // push notification starts
-      // if (OtherConfig.USE_PUSH_NOTIFICATION) {
-      //   final FirebaseMessaging _fcm = FirebaseMessaging.instance;
-
-      // await _fcm.requestPermission(
-      //   alert: true,
-      //   announcement: false,
-      //   badge: true,
-      //   carPlay: false,
-      //   criticalAlert: false,
-      //   provisional: false,
-      //   sound: true,
-      // );
-
-      // String? fcmToken = await _fcm.getToken();
-
-      // if (fcmToken != null) {
-      //   print("--fcm token--");
-      //   if (is_logged_in.$ == true) {
-      //     // update device token
-      //     var deviceTokenUpdateResponse = await ProfileRepository()
-      //         .getDeviceTokenUpdateResponse(fcmToken);
-      //   }
-      // }
-      // }
     }
-  }
-
-  onPressedFacebookLogin() async {
-    try {
-      final facebookLogin = await FacebookAuth.instance
-          .login(loginBehavior: LoginBehavior.webOnly);
-
-      if (facebookLogin.status == LoginStatus.success) {
-        // get the user data
-        // by default we get the userId, email,name and picture
-        final userData = await FacebookAuth.instance.getUserData();
-        var loginResponse = await AuthRepository().getSocialLoginResponse(
-            "facebook",
-            userData['name'].toString(),
-            userData['email'].toString(),
-            userData['id'].toString(),
-            access_token: facebookLogin.accessToken!.token);
-        // print("..........................${loginResponse.toString()}");
-        if (loginResponse.result == false) {
-          ToastComponent.showDialog(loginResponse.message!,
-              gravity: Toast.center, duration: Toast.lengthLong);
-        } else {
-          ToastComponent.showDialog(loginResponse.message!,
-              gravity: Toast.center, duration: Toast.lengthLong);
-
-          AuthHelper().setUserData(loginResponse);
-          Navigator.push(context, MaterialPageRoute(builder: (context) {
-            return Main();
-          }));
-          FacebookAuth.instance.logOut();
-        }
-        // final userData = await FacebookAuth.instance.getUserData(fields: "email,birthday,friends,gender,link");
-      } else {
-        print("....Facebook auth Failed.........");
-        // print(facebookLogin.status);
-        // print(facebookLogin.message);
-      }
-    } on Exception catch (e) {
-      print(e);
-      // TODO
-    }
-  }
-
-  onPressedGoogleLogin() async {
-    try {
-      final GoogleSignInAccount googleUser = (await GoogleSignIn().signIn())!;
-
-      print(googleUser.toString());
-
-      GoogleSignInAuthentication googleSignInAuthentication =
-          await googleUser.authentication;
-      String? accessToken = googleSignInAuthentication.accessToken;
-
-      // print("displayName ${googleUser.displayName}");
-      // print("email ${googleUser.email}");
-      // print("googleUser.id ${googleUser.id}");
-
-      var loginResponse = await AuthRepository().getSocialLoginResponse(
-          "google", googleUser.displayName, googleUser.email, googleUser.id,
-          access_token: accessToken);
-
-      if (loginResponse.result == false) {
-        ToastComponent.showDialog(loginResponse.message!,
-            gravity: Toast.center, duration: Toast.lengthLong);
-      } else {
-        ToastComponent.showDialog(loginResponse.message!,
-            gravity: Toast.center, duration: Toast.lengthLong);
-        AuthHelper().setUserData(loginResponse);
-        Navigator.push(context, MaterialPageRoute(builder: (context) {
-          return Main();
-        }));
-      }
-      GoogleSignIn().disconnect();
-    } on Exception catch (e) {
-      print("error is ....... $e");
-      // TODO
-    }
-  }
-
-  onPressedTwitterLogin() async {
-    try {
-      final twitterLogin = new TwitterLogin(
-          apiKey: SocialConfig().twitter_consumer_key,
-          apiSecretKey: SocialConfig().twitter_consumer_secret,
-          redirectURI: 'activeecommerceflutterapp://');
-      // Trigger the sign-in flow
-
-      final authResult = await twitterLogin.login();
-
-      // print("authResult");
-
-      // print(json.encode(authResult));
-
-      var loginResponse = await AuthRepository().getSocialLoginResponse(
-          "twitter",
-          authResult.user!.name,
-          authResult.user!.email,
-          authResult.user!.id.toString(),
-          access_token: authResult.authToken,
-          secret_token: authResult.authTokenSecret);
-
-      if (loginResponse.result == false) {
-        ToastComponent.showDialog(loginResponse.message!,
-            gravity: Toast.center, duration: Toast.lengthLong);
-      } else {
-        ToastComponent.showDialog(loginResponse.message!,
-            gravity: Toast.center, duration: Toast.lengthLong);
-        AuthHelper().setUserData(loginResponse);
-        Navigator.push(context, MaterialPageRoute(builder: (context) {
-          return Main();
-        }));
-      }
-    } on Exception catch (e) {
-      print("error is ....... $e");
-      // TODO
-    }
-  }
-
-  String generateNonce([int length = 32]) {
-    final charset =
-        '0123456789ABCDEFGHIJKLMNOPQRSTUVXYZabcdefghijklmnopqrstuvwxyz-._';
-    final random = Random.secure();
-    return List.generate(length, (_) => charset[random.nextInt(charset.length)])
-        .join();
-  }
-
-  /// Returns the sha256 hash of [input] in hex notation.
-  String sha256ofString(String input) {
-    final bytes = utf8.encode(input);
-    final digest = sha256.convert(bytes);
-    return digest.toString();
-  }
-
-  signInWithApple() async {
-    // To prevent replay attacks with the credential returned from Apple, we
-    // include a nonce in the credential request. When signing in with
-    // Firebase, the nonce in the id token returned by Apple, is expected to
-    // match the sha256 hash of `rawNonce`.
-    final rawNonce = generateNonce();
-    final nonce = sha256ofString(rawNonce);
-
-    // Request credential for the currently signed in Apple account.
-    try {
-      final appleCredential = await SignInWithApple.getAppleIDCredential(
-        scopes: [
-          AppleIDAuthorizationScopes.email,
-          AppleIDAuthorizationScopes.fullName,
-        ],
-        nonce: nonce,
-      );
-
-      var loginResponse = await AuthRepository().getSocialLoginResponse(
-          "apple",
-          appleCredential.givenName,
-          appleCredential.email,
-          appleCredential.userIdentifier,
-          access_token: appleCredential.identityToken);
-
-      if (loginResponse.result == false) {
-        ToastComponent.showDialog(loginResponse.message!,
-            gravity: Toast.center, duration: Toast.lengthLong);
-      } else {
-        ToastComponent.showDialog(loginResponse.message!,
-            gravity: Toast.center, duration: Toast.lengthLong);
-        AuthHelper().setUserData(loginResponse);
-        Navigator.push(context, MaterialPageRoute(builder: (context) {
-          return Main();
-        }));
-      }
-    } on Exception catch (e) {
-      print(e);
-      // TODO
-    }
-
-    // Create an `OAuthCredential` from the credential returned by Apple.
-    // final oauthCredential = OAuthProvider("apple.com").credential(
-    //   idToken: appleCredential.identityToken,
-    //   rawNonce: rawNonce,
-    // );
-    //print(oauthCredential.accessToken);
-
-    // Sign in the user with Firebase. If the nonce we generated earlier does
-    // not match the nonce in `appleCredential.identityToken`, sign in will fail.
-    //return await FirebaseAuth.instance.signInWithCredential(oauthCredential);
   }
 
   @override
   Widget build(BuildContext context) {
-    final _screen_height = MediaQuery.of(context).size.height;
     final _screen_width = MediaQuery.of(context).size.width;
     return AuthScreen.buildScreen(
         context,
@@ -337,16 +121,6 @@ class _LoginState extends State<Login> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Padding(
-              //   padding: const EdgeInsets.only(bottom: 4.0),
-              //   child: Text(
-              //     _login_by == "email"
-              //         ? AppLocalizations.of(context)!.email_ucf
-              //         : AppLocalizations.of(context)!.login_screen_phone,
-              //     style: TextStyle(
-              //         color: MyTheme.accent_color, fontWeight: FontWeight.w600),
-              //   ),
-              // ),
               Padding(
                 padding: const EdgeInsets.only(bottom: 4.0),
                 child: Text(
@@ -380,156 +154,6 @@ class _LoginState extends State<Login> {
                             hint_text: "01XXX XXX XXX"),
                       ),
                     ),
-                  ],
-                ),
-              ),
-              // if (_login_by == "email")
-              //   Padding(
-              //     padding: const EdgeInsets.only(bottom: 8.0),
-              //     child: Column(
-              //       crossAxisAlignment: CrossAxisAlignment.end,
-              //       children: [
-              //         Container(
-              //           height: 36,
-              //           child: TextField(
-              //             controller: _emailController,
-              //             autofocus: false,
-              //             decoration: InputDecorations.buildInputDecoration_1(
-              //                 hint_text: "johndoe@example.com"),
-              //           ),
-              //         ),
-              //         otp_addon_installed.$
-              //             ? GestureDetector(
-              //                 onTap: () {
-              //                   setState(() {
-              //                     _login_by = "phone";
-              //                   });
-              //                 },
-              //                 child: Text(
-              //                   AppLocalizations.of(context)!
-              //                       .or_login_with_a_phone,
-              //                   style: TextStyle(
-              //                       color: MyTheme.accent_color,
-              //                       fontStyle: FontStyle.italic,
-              //                       decoration: TextDecoration.underline),
-              //                 ),
-              //               )
-              //             : Container()
-              //       ],
-              //     ),
-              //   )
-              // else
-              //   Padding(
-              //     padding: const EdgeInsets.only(bottom: 8.0),
-              //     child: Column(
-              //       crossAxisAlignment: CrossAxisAlignment.end,
-              //       children: [
-              //         Container(
-              //           height: 36,
-              //           child: CustomInternationalPhoneNumberInput(
-              //             countries: countries_code,
-              //             onInputChanged: (PhoneNumber number) {
-              //               print(number.phoneNumber);
-              //               setState(() {
-              //                 _phone = number.phoneNumber;
-              //               });
-              //             },
-              //             onInputValidated: (bool value) {
-              //               print(value);
-              //             },
-              //             selectorConfig: SelectorConfig(
-              //               selectorType: PhoneInputSelectorType.DIALOG,
-              //             ),
-              //             ignoreBlank: false,
-              //             autoValidateMode: AutovalidateMode.disabled,
-              //             selectorTextStyle:
-              //                 TextStyle(color: MyTheme.font_grey),
-              //             textStyle: TextStyle(color: MyTheme.font_grey),
-              //             // initialValue: PhoneNumber(
-              //             //     isoCode: countries_code[0].toString()),
-              //             textFieldController: _phoneNumberController,
-              //             formatInput: true,
-              //             keyboardType: TextInputType.numberWithOptions(
-              //                 signed: true, decimal: true),
-              //             inputDecoration:
-              //                 InputDecorations.buildInputDecoration_phone(
-              //                     hint_text: "01XXX XXX XXX"),
-              //             onSaved: (PhoneNumber number) {
-              //               print('On Saved: $number');
-              //             },
-              //           ),
-              //         ),
-              //         GestureDetector(
-              //           onTap: () {
-              //             setState(() {
-              //               _login_by = "email";
-              //             });
-              //           },
-              //           child: Text(
-              //             AppLocalizations.of(context)!.or_login_with_an_email,
-              //             style: TextStyle(
-              //                 color: MyTheme.accent_color,
-              //                 fontStyle: FontStyle.italic,
-              //                 decoration: TextDecoration.underline),
-              //           ),
-              //         )
-              //       ],
-              //     ),
-              //   ),
-              Padding(
-                padding: const EdgeInsets.only(bottom: 4.0),
-                child: Text(
-                  AppLocalizations.of(context)!.password_ucf,
-                  style: TextStyle(
-                      color: MyTheme.accent_color, fontWeight: FontWeight.w600),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(bottom: 8.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Container(
-                      height: 36,
-                      child: TextField(
-                        controller: _passwordController,
-                        autofocus: false,
-                        obscureText: !_showPassword,
-                        enableSuggestions: false,
-                        autocorrect: false,
-                        decoration: InputDecorations.buildInputDecoration_1(
-                          hint_text: "• • • • • • • •",
-                        ).copyWith(
-                            suffixIcon: InkWell(
-                          onTap: () {
-                            _showPassword = !_showPassword;
-                            setState(() {});
-                          },
-                          child: Icon(
-                            _showPassword
-                                ? Icons.visibility_outlined
-                                : Icons.visibility_off_outlined,
-                            color: MyTheme.accent_color,
-                          ),
-                        )),
-                      ),
-                    ),
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.push(context,
-                            MaterialPageRoute(builder: (context) {
-                          return PasswordForget();
-                        }));
-                      },
-                      child: Text(
-                        AppLocalizations.of(context)!
-                            .login_screen_forgot_password,
-                        style: TextStyle(
-                            color: MyTheme.accent_color,
-                            fontStyle: FontStyle.italic,
-                            decoration: TextDecoration.underline),
-                      ),
-                    )
                   ],
                 ),
               ),
@@ -593,92 +217,6 @@ class _LoginState extends State<Login> {
                       return Registration();
                     }));
                   },
-                ),
-              ),
-              if (Platform.isIOS)
-                Padding(
-                  padding: const EdgeInsets.only(top: 20.0),
-                  child: SignInWithAppleButton(
-                    onPressed: () async {
-                      signInWithApple();
-                    },
-                  ),
-                ),
-              Visibility(
-                visible: allow_google_login.$ || allow_facebook_login.$,
-                child: Padding(
-                  padding: const EdgeInsets.only(top: 20.0),
-                  child: Center(
-                      child: Text(
-                    AppLocalizations.of(context)!.login_screen_login_with,
-                    style: TextStyle(color: MyTheme.font_grey, fontSize: 12),
-                  )),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(top: 15.0),
-                child: Center(
-                  child: Container(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Visibility(
-                          visible: allow_google_login.$,
-                          child: InkWell(
-                            onTap: () {
-                              onPressedGoogleLogin();
-                            },
-                            child: Container(
-                              width: 28,
-                              child: Image.asset("assets/google_logo.png"),
-                            ),
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(left: 15.0),
-                          child: Visibility(
-                            visible: allow_facebook_login.$,
-                            child: InkWell(
-                              onTap: () {
-                                onPressedFacebookLogin();
-                              },
-                              child: Container(
-                                width: 28,
-                                child: Image.asset("assets/facebook_logo.png"),
-                              ),
-                            ),
-                          ),
-                        ),
-                        if (allow_twitter_login.$)
-                          Padding(
-                            padding: const EdgeInsets.only(left: 15.0),
-                            child: InkWell(
-                              onTap: () {
-                                onPressedTwitterLogin();
-                              },
-                              child: Container(
-                                width: 28,
-                                child: Image.asset("assets/twitter_logo.png"),
-                              ),
-                            ),
-                          ),
-                        /* if (Platform.isIOS)
-                          Padding(
-                            padding: const EdgeInsets.only(left: 15.0),
-                            // visible: true,
-                            child: A(
-                              onTap: () async {
-                                signInWithApple();
-                              },
-                              child: Container(
-                                width: 28,
-                                child: Image.asset("assets/apple_logo.png"),
-                              ),
-                            ),
-                          ),*/
-                      ],
-                    ),
-                  ),
                 ),
               ),
             ],

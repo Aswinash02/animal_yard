@@ -31,8 +31,7 @@ class _ChatListState extends State<ChatList> {
     _chatList.addAll(response.data!);
     _faceData = true;
     _loadingState = false;
-
-    setState(() {});
+    if (mounted) setState(() {});
   }
 
   faceData() {
@@ -116,7 +115,6 @@ class _ChatListState extends State<ChatList> {
   }
 
   Widget buildChatListView() {
-    print(' _chatList.length ${_chatList.length}');
     return _loadingState
         ? chatListShimmer()
         : _chatList.isEmpty

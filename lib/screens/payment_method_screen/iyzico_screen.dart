@@ -79,7 +79,6 @@ class _IyzicoScreenState extends State<IyzicoScreen> {
         NavigationDelegate(
           onWebResourceError: (error) {},
           onPageFinished: (page) {
-            print(page.toString());
             getData();
           },
         ),
@@ -101,7 +100,6 @@ class _IyzicoScreenState extends State<IyzicoScreen> {
   }
 
   void getData() {
-    // print('called.........');
     String? payment_details = '';
     _webViewController
         .runJavaScriptReturningResult("document.body.innerText")
@@ -155,8 +153,6 @@ class _IyzicoScreenState extends State<IyzicoScreen> {
   }
 
   buildBody() {
-    //print("init url");
-    //print(initial_url);
 
     if (_order_init == false &&
         _combined_order_id == 0 &&

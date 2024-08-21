@@ -57,43 +57,9 @@ class _UploadFileSellerState extends State<UploadFileSeller> {
   int? lastPage = 1;
 
   Future<FilePickerResult?> pickSingleFile() async {
-    return await FilePicker.platform
-        .pickFiles(type: FileType.custom, allowedExtensions: [
-      "jpg",
-      "jpeg",
-      "png",
-      "svg",
-      "webp",
-      "gif",
-      "mp4",
-      "mpg",
-      "mpeg",
-      "webm",
-      "ogg",
-      "avi",
-      "mov",
-      "flv",
-      "swf",
-      "mkv",
-      "wmv",
-      "wma",
-      "aac",
-      "wav",
-      "mp3",
-      "zip",
-      "rar",
-      "7z",
-      "doc",
-      "txt",
-      "docx",
-      "pdf",
-      "csv",
-      "xml",
-      "ods",
-      "xlr",
-      "xls",
-      "xlsx"
-    ]);
+    return await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ["jpg", "jpeg", "png", "svg"]);
   }
 
   chooseAndUploadFile(context) async {

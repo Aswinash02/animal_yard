@@ -1,6 +1,3 @@
-
-
-
 import 'package:active_ecommerce_flutter/custom/box_decorations.dart';
 import 'package:active_ecommerce_flutter/custom/device_info.dart';
 import 'package:active_ecommerce_flutter/helpers/shared_value_helper.dart';

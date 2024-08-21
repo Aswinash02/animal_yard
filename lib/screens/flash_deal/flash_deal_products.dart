@@ -74,7 +74,6 @@ class _FlashDealProductsState extends State<FlashDealProducts> {
 
   getInfo() async {
     var res = await FlashDealRepository().getFlashDealInfo(widget.slug);
-    print(res.toJson());
     if (res.flashDeals?.isNotEmpty ?? false) {
       flashDealInfo = res.flashDeals?.first;
 
@@ -159,10 +158,7 @@ class _FlashDealProductsState extends State<FlashDealProducts> {
         child: TextField(
           controller: _searchController,
           onChanged: (txt) {
-            print(txt);
             _buildSearchList(txt);
-            // print(_searchList.toString());
-            // print(_searchList.length);
           },
           onTap: () {},
           autofocus: true,
@@ -207,8 +203,6 @@ class _FlashDealProductsState extends State<FlashDealProducts> {
               _fullList.addAll(productResponse!.products!);
               _searchList.addAll(productResponse!.products!);
             }
-
-            //print('called');
 
             return SingleChildScrollView(
               child: Column(

@@ -97,7 +97,7 @@ class _ProductReviewsState extends State<ProductReviews> {
 
     //return;
     var myReviewText = _myReviewTextController.text.toString();
-    //print(chatText);
+
     if (myReviewText == "") {
       ToastComponent.showDialog(
           AppLocalizations.of(context)!.review_can_not_empty_warning,
@@ -332,7 +332,6 @@ class _ProductReviewsState extends State<ProductReviews> {
                     ),
                     itemPadding: EdgeInsets.only(right: 1.0),
                     onRatingUpdate: (rating) {
-                      //print(rating);
                     },
                   ),
                 ))

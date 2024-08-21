@@ -250,8 +250,6 @@ class _FilterState extends State<Filter> {
     _isShopInitial = false;
     _totalShopData = shopResponse.meta.total;
     _showShopLoadingContainer = false;
-    //print("_shopPage:" + _shopPage.toString());
-    //print("_totalShopData:" + _totalShopData.toString());
     setState(() {});
   }
 
@@ -726,7 +724,6 @@ class _FilterState extends State<Filter> {
                           .getSearchSuggestionListResponse(
                               query_key: pattern,
                               type: _selectedFilter!.option_key);
-                      //print(suggestions.toString());
                       return suggestions;
                     },
                     loadingBuilder: (context) {
@@ -740,7 +737,6 @@ class _FilterState extends State<Filter> {
                       );
                     },
                     itemBuilder: (context, dynamic suggestion) {
-                      //print(suggestion.toString());
                       var subtitle =
                           "${AppLocalizations.of(context)!.searched_for_all_lower} ${suggestion.count} ${AppLocalizations.of(context)!.times_all_lower}";
                       if (suggestion.type != "search") {

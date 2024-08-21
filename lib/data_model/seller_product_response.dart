@@ -38,6 +38,7 @@ class SellerProduct {
     this.category,
     this.featured,
     this.quantity,
+    this.isApproved,
   });
 
   var id;
@@ -48,6 +49,7 @@ class SellerProduct {
   String? category;
   var featured;
   var quantity;
+  int? isApproved;
 
   factory SellerProduct.fromJson(Map<String, dynamic> json) => SellerProduct(
     id: json["id"],
@@ -58,6 +60,7 @@ class SellerProduct {
     category: json["category"],
     featured: json["featured"],
     quantity: json["current_stock"],
+    isApproved: json["approved"]
   );
 
   Map<String, dynamic> toJson() => {

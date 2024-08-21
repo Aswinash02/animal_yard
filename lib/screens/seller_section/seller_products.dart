@@ -131,14 +131,12 @@ class _ProductSellerState extends State<ProductSeller> {
   }
 
   productFeaturedChange({int? index, required bool value, setState, id}) async {
-    print(value);
     loading();
     var response = await SellerProductRepository()
         .productFeaturedChangeReq(id: id, featured: value ? 1 : 0);
     Navigator.pop(loadingContext);
 
     if (response.result) {
-      // _productFeatured[index]=value;
       _productList[index!].featured = value;
       resetAll();
     }
@@ -198,10 +196,10 @@ class _ProductSellerState extends State<ProductSeller> {
       case 0:
         Container();
         slideRightWidget(
-            newPage: UpdateProduct(
-              productId: productId,
-            ),
-            context: context)
+                newPage: UpdateProduct(
+                  productId: productId,
+                ),
+                context: context)
             .then((value) {
           resetAll();
         });
@@ -209,17 +207,9 @@ class _ProductSellerState extends State<ProductSeller> {
       case 1:
         showPublishUnPublishDialog(listIndex, productId);
         break;
-      // case 2:
-      //   showFeaturedUnFeaturedDialog(listIndex, productId);
-      //   break;
       case 2:
         showDeleteWarningDialog(productId);
-        // deleteProduct(productId);
         break;
-      // case 4:
-      //   print(productId);
-      //   duplicateProduct(productId);
-      //   break;
       default:
         break;
     }
@@ -292,7 +282,6 @@ class _ProductSellerState extends State<ProductSeller> {
   }
 
   void showPublishUnPublishDialog(int? index, id) {
-    //print(index.toString()+" "+_productStatus[index].toString());
     showDialog(
         context: context,
         builder: (context) {
@@ -329,8 +318,6 @@ class _ProductSellerState extends State<ProductSeller> {
   }
 
   void showFeaturedUnFeaturedDialog(int? index, id) {
-    //print(_productFeatured[index]);
-    print(index);
     showDialog(
         context: context,
         builder: (context) {
@@ -446,39 +433,8 @@ class _ProductSellerState extends State<ProductSeller> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Container(
-              padding: EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10),
-                //border: Border.all(color: MyTheme.app_accent_border),
-                color: MyTheme.accent_color,
-              ),
-              height: 75,
-              width: mWidht / 2 - 23,
-              child: Container(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    Text(
-                      LangText(context).local!.remaining_uploads,
-                      style: MyTextStyle().dashboardBoxText(context),
-                    ),
-                    Text(
-                      _remainingProduct,
-                      style: MyTextStyle().dashboardBoxNumber(context),
-                    ),
-                  ],
-                ),
-              )),
-          SizedBox(
-            width: AppStyles.itemMargin,
-          ),
-          Container(
               child: SubmitBtn.show(
             onTap: () {
-              // MyTransaction(context: context).push(NewProduct()).then((value) {
-              //   resetAll();
-              // });
               Navigator.push(context, MaterialPageRoute(builder: (context) {
                 return AddNewProduct();
               })).then((value) => resetAll());
@@ -495,7 +451,7 @@ class _ProductSellerState extends State<ProductSeller> {
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   Text(
-                    LangText(context).local!.add_new_product_ucf,
+                    LangText(context).local.add_new_product_ucf,
                     style: MyTextStyle()
                         .dashboardBoxText(context)
                         .copyWith(color: MyTheme.accent_color),
@@ -524,39 +480,43 @@ class _ProductSellerState extends State<ProductSeller> {
   Widget productsContainer() {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 15),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            LangText(context).local!.all_products_ucf,
-            style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.bold,
-                color: MyTheme.accent_color),
-          ),
-          SizedBox(
-            height: 10,
-          ),
-          ListView.builder(
-              physics: NeverScrollableScrollPhysics(),
-              itemCount: _productList.length + 1,
-              shrinkWrap: true,
-              itemBuilder: (context, index) {
-                // print(index);
-                if (index == _productList.length) {
-                  return moreProductLoading();
-                }
-                return productItem(
-                    index: index,
-                    productId: _productList[index].id,
-                    imageUrl: _productList[index].thumbnailImg,
-                    productTitle: _productList[index].name!,
-                    category: _productList[index].category,
-                    productPrice: _productList[index].price.toString(),
-                    quantity: _productList[index].quantity.toString());
-              }),
-        ],
-      ),
+      child: _productList.isEmpty
+          ? Center(
+              child: Text("No Product Found"),
+            )
+          : Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  LangText(context).local.all_products_ucf,
+                  style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      color: MyTheme.accent_color),
+                ),
+                SizedBox(
+                  height: 10,
+                ),
+                ListView.builder(
+                    physics: NeverScrollableScrollPhysics(),
+                    itemCount: _productList.length + 1,
+                    shrinkWrap: true,
+                    itemBuilder: (context, index) {
+                      if (index == _productList.length) {
+                        return moreProductLoading();
+                      }
+                      return productItem(
+                          index: index,
+                          productId: _productList[index].id,
+                          imageUrl: _productList[index].thumbnailImg,
+                          productTitle: _productList[index].name!,
+                          category: _productList[index].category,
+                          isApproved: _productList[index].isApproved!,
+                          productPrice: _productList[index].price.toString(),
+                          quantity: _productList[index].quantity.toString());
+                    }),
+              ],
+            ),
     );
   }
 
@@ -566,12 +526,13 @@ class _ProductSellerState extends State<ProductSeller> {
       String? imageUrl,
       required String productTitle,
       required category,
+      required int isApproved,
       required String productPrice,
       required String quantity}) {
     return MyWidget.customCardView(
         elevation: 5,
         backgroundColor: MyTheme.white,
-        height: 90,
+        height: 95,
         width: mWidht,
         margin: EdgeInsets.only(
           bottom: 20,
@@ -579,16 +540,7 @@ class _ProductSellerState extends State<ProductSeller> {
         borderColor: MyTheme.light_grey,
         borderRadius: 6,
         child: InkWell(
-          onTap: () {
-            // slideRightWidget(
-            //     newPage: UpdateProduct(
-            //       productId: productId,
-            //     ),
-            //     context: context)
-            //     .then((value) {
-            //   resetAll();
-            // });
-          },
+          onTap: () {},
           child: Row(
             children: [
               MyWidget.imageWithPlaceholder(
@@ -601,7 +553,6 @@ class _ProductSellerState extends State<ProductSeller> {
                   bottomLeft: Radius.circular(5),
                 ),
               ),
-              // Image.asset(ImageUrl,width: 80,height: 80,fit: BoxFit.contain,),
               SizedBox(
                 width: 11,
               ),
@@ -685,6 +636,18 @@ class _ProductSellerState extends State<ProductSeller> {
                         ],
                       ),
                     ),
+                    isApproved == 1
+                        ? Text(
+                            'Approved',
+                            style: TextStyle(
+                                color: Colors.green,
+                                fontWeight: FontWeight.bold),
+                          )
+                        : Text(
+                            'Pending Approval',
+                            style: TextStyle(
+                                color: Colors.red, fontWeight: FontWeight.bold),
+                          ),
                   ],
                 ),
               ),

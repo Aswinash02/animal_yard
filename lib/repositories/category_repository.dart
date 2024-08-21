@@ -6,12 +6,9 @@ import 'package:active_ecommerce_flutter/repositories/api-request.dart';
 class CategoryRepository {
   Future<CategoryResponse> getCategories({parent_id = 0}) async {
     String url = ("${AppConfig.BASE_URL}/categories?parent_id=${parent_id}");
-    print('parent_id  ${parent_id}');
-    print('parent_id  ${url}');
     final response = await ApiRequest.get(url: url, headers: {
       "App-Language": app_language.$!,
     });
-    print("getting All Gategories==========>${response.body}");
     return categoryResponseFromJson(response.body);
   }
 
@@ -20,7 +17,6 @@ class CategoryRepository {
     final response = await ApiRequest.get(url: url, headers: {
       "App-Language": app_language.$!,
     });
-    print("Featured Product Data=======================>${response.body}");
     return categoryResponseFromJson(response.body);
 
   }
@@ -30,7 +26,7 @@ class CategoryRepository {
     final response = await ApiRequest.get(url: url, headers: {
       "App-Language": app_language.$!,
     });
-    return categoryResponseFromJson(response.body);
+     return categoryResponseFromJson(response.body);
   }
 
   Future<CategoryResponse> getTopCategories() async {

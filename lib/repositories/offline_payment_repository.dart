@@ -67,8 +67,6 @@ class OfflinePaymentRepository {
         body: post_body,
         middleware: BannedUser());
 
-    print("get offline payment Data===============>${response.body}");
-
     return orderCreateResponseFromJson(response.body);
   }
 }
