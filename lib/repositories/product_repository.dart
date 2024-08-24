@@ -120,10 +120,11 @@ class ProductRepository {
 
   Future<AnimalProductModel> fetchAllAnimalProducts() async {
     String url = ("${AppConfig.BASE_URL}/get-animal");
-
+print('url -----> $url');
     final response = await ApiRequest.get(url: url, headers: {
       "App-Language": app_language.$!,
     });
+    print('response ----------- > animal : ${response.body}');
     return AnimalProductModel.fromJson(jsonDecode(response.body));
   }
 
@@ -140,7 +141,7 @@ class ProductRepository {
   Future<ProductDetailsResponse> getProductDetails(
       {String? slug = "", dynamic userId = ''}) async {
     String url = ("${AppConfig.BASE_URL}/products/" + slug.toString());
-    print('url ----------- > $url');
+    print('url ---- 66 ------- > $url');
     final response = await ApiRequest.get(url: url, headers: {
       "App-Language": app_language.$!,
     });

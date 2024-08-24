@@ -173,7 +173,7 @@ class _MessengerListState extends State<MessengerList> {
     return GestureDetector(
       onTap: () {
         Navigator.push(context, MaterialPageRoute(builder: (context) {
-          return Chat(
+          return ChatScreen(
             conversation_id: _list[index].id,
             messenger_name: _list[index].shop_name,
             messenger_title: _list[index].title,
@@ -184,73 +184,76 @@ class _MessengerListState extends State<MessengerList> {
       child: Padding(
         padding: const EdgeInsets.only(bottom: 8.0),
         child:
-            Row(mainAxisAlignment: MainAxisAlignment.start, children: <Widget>[
+            Container(
+              color: Colors.transparent,
+              child: Row(mainAxisAlignment: MainAxisAlignment.start, children: <Widget>[
           Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(35),
-              border: Border.all(
-                  color: Color.fromRGBO(112, 112, 112, .3), width: 1),
-              //shape: BoxShape.rectangle,
-            ),
-            child: ClipRRect(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(35),
-                child: FadeInImage.assetNetwork(
-                  placeholder: 'assets/placeholder.png',
-                  image: _list[index].shop_logo,
-                  fit: BoxFit.contain,
-                )),
+                border: Border.all(
+                    color: Color.fromRGBO(112, 112, 112, .3), width: 1),
+                //shape: BoxShape.rectangle,
+              ),
+              child: ClipRRect(
+                  borderRadius: BorderRadius.circular(35),
+                  child: FadeInImage.assetNetwork(
+                    placeholder: 'assets/placeholder.png',
+                    image: _list[index].shop_logo,
+                    fit: BoxFit.contain,
+                  )),
           ),
           Container(
-            height: 50,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              mainAxisSize: MainAxisSize.max,
-              children: [
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        _list[index].shop_name,
-                        textAlign: TextAlign.left,
-                        overflow: TextOverflow.ellipsis,
-                        maxLines: 1,
-                        style: TextStyle(
-                            color: MyTheme.font_grey,
-                            fontSize: 13,
-                            height: 1.6,
-                            fontWeight: FontWeight.w600),
-                      ),
-                      Text(
-                        _list[index].title,
-                        textAlign: TextAlign.left,
-                        overflow: TextOverflow.ellipsis,
-                        maxLines: 1,
-                        style: TextStyle(
-                            color: MyTheme.medium_grey,
-                            height: 1.6,
-                            fontWeight: FontWeight.w600),
-                      ),
-                    ],
+              height: 50,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                mainAxisSize: MainAxisSize.max,
+                children: [
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          _list[index].shop_name,
+                          textAlign: TextAlign.left,
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
+                          style: TextStyle(
+                              color: MyTheme.font_grey,
+                              fontSize: 13,
+                              height: 1.6,
+                              fontWeight: FontWeight.w600),
+                        ),
+                        Text(
+                          _list[index].title,
+                          textAlign: TextAlign.left,
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
+                          style: TextStyle(
+                              color: MyTheme.medium_grey,
+                              height: 1.6,
+                              fontWeight: FontWeight.w600),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-              ],
-            ),
+                ],
+              ),
           ),
           Spacer(),
           Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Icon(
-              Icons.arrow_forward_ios_rounded,
-              color: MyTheme.medium_grey,
-              size: 14,
-            ),
+              padding: const EdgeInsets.all(16.0),
+              child: Icon(
+                Icons.arrow_forward_ios_rounded,
+                color: MyTheme.medium_grey,
+                size: 14,
+              ),
           )
         ]),
+            ),
       ),
     );
   }

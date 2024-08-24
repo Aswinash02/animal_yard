@@ -67,7 +67,10 @@ class _ProductSellerState extends State<ProductSeller> {
     _productList.addAll(productResponse.data!);
     _showMoreProductLoadingContainer = false;
     _isProductInit = true;
-    setState(() {});
+    if(mounted){
+      setState(() {});
+    }
+
   }
 
   Future<bool> _getAccountInfo() async {

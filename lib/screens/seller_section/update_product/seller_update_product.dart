@@ -169,6 +169,7 @@ class _UpdateProductState extends State<UpdateProduct> {
 
   List<FileInfo> productGalleryImages = [];
   FileInfo? thumbnailImage;
+  FileInfo? video;
   FileInfo? metaImage;
   FileInfo? pdfDes;
   DateTimeRange? dateTimeRange =
@@ -710,11 +711,14 @@ class _UpdateProductState extends State<UpdateProduct> {
     else if (thumbnailImage == null) {
       ToastComponent.showDialog("Product Image Required");
       return false;
-    } else if (unitEditTextController.text.trim().toString().isEmpty) {
-      ToastComponent.showDialog("Product Unit Required");
-      return false;
-    } else if (unitPriceEditTextController.text.trim().toString().isEmpty) {
-      ToastComponent.showDialog("Product Unit Price Required");
+    }
+
+    // else if (unitEditTextController.text.trim().toString().isEmpty) {
+    //   ToastComponent.showDialog("Product Unit Required");
+    //   return false;
+    // }
+    else if (unitPriceEditTextController.text.trim().toString().isEmpty) {
+      ToastComponent.showDialog("Product Quantity Price Required");
       return false;
     } else if (productQuantityEditTextController.text
         .trim()
@@ -746,12 +750,13 @@ class _UpdateProductState extends State<UpdateProduct> {
       "category_id": categoryId,
       "category_ids": [categoryId],
       "brand_id": brandId,
-      "unit": unit,
+      "unit": "1",
       "weight": weight,
       "min_qty": minQuantity,
       "tags": [tagMap.toString()],
       "photos": photos,
       "thumbnail_img": thumbnailImg,
+      "video": video != null ? video!.id : "",
       "video_provider": videoProvider,
       "video_link": videoLink,
       "colors": colors,
@@ -807,8 +812,8 @@ class _UpdateProductState extends State<UpdateProduct> {
       "state_id": _selected_state!.id,
       "city_id": _selected_city!.id,
       "postal_code": _postalCodeController.text,
-      "lat": lat,
-      "long": long,
+      "latitude": lat,
+      "longitude": long,
       "animal": 1
     });
     print('postValue========== > $postValue');
@@ -888,8 +893,8 @@ class _UpdateProductState extends State<UpdateProduct> {
     isTodaysDeal = productInfo.todaysDeal == 1 ? true : false;
     tmpColorList.addAll(productInfo.colors!);
     getColors();
-    print('lat ===== > ${productInfo.latitude}');
-// lat= ;
+    lat = productInfo.latitude ?? 0.0;
+    long = productInfo.longitude ?? 0.0;
     tmpAttribute.clear();
     tmpAttribute.addAll(productInfo.choiceOptions!);
     getAttributes();
@@ -940,6 +945,9 @@ class _UpdateProductState extends State<UpdateProduct> {
     }
     if (productInfo.thumbnailImg!.data!.isNotEmpty) {
       thumbnailImage = productInfo.thumbnailImg!.data!.first;
+    }
+    if (productInfo.video!.data!.isNotEmpty) {
+      video = productInfo.video!.data!.first;
     }
     if (productInfo.metaImg!.data!.isNotEmpty) {
       metaImage = productInfo.metaImg!.data!.first;
@@ -1173,11 +1181,11 @@ class _UpdateProductState extends State<UpdateProduct> {
               "Pregnancy",
               pregnancyEditTextController,
             ),
-            itemSpacer(),
-            buildEditTextField("Unit", "Unit", unitEditTextController,
-                keyboardType: TextInputType.number,
-                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                isMandatory: true),
+            // itemSpacer(),
+            // buildEditTextField("Unit", "Unit", unitEditTextController,
+            //     keyboardType: TextInputType.number,
+            //     inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+            //     isMandatory: true),
             itemSpacer(height: 1),
           ],
         ),
@@ -1196,12 +1204,6 @@ class _UpdateProductState extends State<UpdateProduct> {
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            buildPriceEditTextField(
-                LangText(context).local.unit_price_ucf,
-                LangText(context).local.unit_price_ucf,
-                unitPriceEditTextController,
-                isMandatory: true),
-            itemSpacer(),
             buildEditTextField(
                 LangText(context).local.quantity_ucf,
                 LangText(context).local.quantity_ucf,
@@ -1210,16 +1212,32 @@ class _UpdateProductState extends State<UpdateProduct> {
                 keyboardType: TextInputType.number,
                 isMandatory: true),
             itemSpacer(),
+            buildPriceEditTextField(
+                LangText(context).local.per_quantity_price_ucf,
+                LangText(context).local.per_quantity_price_ucf,
+                unitPriceEditTextController,
+                isMandatory: true),
+            itemSpacer(),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 chooseSingleImageField(
                     AppLocalizations.of(context)!.image_300_ucf,
                     AppLocalizations.of(context)!.thumbnail_image_300_des,
-                    (onChosenImage) {
+                    true,
+                    "image", (onChosenImage) {
                   thumbnailImage = onChosenImage;
                   setChange();
                 }, thumbnailImage),
+                itemSpacer(),
+                chooseSingleImageField(
+                    LangText(context).local.video_ucf,
+                    LangText(context).local.video_des,
+                    false,
+                    "video", (onChosenImage) {
+                  video = onChosenImage;
+                  setChange();
+                }, video),
               ],
             ),
             itemSpacer(),
@@ -1291,10 +1309,37 @@ class _UpdateProductState extends State<UpdateProduct> {
               ),
               child: TypeAheadField(
                 textFieldConfiguration: TextFieldConfiguration(
-                    cursorColor: MyTheme.accent_color,
-                    controller: _addressController,
-                    decoration: InputDecorations.buildInputDecoration_1(
-                        hint_text: LangText(context).local.enter_address_ucf)),
+                  cursorColor: MyTheme.accent_color,
+                  controller: _addressController,
+                  decoration: InputDecorations.buildInputDecoration_1(
+                    hint_text: LangText(context).local.enter_address_ucf,
+                  ),
+                  onSubmitted: (value) async {
+                    var suggestions = await getSuggestions(value);
+
+                    if (suggestions.isNotEmpty) {
+                      var matchingSuggestion = suggestions.firstWhere(
+                        (suggestion) => suggestion['description'] == value,
+                        orElse: () => null,
+                      );
+
+                      if (matchingSuggestion != null) {
+                        var placeId = matchingSuggestion['place_id'];
+                        var details = await getPlaceDetails(placeId);
+                        _addressController.text =
+                            matchingSuggestion['description'];
+                        var location = details['geometry']['location'];
+                        lat = location['lat'];
+                        long = location['lng'];
+                        mapController?.animateCamera(
+                          CameraUpdate.newLatLng(
+                            LatLng(lat, long),
+                          ),
+                        );
+                      }
+                    }
+                  },
+                ),
                 suggestionsCallback: (pattern) async {
                   return await getSuggestions(pattern);
                 },
@@ -1345,8 +1390,13 @@ class _UpdateProductState extends State<UpdateProduct> {
     );
   }
 
-  Widget chooseSingleImageField(String title, String shortMessage,
-      dynamic onChosenImage, FileInfo? selectedFile) {
+  Widget chooseSingleImageField(
+      String title,
+      String shortMessage,
+      bool isMandatory,
+      String fileType,
+      dynamic onChosenImage,
+      FileInfo? selectedFile) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -1362,27 +1412,28 @@ class _UpdateProductState extends State<UpdateProduct> {
                       color: MyTheme.font_grey,
                       fontWeight: FontWeight.bold),
                 ),
-                Text(
-                  '*',
-                  style: TextStyle(
-                      fontSize: 12,
-                      color: MyTheme.brick_red,
-                      fontWeight: FontWeight.bold),
-                ),
+                if (isMandatory)
+                  Text(
+                    '*',
+                    style: TextStyle(
+                        fontSize: 12,
+                        color: MyTheme.brick_red,
+                        fontWeight: FontWeight.bold),
+                  ),
               ],
             ),
             SizedBox(
               height: 10,
             ),
-            imageField(shortMessage, onChosenImage, selectedFile)
+            imageField(shortMessage, onChosenImage, fileType, selectedFile)
           ],
         ),
       ],
     );
   }
 
-  Widget imageField(
-      String shortMessage, dynamic onChosenImage, FileInfo? selectedFile) {
+  Widget imageField(String shortMessage, dynamic onChosenImage, String fileType,
+      FileInfo? selectedFile) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -1393,8 +1444,8 @@ class _UpdateProductState extends State<UpdateProduct> {
             List<FileInfo> chooseFile = await (Navigator.push(
                 context,
                 MaterialPageRoute(
-                    builder: (context) => const UploadFileSeller(
-                          fileType: "image",
+                    builder: (context) => UploadFileSeller(
+                          fileType: fileType,
                           canSelect: true,
                         ))));
             if (chooseFile.isNotEmpty) {
@@ -1413,7 +1464,7 @@ class _UpdateProductState extends State<UpdateProduct> {
                 Padding(
                   padding: const EdgeInsets.only(left: 14.0),
                   child: Text(
-                    LangText(context).local!.choose_file,
+                    LangText(context).local.choose_file,
                     style: TextStyle(fontSize: 12, color: MyTheme.grey_153),
                   ),
                 ),
@@ -1459,10 +1510,13 @@ class _UpdateProductState extends State<UpdateProduct> {
               ),
               MyWidget.imageWithPlaceholder(
                   border: Border.all(width: 0.5, color: MyTheme.light_grey),
+                  fileType: fileType,
                   radius: BorderRadius.circular(5),
                   height: 50.0,
                   width: 50.0,
-                  url: selectedFile.url),
+                  url: fileType == "video"
+                      ? selectedFile.thumbnail
+                      : selectedFile.url),
               Positioned(
                 top: 3,
                 right: 2,

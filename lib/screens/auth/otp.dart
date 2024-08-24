@@ -145,7 +145,7 @@ class _OtpState extends State<Otp> {
                                     },
                                     decoration:
                                         InputDecorations.buildInputDecoration_1(
-                                            hint_text: "A X B 4 J H"),
+                                            hint_text: "Enter OTP"),
                                   ),
                                 ),
                               ],

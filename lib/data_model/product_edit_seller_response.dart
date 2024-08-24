@@ -60,6 +60,7 @@ class ProductInfo {
     this.cityId,
     this.photos,
     this.thumbnailImg,
+    this.video,
     this.videoProvider,
     this.videoLink,
     this.tags,
@@ -127,10 +128,11 @@ class ProductInfo {
   String? postalCode;
   int? stateId;
   int? cityId;
-  String? latitude;
-  String? longitude;
+  double? latitude;
+  double? longitude;
   Photos? photos;
   Photos? thumbnailImg;
+  Photos? video;
   String? videoProvider;
   dynamic videoLink;
   String? tags;
@@ -205,10 +207,11 @@ class ProductInfo {
       city: json['city '],
       state: json['state'],
       postalCode: json['postal_code'],
-      latitude: json['latitude'],
-      longitude: json['longitude'],
+      latitude: (json['latitude'] as num?)?.toDouble(),
+      longitude: (json['longitude'] as num?)?.toDouble(),
       photos: Photos.fromJson(json["photos"]),
       thumbnailImg: Photos.fromJson(json["thumbnail_img"]),
+      video:json["video"] != null ? Photos.fromJson(json["video"]) : null,
       videoProvider: json["video_provider"],
       videoLink: json["video_link"],
       tags: json["tags"],

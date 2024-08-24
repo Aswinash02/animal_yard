@@ -541,7 +541,7 @@ class _AuctionProductsDetailsState extends State<AuctionProductsDetails>
     setState(() {});
 
     Navigator.push(context, MaterialPageRoute(builder: (context) {
-      return Chat(
+      return ChatScreen(
         conversation_id: conversationCreateResponse.conversation_id,
         messenger_name: conversationCreateResponse.shop_name,
         messenger_title: conversationCreateResponse.title,

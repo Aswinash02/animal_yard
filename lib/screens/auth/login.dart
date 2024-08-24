@@ -60,48 +60,88 @@ class _LoginState extends State<Login> {
     data.countries.forEach((c) => countries_code.add(c.code));
   }
 
-  onPressedLogin() async {
+  void onPressedLogin() async {
     var email = _emailController.text.toString();
     var phone = _phoneNumberController.text.toString();
 
-    if (_login_by == 'email' && email == "") {
-      ToastComponent.showDialog(AppLocalizations.of(context)!.enter_email,
-          gravity: Toast.center, duration: Toast.lengthLong);
+    if (_login_by == 'email' && email.isEmpty) {
+      if (mounted) {
+        ToastComponent.showDialog(
+          AppLocalizations.of(context)!.enter_email,
+          gravity: Toast.center,
+          duration: Toast.lengthLong,
+        );
+      }
       return;
-    } else if (_login_by == 'phone' && phone == "") {
-      ToastComponent.showDialog(
+    } else if (_login_by == 'phone' && phone.isEmpty) {
+      if (mounted) {
+        ToastComponent.showDialog(
           AppLocalizations.of(context)!.enter_phone_number,
           gravity: Toast.center,
-          duration: Toast.lengthLong);
+          duration: Toast.lengthLong,
+        );
+      }
       return;
     }
-    Loading.show(context);
-    var loginResponse = await AuthRepository()
-        .getLoginResponse(_login_by == 'email' ? email : phone, _login_by);
-    Loading.close();
-    temp_user_id.$ = "";
-    temp_user_id.save();
 
-    if (loginResponse.result == true) {
-      ToastComponent.showDialog(loginResponse.message!,
-          gravity: Toast.center, duration: Toast.lengthLong);
-      Navigator.push(context, MaterialPageRoute(builder: (context) {
-        return Otp(
-          title: 'Verify your phone Number',
-          phone: phone,
-        );
-      }));
-      _phoneNumberController.clear();
-    } else {
-      if (loginResponse.message.runtimeType == List) {
-        ToastComponent.showDialog(loginResponse.message!.join("\n"),
-            gravity: Toast.center, duration: 3);
-        return;
+    Loading.show(context);
+
+    try {
+      var loginResponse = await AuthRepository().getLoginResponse(
+        _login_by == 'email' ? email : phone,
+        _login_by,
+      );
+
+      if (mounted) {
+        Loading.close();
+
+        temp_user_id.$ = "";
+        temp_user_id.save();
+        if (loginResponse.result == true) {
+          ToastComponent.showDialog(
+            loginResponse.message!,
+            gravity: Toast.center,
+            duration: Toast.lengthLong,
+          );
+
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) {
+              return Otp(
+                title: 'Verify your phone Number',
+                phone: phone,
+              );
+            }),
+          );
+          _phoneNumberController.clear();
+        } else {
+          if (loginResponse.message.runtimeType == List) {
+            ToastComponent.showDialog(
+              loginResponse.message!.join("\n"),
+              gravity: Toast.center,
+              duration: 3,
+            );
+          } else {
+            ToastComponent.showDialog(
+              loginResponse.message!.toString(),
+              gravity: Toast.center,
+              duration: Toast.lengthLong,
+            );
+          }
+        }
       }
-      ToastComponent.showDialog(loginResponse.message!.toString(),
-          gravity: Toast.center, duration: Toast.lengthLong);
+    } catch (e) {
+      if (mounted) {
+        Loading.close();
+        ToastComponent.showDialog(
+          'An error occurred. Please try again.',
+          gravity: Toast.center,
+          duration: Toast.lengthLong,
+        );
+      }
     }
   }
+
 
   @override
   Widget build(BuildContext context) {

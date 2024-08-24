@@ -32,8 +32,8 @@ class AnimalData {
   String? strokedPrice;
   String? mainPrice;
   int? rating;
-  int? lat;
-  int? lon;
+  double? lat;
+  double? lon;
   String? phone;
   int? sales;
   bool? isWholesale;
@@ -66,8 +66,8 @@ class AnimalData {
     strokedPrice = json['stroked_price'];
     mainPrice = json['main_price'];
     rating = json['rating'];
-    lat = json['lat'];
-    lon = json['lon'];
+    lat= (json['lat'] as num?)?.toDouble();
+    lon=(json['lon'] as num?)?.toDouble();
     phone = json['phone'];
     sales = json['sales'];
     isWholesale = json['is_wholesale'];

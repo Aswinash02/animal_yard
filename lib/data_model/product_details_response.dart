@@ -72,7 +72,9 @@ class DetailedProduct {
       this.estShippingTime,
       this.lat,
       this.lon,
-      this.phone});
+      this.phone,
+      this.address,
+      this.video});
 
   int? id;
   String? name;
@@ -110,6 +112,8 @@ class DetailedProduct {
   double? lat;
   double? lon;
   String? phone;
+  String? address;
+  String? video;
 
   factory DetailedProduct.fromJson(Map<String, dynamic> json) =>
       DetailedProduct(
@@ -150,8 +154,10 @@ class DetailedProduct {
         wholesale: List<Wholesale>.from(
             json["wholesale"].map((x) => Wholesale.fromJson(x))),
         lat: json["lat"] != null ? json["lat"].toDouble() : null,
-        lon: json["lon"] != null ? json["lon"].toDouble() : null,
+        lon: json["long"] != null ? json["long"].toDouble() : null,
         phone: json["phone"],
+        address: json["address"],
+        video: json["video"] != null ? json["video"] : null,
       );
 
   Map<String, dynamic> toJson() => {

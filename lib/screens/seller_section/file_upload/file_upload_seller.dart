@@ -3,10 +3,11 @@ import 'package:active_ecommerce_flutter/custom/toast_component.dart';
 import 'package:active_ecommerce_flutter/data_model/uploaded_file_list_response.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:one_context/one_context.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:toast/toast.dart';
 import 'package:active_ecommerce_flutter/custom/lang_text.dart';
-
+import 'package:video_player/video_player.dart';
+import 'package:video_thumbnail/video_thumbnail.dart';
 import '../../../custom/buttons.dart';
 import '../../../custom/device_info.dart';
 import '../../../custom/m_decoration.dart';
@@ -36,6 +37,7 @@ class UploadFileSeller extends StatefulWidget {
 }
 
 class _UploadFileSellerState extends State<UploadFileSeller> {
+  // VideoPlayerController? _videoController;
   ScrollController mainScrollController = ScrollController();
   TextEditingController searchEditingController = TextEditingController();
   String searchTxt = "";
@@ -57,9 +59,37 @@ class _UploadFileSellerState extends State<UploadFileSeller> {
   int? lastPage = 1;
 
   Future<FilePickerResult?> pickSingleFile() async {
-    return await FilePicker.platform.pickFiles(
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
         type: FileType.custom,
-        allowedExtensions: ["jpg", "jpeg", "png", "svg"]);
+        allowedExtensions: widget.fileType == "image"
+            ? ["jpg", "jpeg", "png", "svg"]
+            : ["mp4", "mov", "avi", "mkv", "flv"]);
+
+    if (result != null && widget.fileType == "video") {
+      String? path = result.files.single.path;
+
+      if (path != null) {
+        VideoPlayerController videoController =
+            VideoPlayerController.file(File(path));
+        await videoController.initialize();
+
+        final duration = videoController.value.duration;
+
+        if (duration.inSeconds > 30) {
+          final snackBar = SnackBar(
+            content: Text(
+              'Video duration exceeds 30 seconds. Please select a shorter video',
+              textAlign: TextAlign.center,
+            ),
+            backgroundColor: MyTheme.accent_color,
+          );
+          ScaffoldMessenger.of(context).showSnackBar(snackBar);
+          return null;
+        }
+      }
+    }
+
+    return result;
   }
 
   chooseAndUploadFile(context) async {
@@ -69,7 +99,7 @@ class _UploadFileSellerState extends State<UploadFileSeller> {
           gravity: Toast.center, duration: Toast.lengthLong);
       return;
     }
-
+    _faceData = false;
     var fileUploadResponse =
         await FileUploadRepository().fileUploadSeller(File(file.paths.first!));
     resetData();
@@ -86,7 +116,25 @@ class _UploadFileSellerState extends State<UploadFileSeller> {
   getImageList() async {
     var response = await FileUploadRepository()
         .getFilesSeller(currentPage, searchTxt, widget.fileType, sortBy!.key);
-    _images.addAll(response.data!);
+    if (widget.fileType == "video" && response.data!.isNotEmpty) {
+      for (int i = 0; i < response.data!.length; i++) {
+        String? thumbnail =
+            await generateThumbnail(response.data![i].url ?? '');
+
+        _images.add(FileInfo(
+          id: response.data![i].id,
+          fileOriginalName: response.data![i].fileOriginalName,
+          fileName: response.data![i].fileName,
+          url: response.data![i].url,
+          fileSize: response.data![i].fileSize,
+          extension: response.data![i].extension,
+          type: response.data![i].type,
+          thumbnail: thumbnail,
+        ));
+      }
+    } else {
+      _images.addAll(response.data!);
+    }
     _faceData = true;
     lastPage = response.meta!.lastPage;
     setState(() {});
@@ -110,7 +158,7 @@ class _UploadFileSellerState extends State<UploadFileSeller> {
   delete(id) async {
     var response = await FileUploadRepository().deleteFileSeller(id);
 
-    if (response.result!) {
+    if (response.result) {
       resetData();
     }
 
@@ -120,7 +168,10 @@ class _UploadFileSellerState extends State<UploadFileSeller> {
   Future<bool> clearData() async {
     _images = [];
     _faceData = false;
-    setState(() {});
+    if (mounted) {
+      setState(() {});
+    }
+
     return true;
   }
 
@@ -154,6 +205,23 @@ class _UploadFileSellerState extends State<UploadFileSeller> {
         }
       }
     });
+  }
+
+  Future<String?> generateThumbnail(String url) async {
+    try {
+      final thumbnail = await VideoThumbnail.thumbnailFile(
+        video: url,
+        thumbnailPath: (await getTemporaryDirectory()).path,
+        imageFormat: ImageFormat.PNG,
+        maxHeight: 100,
+        quality: 75,
+      );
+
+      return thumbnail;
+    } catch (e) {
+      print('Error generating thumbnail: $e');
+      return null;
+    }
   }
 
   @override
@@ -300,21 +368,19 @@ class _UploadFileSellerState extends State<UploadFileSeller> {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                _images[index].type != "document"
+                _images[index].type != "video"
                     ? MyWidget.imageWithPlaceholder(
                         url: _images[index].url, height: 100.0, width: 100.0)
-                    : Container(
-                        color: MyTheme.light_grey,
-                        alignment: Alignment.center,
-                        height: 100,
-                        width: DeviceInfo(context).width,
-                        child: Icon(
-                          Icons.description,
-                          size: 35,
-                          color: MyTheme.white,
-                        )
-                        //Text("${_images[index].extension.toUpperCase()}",maxLines: 1,style: TextStyle(fontSize: 18,),overflow: TextOverflow.ellipsis,),
-                        ),
+                    : _images[index].thumbnail != null &&
+                            File(_images[index].thumbnail!).existsSync()
+                        ? Image.file(File(_images[index].thumbnail ?? ''))
+                        : SizedBox(
+                            height: 100.0,
+                            width: 100.0,
+                            child: Image.asset(
+                              'assets/placeholder.png',
+                              fit: BoxFit.cover,
+                            )),
                 Text(
                   "${_images[index].fileOriginalName}.${_images[index].extension}",
                   maxLines: 1,
@@ -453,9 +519,6 @@ class _UploadFileSellerState extends State<UploadFileSeller> {
 
   Widget buildFlatEditTextFiled() {
     return Container(
-      // decoration: BoxDecoration(
-      //     borderRadius: BorderRadius.circular(8),
-      //     color: MyTheme.app_accent_color_extra_light),
       width:
           DeviceInfo(context).width! / 2 - (AppStyles.layoutMargin * 1.5 + 50),
       padding: EdgeInsets.symmetric(horizontal: 8),
@@ -484,19 +547,6 @@ class _UploadFileSellerState extends State<UploadFileSeller> {
         ),
       ),
     );
-    /* Visibility(
-      visible: check,
-      child: Container(
-        height: 16,
-        width: 16,
-        decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(16.0), color: Colors.green),
-        child: Padding(
-          padding: const EdgeInsets.all(3),
-          child: Icon(FontAwesome.check, color: Colors.white, size: 10),
-        ),
-      ),
-    );*/
   }
 
   Widget showOptions({listIndex, imageId}) {
@@ -519,9 +569,6 @@ class _UploadFileSellerState extends State<UploadFileSeller> {
         ),
         onSelected: (MenuOptions result) {
           _tabOption(result.index, imageId, listIndex);
-          // setState(() {
-          //   //_menuOptionSelected = result;
-          // });
         },
         itemBuilder: (BuildContext context) => <PopupMenuEntry<MenuOptions>>[
           PopupMenuItem<MenuOptions>(

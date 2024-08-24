@@ -49,6 +49,7 @@ class FileInfo {
     this.fileSize,
     this.extension,
     this.type,
+    this.thumbnail,
   });
 
   var id;
@@ -58,6 +59,7 @@ class FileInfo {
   var fileSize;
   String? extension;
   String? type;
+  String? thumbnail;
 
   factory FileInfo.fromJson(Map<String, dynamic> json) => FileInfo(
         id: json["id"],

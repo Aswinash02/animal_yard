@@ -156,6 +156,7 @@ class _AddNewProductState extends State<AddNewProduct> {
 
   List<FileInfo> productGalleryImages = [];
   FileInfo? thumbnailImage;
+  FileInfo? video;
   FileInfo? metaImage;
   FileInfo? pdfDes;
 
@@ -672,11 +673,12 @@ class _AddNewProductState extends State<AddNewProduct> {
     //   ToastComponent.showDialog("Pregnancy Required", gravity: Toast.center);
     //   return false;
     // }
-    else if (unitEditTextController.text.trim().toString().isEmpty) {
-      ToastComponent.showDialog("Product Unit Required", gravity: Toast.center);
-      return false;
-    } else if (unitPriceEditTextController.text.trim().toString().isEmpty) {
-      ToastComponent.showDialog("Product Unit Price Required",
+    // else if (unitEditTextController.text.trim().toString().isEmpty) {
+    //   ToastComponent.showDialog("Product Unit Required", gravity: Toast.center);
+    //   return false;
+    // }
+    else if (unitPriceEditTextController.text.trim().toString().isEmpty) {
+      ToastComponent.showDialog("Product Quantity Price Required",
           gravity: Toast.center);
       return false;
     } else if (productQuantityEditTextController.text
@@ -714,13 +716,14 @@ class _AddNewProductState extends State<AddNewProduct> {
       "category_id": mainCategoryId,
       "category_ids": [mainCategoryId],
       "brand_id": null,
-      "unit": unit,
+      "unit": "1",
       "weight": 0.0,
       "min_qty": minQuantity,
       "tags": [[]],
       "photos": 0,
       "thumbnail_img": thumbnailImg,
       "video_provider": videoProvider,
+      "video": video != null ? video!.id : "",
       "video_link": "",
       "colors": [],
       "colors_active": 0,
@@ -755,8 +758,8 @@ class _AddNewProductState extends State<AddNewProduct> {
       "state_id": 0,
       "city_id": 0,
       "postal_code": 0,
-      "lat": lat,
-      "long": long,
+      "latitude": lat,
+      "longitude": long,
       "animal": 1
     });
     postValue.addAll(choice_options);
@@ -854,6 +857,8 @@ class _AddNewProductState extends State<AddNewProduct> {
                         if (!requiredFieldVerification()) {
                           return;
                         }
+                        ToastComponent.showDialog("Address Required",
+                            gravity: Toast.center);
                         isContinue = false;
                         setChange();
                       },
@@ -938,11 +943,11 @@ class _AddNewProductState extends State<AddNewProduct> {
               itemSpacer(),
               buildEditTextField(
                   "Pregnancy", "Pregnancy", pregnancyEditTextController),
-              itemSpacer(),
-              buildEditTextField("Unit", "Unit", unitEditTextController,
-                  keyboardType: TextInputType.number,
-                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                  isMandatory: true),
+              // itemSpacer(),
+              // buildEditTextField("Unit", "Unit", unitEditTextController,
+              //     keyboardType: TextInputType.number,
+              //     inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+              //     isMandatory: true),
               itemSpacer(height: 1),
             ],
           ),
@@ -957,12 +962,24 @@ class _AddNewProductState extends State<AddNewProduct> {
       Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          chooseSingleImageField(LangText(context).local.image_300_ucf,
-              LangText(context).local.thumbnail_image_300_des, (onChosenImage) {
+          chooseSingleImageField(
+              LangText(context).local.image_300_ucf,
+              LangText(context).local.thumbnail_image_300_des,
+              true,
+              "image", (onChosenImage) {
             thumbnailImage = onChosenImage;
             setChange();
           }, thumbnailImage),
           itemSpacer(height: 1),
+          chooseSingleImageField(
+              LangText(context).local.video_ucf,
+              LangText(context).local.video_des,
+              false,
+              "video", (onChosenImage) {
+            video = onChosenImage;
+            setChange();
+          }, video),
+          itemSpacer(),
           Container(
             child: buildCommonSingleField(
               LangText(context).local.product_description_ucf,
@@ -1041,11 +1058,30 @@ class _AddNewProductState extends State<AddNewProduct> {
                   ),
                   child: TypeAheadField(
                     textFieldConfiguration: TextFieldConfiguration(
-                        controller: _addressController,
-                        cursorColor: MyTheme.accent_color,
-                        decoration: InputDecorations.buildInputDecoration_1(
-                            hint_text:
-                                LangText(context).local.enter_address_ucf)),
+                      controller: _addressController,
+                      cursorColor: MyTheme.accent_color,
+                      decoration: InputDecorations.buildInputDecoration_1(
+                        hint_text: LangText(context).local.enter_address_ucf,
+                      ),
+                      onSubmitted: (value) async {
+                        var suggestion = await getSuggestions(value);
+                        if (suggestion.isNotEmpty) {
+                          _addressController.text = suggestion[0]['description']; // Assuming the first match
+                          var placeId = suggestion[0]['place_id'];
+                          var details = await getPlaceDetails(placeId);
+                          var location = details['geometry']['location'];
+                          lat = location['lat'];
+                          long = location['lng'];
+                          print('lat ------------ > $lat');
+                          print('long ------------ > $long');
+                          mapController?.animateCamera(
+                            CameraUpdate.newLatLng(
+                              LatLng(lat, long),
+                            ),
+                          );
+                        }
+                      },
+                    ),
                     suggestionsCallback: (pattern) async {
                       return await getSuggestions(pattern);
                     },
@@ -1070,6 +1106,7 @@ class _AddNewProductState extends State<AddNewProduct> {
                       );
                     },
                   ),
+
                 ),
                 itemSpacer(height: 200)
               ],
@@ -1085,16 +1122,17 @@ class _AddNewProductState extends State<AddNewProduct> {
       Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          buildPriceEditTextField(LangText(context).local.unit_price_ucf,
-              LangText(context).local.unit_price_ucf,
-              isMandatory: true),
-          itemSpacer(),
           buildEditTextField(
               LangText(context).local.quantity_ucf,
               LangText(context).local.quantity_ucf,
               productQuantityEditTextController,
               keyboardType: TextInputType.number,
               inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+              isMandatory: true),
+          itemSpacer(),
+          buildPriceEditTextField(
+              LangText(context).local.per_quantity_price_ucf,
+              LangText(context).local.per_quantity_price_ucf,
               isMandatory: true),
           itemSpacer(),
         ],
@@ -1129,8 +1167,13 @@ class _AddNewProductState extends State<AddNewProduct> {
     );
   }
 
-  Widget chooseSingleImageField(String title, String shortMessage,
-      dynamic onChosenImage, FileInfo? selectedFile) {
+  Widget chooseSingleImageField(
+      String title,
+      String shortMessage,
+      bool isMandatory,
+      String fileType,
+      dynamic onChosenImage,
+      FileInfo? selectedFile) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -1146,19 +1189,20 @@ class _AddNewProductState extends State<AddNewProduct> {
                       color: MyTheme.font_grey,
                       fontWeight: FontWeight.bold),
                 ),
-                Text(
-                  '*',
-                  style: TextStyle(
-                      fontSize: 12,
-                      color: MyTheme.brick_red,
-                      fontWeight: FontWeight.bold),
-                ),
+                if (isMandatory)
+                  Text(
+                    '*',
+                    style: TextStyle(
+                        fontSize: 12,
+                        color: MyTheme.brick_red,
+                        fontWeight: FontWeight.bold),
+                  ),
               ],
             ),
             SizedBox(
               height: 10,
             ),
-            imageField(shortMessage, onChosenImage, selectedFile)
+            imageField(shortMessage, onChosenImage, fileType, selectedFile)
           ],
         ),
       ],
@@ -1166,7 +1210,11 @@ class _AddNewProductState extends State<AddNewProduct> {
   }
 
   Widget imageField(
-      String shortMessage, dynamic onChosenImage, FileInfo? selectedFile) {
+    String shortMessage,
+    dynamic onChosenImage,
+    String fileType,
+    FileInfo? selectedFile,
+  ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -1176,8 +1224,8 @@ class _AddNewProductState extends State<AddNewProduct> {
             List<FileInfo> chooseFile = await (Navigator.push(
                 context,
                 MaterialPageRoute(
-                    builder: (context) => const UploadFileSeller(
-                          fileType: "image",
+                    builder: (context) => UploadFileSeller(
+                          fileType: fileType,
                           canSelect: true,
                         ))));
             if (chooseFile.isNotEmpty) {
@@ -1242,10 +1290,13 @@ class _AddNewProductState extends State<AddNewProduct> {
               ),
               MyWidget.imageWithPlaceholder(
                   border: Border.all(width: 0.5, color: MyTheme.light_grey),
+                  fileType: fileType,
                   radius: BorderRadius.circular(5),
                   height: 50.0,
                   width: 50.0,
-                  url: selectedFile.url),
+                  url: fileType == "video"
+                      ? selectedFile.thumbnail
+                      : selectedFile.url),
               Positioned(
                 top: 3,
                 right: 2,

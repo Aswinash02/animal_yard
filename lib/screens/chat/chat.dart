@@ -13,8 +13,8 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:intl/intl.dart' as intl;
 import 'package:shimmer/shimmer.dart';
 
-class Chat extends StatefulWidget {
-  Chat({
+class ChatScreen extends StatefulWidget {
+  ChatScreen({
     Key? key,
     this.conversation_id,
     this.messenger_name,
@@ -28,10 +28,10 @@ class Chat extends StatefulWidget {
   final String? messenger_image;
 
   @override
-  _ChatState createState() => _ChatState();
+  _ChatScreenState createState() => _ChatScreenState();
 }
 
-class _ChatState extends State<Chat> {
+class _ChatScreenState extends State<ChatScreen> {
   final TextEditingController _chatTextController = TextEditingController();
   final ScrollController _chatScrollController = ScrollController();
   final ScrollController _xcrollController = ScrollController();
@@ -48,7 +48,7 @@ class _ChatState extends State<Chat> {
   Timer? timer;
   String _message = "";
   bool _isDisposed = false;
-
+  bool loadingState = false;
 
   @override
   void initState() {
@@ -94,6 +94,8 @@ class _ChatState extends State<Chat> {
   }
 
   onTapSendMessage() async {
+    loadingState = true;
+    setState(() {});
     var chatText = _chatTextController.text.toString();
     _chatTextController.clear();
     //print(chatText);
@@ -106,6 +108,7 @@ class _ChatState extends State<Chat> {
 
       var messageResponse = await ChatRepository().getInserMessageResponse(
           conversation_id: widget.conversation_id, message: chatText);
+      loadingState = true;
       _list = [
         messageResponse.data,
         _list,
@@ -420,9 +423,11 @@ class _ChatState extends State<Chat> {
         Padding(
           padding: const EdgeInsets.all(8.0),
           child: GestureDetector(
-            onTap: () {
-              onTapSendMessage();
-            },
+            onTap: loadingState
+                ? null
+                : () {
+                    onTapSendMessage();
+                  },
             child: Container(
               width: 40,
               height: 40,
@@ -523,7 +528,7 @@ class _ChatState extends State<Chat> {
           padding: const EdgeInsets.only(top: 10, bottom: 10),
           physics: const NeverScrollableScrollPhysics(),
           itemBuilder: (context, index) {
-            //print(_messages[index+1].year.toString());
+            final userId = _list[index].userId;
             return Container(
               padding: const EdgeInsets.only(
                   left: 14, right: 14, top: 10, bottom: 10),
@@ -548,10 +553,10 @@ class _ChatState extends State<Chat> {
                     height: 5,
                   ),
                   Align(
-                    alignment: (_list[index].sendType == "customer"
+                    alignment: (user_id.$ == userId
                         ? Alignment.topRight
                         : Alignment.topLeft),
-                    child: smsContainer(index),
+                    child: smsContainer(index, userId),
                   ),
                 ],
               ),
@@ -562,10 +567,10 @@ class _ChatState extends State<Chat> {
     );
   }
 
-  Container smsContainer(int index) {
+  Container smsContainer(int index, int userId) {
     return Container(
       constraints: BoxConstraints(
-        minWidth: 80,
+        minWidth: 100,
         maxWidth: DeviceInfo(context).width! / 1.6,
       ),
       padding: const EdgeInsets.only(top: 8, bottom: 3, right: 10, left: 10),
@@ -574,30 +579,27 @@ class _ChatState extends State<Chat> {
         borderRadius: BorderRadius.only(
           topLeft: Radius.circular(16),
           topRight: Radius.circular(16),
-          bottomLeft: _list[index].sendType == "customer"
-              ? Radius.circular(16)
-              : Radius.circular(0),
-          bottomRight: _list[index].sendType == "customer"
-              ? Radius.circular(0)
-              : Radius.circular(16),
+          bottomLeft:
+              user_id.$ == userId ? Radius.circular(16) : Radius.circular(0),
+          bottomRight:
+              user_id.$ == userId ? Radius.circular(0) : Radius.circular(16),
         ),
-        color: (_list[index].sendType == "customer"
-            ? MyTheme.accent_color
-            : MyTheme.light_grey),
+        color:
+            (user_id.$ == userId ? MyTheme.accent_color : MyTheme.light_grey),
       ),
       child: Stack(
         children: [
           Positioned(
               bottom: 2,
-              right: _list[index].sendType == "customer" ? 2 : null,
-              left: _list[index].sendType == "customer" ? null : 2,
+              right: user_id.$ == userId ? 2 : null,
+              left: user_id.$ == userId ? null : 2,
               child: Text(
                 _list[index].dayOfMonth.toString() +
                     " " +
                     _list[index].time.toString(),
                 style: TextStyle(
                   fontSize: 8,
-                  color: (_list[index].sendType == "customer"
+                  color: (user_id.$ == userId
                       ? MyTheme.light_grey
                       : MyTheme.grey_153),
                 ),
@@ -608,9 +610,7 @@ class _ChatState extends State<Chat> {
               " " + _list[index].message.toString(),
               style: TextStyle(
                 fontSize: 12,
-                color: (_list[index].sendType == "customer"
-                    ? MyTheme.white
-                    : Colors.black),
+                color: (user_id.$ == userId ? MyTheme.white : Colors.black),
               ),
             ),
           )
@@ -649,12 +649,12 @@ class _ChatState extends State<Chat> {
               width: 15,
             ),
             FloatingActionButton(
-              onPressed: _chatTextController.text.trim().isNotEmpty
-                  ? () {
-                      onTapSendMessage();
-                      //sendMessage();
-                    }
-                  : null,
+              onPressed:
+                  _chatTextController.text.trim().isNotEmpty && loadingState
+                      ? () {
+                          onTapSendMessage();
+                        }
+                      : null,
               child: const Icon(
                 Icons.send,
                 color: Colors.white,

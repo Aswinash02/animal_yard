@@ -2,9 +2,7 @@ import 'package:active_ecommerce_flutter/app_config.dart';
 import 'package:active_ecommerce_flutter/common/custom_app_bar.dart';
 import 'package:active_ecommerce_flutter/common/custom_text.dart';
 import 'package:active_ecommerce_flutter/controllers/location_controller.dart';
-import 'package:active_ecommerce_flutter/custom/box_decorations.dart';
 import 'package:active_ecommerce_flutter/custom/home_all_products_2.dart';
-import 'package:active_ecommerce_flutter/custom/home_search_box.dart';
 import 'package:active_ecommerce_flutter/custom/lang_text.dart';
 import 'package:active_ecommerce_flutter/data_model/category_response.dart';
 import 'package:active_ecommerce_flutter/helpers/shared_value_helper.dart';
@@ -14,10 +12,6 @@ import 'package:active_ecommerce_flutter/presenter/cart_counter.dart';
 import 'package:active_ecommerce_flutter/presenter/home_presenter.dart';
 import 'package:active_ecommerce_flutter/screens/cart.dart';
 import 'package:active_ecommerce_flutter/screens/category_list_n_product/category_products.dart';
-import 'package:active_ecommerce_flutter/screens/filter.dart';
-import 'package:active_ecommerce_flutter/screens/flash_deal/flash_deal_list.dart';
-import 'package:active_ecommerce_flutter/screens/product/todays_deal_products.dart';
-import 'package:active_ecommerce_flutter/screens/top_sellers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:get/get.dart';
@@ -56,7 +50,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
 
   change() {
     homeData.onRefresh();
-    homeData.mainScrollListener();
+    // homeData.mainScrollListener();
     homeData.initPiratedAnimation(this);
   }
 

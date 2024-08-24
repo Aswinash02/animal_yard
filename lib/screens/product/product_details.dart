@@ -25,6 +25,7 @@ import 'package:active_ecommerce_flutter/screens/brand_products.dart';
 import 'package:active_ecommerce_flutter/screens/cart.dart';
 import 'package:active_ecommerce_flutter/screens/chat/chat.dart';
 import 'package:active_ecommerce_flutter/screens/product/product_reviews.dart';
+import 'package:active_ecommerce_flutter/screens/product/widget/video_container.dart';
 import 'package:active_ecommerce_flutter/screens/seller_details.dart';
 import 'package:active_ecommerce_flutter/ui_elements/list_product_card.dart';
 import 'package:active_ecommerce_flutter/ui_elements/mini_product_card.dart';
@@ -141,16 +142,16 @@ class _ProductDetailsState extends State<ProductDetails>
     super.initState();
   }
 
-  fetchAll() {
-    fetchProductDetails();
-    Future.delayed(
-      Duration(seconds: 2),
-      () {
-        if (is_logged_in.$ == true) {
+  fetchAll() async {
+    await fetchProductDetails();
+    if (_productDetails != null && _productDetails!.added_by == "admin") {
+      Future.delayed(
+        Duration(seconds: 2),
+        () {
           fetchWishListCheckInfo();
-        }
-      },
-    );
+        },
+      );
+    }
 
     fetchRelatedProducts();
     fetchTopProducts();
@@ -167,7 +168,6 @@ class _ProductDetailsState extends State<ProductDetails>
     }
 
     setProductDetailValues();
-
     setState(() {});
   }
 
@@ -194,9 +194,6 @@ class _ProductDetailsState extends State<ProductDetails>
       _singlePrice = _productDetails!.calculable_price;
       _singlePriceString = _productDetails!.main_price;
       _stock = _productDetails!.current_stock;
-      // _productDetails!.photos!.forEach((photo) {
-      //   _productImageList.add(photo.path);
-      // });
       _productImageList.add(_productDetails!.thumbnail_image);
       _productDetails!.choice_options!.forEach((choice_opiton) {
         _selectedChoices.add(choice_opiton.options![0]);
@@ -754,7 +751,7 @@ class _ProductDetailsState extends State<ProductDetails>
     setState(() {});
 
     Navigator.push(context, MaterialPageRoute(builder: (context) {
-      return Chat(
+      return ChatScreen(
         conversation_id: conversationCreateResponse.conversation_id,
         messenger_name: conversationCreateResponse.shop_name,
         messenger_title: conversationCreateResponse.title,
@@ -980,19 +977,6 @@ class _ProductDetailsState extends State<ProductDetails>
                                     height: 30.0,
                                   ),
                           ),
-                          // if (_productDetails != null &&
-                          //     _productDetails!.estShippingTime != null &&
-                          //     _productDetails!.estShippingTime! > 0)
-                          //   Padding(
-                          //     padding:
-                          //         EdgeInsets.only(top: 14, left: 14, right: 14),
-                          //     child: _productDetails != null
-                          //         ? buildShippingTime()
-                          //         : ShimmerHelper().buildBasicShimmer(
-                          //             height: 30.0,
-                          //           ),
-                          //   ),
-
                           Padding(
                             padding:
                                 EdgeInsets.only(top: 14, left: 14, right: 14),
@@ -1002,71 +986,6 @@ class _ProductDetailsState extends State<ProductDetails>
                                     height: 30.0,
                                   ),
                           ),
-                          // Visibility(
-                          //   visible: club_point_addon_installed.$,
-                          //   child: Padding(
-                          //     padding:
-                          //         EdgeInsets.only(top: 14, left: 14, right: 14),
-                          //     child: _productDetails != null
-                          //         ? buildClubPointRow()
-                          //         : ShimmerHelper().buildBasicShimmer(
-                          //             height: 30.0,
-                          //           ),
-                          //   ),
-                          // ),
-                          // Padding(
-                          //   padding:
-                          //       EdgeInsets.only(top: 14, left: 14, right: 14),
-                          //   child: _productDetails != null
-                          //       ? buildBrandRow()
-                          //       : ShimmerHelper().buildBasicShimmer(
-                          //           height: 50.0,
-                          //         ),
-                          // ),
-                          // Padding(
-                          //   padding: EdgeInsets.only(top: 14),
-                          //   child: _productDetails != null
-                          //       ? buildSellerRow(context)
-                          //       : ShimmerHelper().buildBasicShimmer(
-                          //           height: 50.0,
-                          //         ),
-                          // ),
-                          // Padding(
-                          //   padding: EdgeInsets.only(
-                          //       top: 14,
-                          //       left: app_language_rtl.$! ? 0 : 14,
-                          //       right: app_language_rtl.$! ? 14 : 0),
-                          //   child: _productDetails != null
-                          //       ? buildChoiceOptionList()
-                          //       : buildVariantShimmers(),
-                          // ),
-                          // Padding(
-                          //   padding:
-                          //       EdgeInsets.only(top: 14, left: 14, right: 14),
-                          //   child: _productDetails != null
-                          //       ? (_colorList.length > 0
-                          //           ? buildColorRow()
-                          //           : Container())
-                          //       : ShimmerHelper().buildBasicShimmer(
-                          //           height: 30.0,
-                          //         ),
-                          // ),
-
-                          ///whole sale
-                          // Visibility(
-                          //   visible: whole_sale_addon_installed.$,
-                          //   child: Padding(
-                          //     padding:
-                          //         EdgeInsets.only(top: 14, left: 14, right: 14),
-                          //     child: _productDetails != null
-                          //         ? _productDetails!.wholesale!.isNotEmpty
-                          //             ? buildWholeSaleQuantityPrice()
-                          //             : SizedBox.shrink()
-                          //         : ShimmerHelper().buildBasicShimmer(
-                          //             height: 30.0,
-                          //           ),
-                          //   ),
-                          // ),
                           Padding(
                             padding: EdgeInsets.only(top: 14, bottom: 14),
                             child: _productDetails != null
@@ -1109,10 +1028,32 @@ class _ProductDetailsState extends State<ProductDetails>
                                   ),
                                 )
                               : SizedBox(),
-                          // Container(color: Colors.red,
-                          // child: CustomText(
-                          //   text: _productDetails.,
-                          // ),),
+                          _productDetails != null
+                              ? Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 6.0),
+                                  child: Container(
+                                    width: double.infinity,
+                                    padding: EdgeInsets.all(10),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        CustomText(
+                                          text: "address :",
+                                        ),
+                                        SizedBox(height: 2),
+                                        CustomText(
+                                          maxLines: 5,
+                                          text: "${_productDetails!.address}",
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                )
+                              : SizedBox(),
                           Container(
                             color: MyTheme.white,
                             margin: EdgeInsets.only(top: 10),
@@ -1122,7 +1063,7 @@ class _ProductDetailsState extends State<ProductDetails>
                                 Padding(
                                   padding: const EdgeInsets.fromLTRB(
                                     16.0,
-                                    20.0,
+                                    0.0,
                                     16.0,
                                     0.0,
                                   ),
@@ -1200,57 +1141,6 @@ class _ProductDetailsState extends State<ProductDetails>
                               ],
                             ),
                           divider(),
-                          // InkWell(
-                          //   onTap: () {
-                          //     if (_productDetails!.video_link == "") {
-                          //       ToastComponent.showDialog(
-                          //           AppLocalizations.of(context)!
-                          //               .video_not_available,
-                          //           gravity: Toast.center,
-                          //           duration: Toast.lengthLong);
-                          //       return;
-                          //     }
-                          //
-                          //     Navigator.push(context,
-                          //         MaterialPageRoute(builder: (context) {
-                          //       return VideoDescription(
-                          //         url: _productDetails!.video_link,
-                          //       );
-                          //     })).then((value) {
-                          //       onPopped(value);
-                          //     });
-                          //   },
-                          //   child: Container(
-                          //     color: MyTheme.white,
-                          //     height: 48,
-                          //     child: Padding(
-                          //       padding: const EdgeInsets.fromLTRB(
-                          //         18.0,
-                          //         14.0,
-                          //         18.0,
-                          //         14.0,
-                          //       ),
-                          //       child: Row(
-                          //         children: [
-                          //           Text(
-                          //             AppLocalizations.of(context)!.video_ucf,
-                          //             style: TextStyle(
-                          //                 color: MyTheme.dark_font_grey,
-                          //                 fontSize: 13,
-                          //                 fontWeight: FontWeight.w600),
-                          //           ),
-                          //           Spacer(),
-                          //           Image.asset(
-                          //             "assets/arrow.png",
-                          //             height: 11,
-                          //             width: 20,
-                          //           ),
-                          //         ],
-                          //       ),
-                          //     ),
-                          //   ),
-                          // ),
-                          // divider(),
                           InkWell(
                             onTap: () {
                               Navigator.push(context,
@@ -1292,6 +1182,18 @@ class _ProductDetailsState extends State<ProductDetails>
                           ),
                           divider(),
                         ]),
+                  ),
+                  SliverToBoxAdapter(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _productDetails != null &&
+                                _productDetails!.video != null
+                            ? VideoPlayerContainer(
+                                videoUrl: _productDetails!.video ?? '')
+                            : SizedBox(),
+                      ],
+                    ),
                   ),
                   SliverList(
                     delegate: SliverChildListDelegate([

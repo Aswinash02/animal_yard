@@ -1,10 +1,10 @@
 import 'package:active_ecommerce_flutter/common/custom_app_bar.dart';
 import 'package:active_ecommerce_flutter/data_model/seller_chat_list.dart';
+import 'package:active_ecommerce_flutter/helpers/shared_value_helper.dart';
 import 'package:active_ecommerce_flutter/my_theme.dart';
+import 'package:active_ecommerce_flutter/screens/chat/chat.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:shimmer/shimmer.dart';
-
 import '../../../custom/buttons.dart';
 import '../../../custom/device_info.dart';
 import '../../../custom/lang_text.dart';
@@ -145,11 +145,15 @@ class _ChatListState extends State<ChatList> {
       child: Buttons(
         padding: EdgeInsets.zero,
         onPressed: () {
-          // MyTransaction(context: context).push(Conversation(
-          //   id: conversationId,
-          //   userImgUrl: img,
-          //   name: userName,
-          // ));
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => ChatScreen(
+                        conversation_id: _chatList[index].id,
+                        messenger_name: _chatList[index].name!,
+                        messenger_title: _chatList[index].title,
+                        messenger_image: _chatList[index].image,
+                      )));
         },
         child: Row(
           children: [

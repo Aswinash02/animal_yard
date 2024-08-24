@@ -1,5 +1,6 @@
-import 'package:flutter/material.dart';
+import 'dart:io';
 
+import 'package:flutter/material.dart';
 import '../my_theme.dart';
 
 class MyWidget {
@@ -68,6 +69,7 @@ class MyWidget {
     double height = 0.0,
     double elevation = 0.0,
     BoxBorder? border,
+    String? fileType,
     width = 0.0,
     BorderRadiusGeometry radius = BorderRadius.zero,
     BoxFit fit = BoxFit.cover,
@@ -87,26 +89,28 @@ class MyWidget {
         child: url != null && url.isNotEmpty
             ? ClipRRect(
                 borderRadius: radius,
-                child: FadeInImage.assetNetwork(
-                  placeholder: "assets/placeholder.png",
-                  image: url,
-                  height: height,
-                  imageErrorBuilder: (context, object, stackTrace) {
-                    return Container(
-                      height: height,
-                      width: width,
-                      decoration: BoxDecoration(
-                        borderRadius: radius,
-                        image: const DecorationImage(
-                          image: AssetImage("assets/placeholder.png"),
-                          fit: BoxFit.cover,
-                        ),
+                child: fileType == "video"
+                    ? Image.file(File(url))
+                    : FadeInImage.assetNetwork(
+                        placeholder: "assets/placeholder.png",
+                        image: url,
+                        height: height,
+                        imageErrorBuilder: (context, object, stackTrace) {
+                          return Container(
+                            height: height,
+                            width: width,
+                            decoration: BoxDecoration(
+                              borderRadius: radius,
+                              image: const DecorationImage(
+                                image: AssetImage("assets/placeholder.png"),
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+                          );
+                        },
+                        width: width,
+                        fit: fit,
                       ),
-                    );
-                  },
-                  width: width,
-                  fit: fit,
-                ),
               )
             : Container(
                 height: height,
@@ -122,17 +126,18 @@ class MyWidget {
       ),
     );
   }
+
   static Widget roundImageWithPlaceholder(
       {String? url,
-        double height = 0.0,
-        double elevation = 0.0,
-        double borderWidth = 0.0,
-        width = 0.0,
-        double paddingX = 0.0,
-        double paddingY = 0.0,
-        double borderRadius = 0.0,
-        Color backgroundColor = Colors.white,
-        BoxFit fit = BoxFit.cover}) {
+      double height = 0.0,
+      double elevation = 0.0,
+      double borderWidth = 0.0,
+      width = 0.0,
+      double paddingX = 0.0,
+      double paddingY = 0.0,
+      double borderRadius = 0.0,
+      Color backgroundColor = Colors.white,
+      BoxFit fit = BoxFit.cover}) {
     return Material(
       color: backgroundColor,
       elevation: elevation,
@@ -149,41 +154,37 @@ class MyWidget {
           borderRadius: BorderRadius.circular(borderRadius),
           child: url != null && url.isNotEmpty
               ? FadeInImage.assetNetwork(
-            placeholder: "assets/logo/placeholder.png",
-            image: url,
-
-            imageErrorBuilder: (context, object, stackTrace) {
-              return  Container(
-                height: height,
-                width: width,
-                decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(borderRadius),
-                    image:const DecorationImage(
-                        image: AssetImage("assets/logo/placeholder.png"),
-                        fit: BoxFit.cover
-                    )
-                ),
-              );
-            },
-            height: height,
-            width: width,
-            fit: fit,
-          )
-              : Container(
-            height: height,
-            width: width,
-            decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(borderRadius),
-                image:const DecorationImage(
-                    image: AssetImage("assets/logo/placeholder.png"),
-                    fit: BoxFit.cover
+                  placeholder: "assets/app_logo.png",
+                  image: url,
+                  imageErrorBuilder: (context, object, stackTrace) {
+                    return Container(
+                      height: height,
+                      width: width,
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(borderRadius),
+                          image: const DecorationImage(
+                              image: AssetImage("assets/app_logo.png"),
+                              fit: BoxFit.cover)),
+                    );
+                  },
+                  height: height,
+                  width: width,
+                  fit: fit,
                 )
-            ),
-          ),
+              : Container(
+                  height: height,
+                  width: width,
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(borderRadius),
+                      image: const DecorationImage(
+                          image: AssetImage("assets/app_logo.png"),
+                          fit: BoxFit.cover)),
+                ),
         ),
       ),
     );
   }
+
   static Widget customCardView(
       {double width = 0.0,
       double elevation = 0.0,

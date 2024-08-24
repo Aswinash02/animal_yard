@@ -185,6 +185,7 @@ class HomePresenter extends ChangeNotifier {
     animalProductList.clear();
     var productResponse = await ProductRepository().fetchAllAnimalProducts();
     if (productResponse.data != null) {
+      print('home ======== > ${productResponse.data!.length}');
       for (var product in productResponse.data!) {
         if (!animalProductList
             .any((existingProduct) => existingProduct.id == product.id)) {
