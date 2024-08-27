@@ -55,6 +55,16 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    getCartCount();
+  }
+
+  getCartCount() {
+    Provider.of<CartCounter>(context, listen: false).getCount();
+  }
+
+  @override
   void dispose() {
     homeData.pirated_logo_controller.dispose();
     super.dispose();

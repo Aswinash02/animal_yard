@@ -58,6 +58,7 @@ class _OfflineState extends State<OfflineScreen> {
   String? _photo_path = "";
   int? _photo_upload_id = 0;
   late BuildContext loadingcontext;
+  bool loadingState = false;
 
   Future<void> _onPageRefresh() async {
     reset();
@@ -71,6 +72,7 @@ class _OfflineState extends State<OfflineScreen> {
     _photo_upload_id = 0;
     setState(() {});
   }
+
 
   onPressSubmit() async {
     var amount = _amountController.text.toString();
@@ -177,6 +179,8 @@ class _OfflineState extends State<OfflineScreen> {
     //return;
     String base64Image = FileHelper.getBase64FormateFile(_photo_file!.path);
     String fileName = _photo_file!.path.split("/").last;
+    loadingState = true;
+    setState(() {});
 
     var imageUpdateResponse =
         await FileRepository().getSimpleImageUploadResponse(
@@ -194,8 +198,9 @@ class _OfflineState extends State<OfflineScreen> {
 
       _photo_path = imageUpdateResponse.path;
       _photo_upload_id = imageUpdateResponse.upload_id;
-      setState(() {});
     }
+    loadingState = false;
+    setState(() {});
   }
 
   @override
@@ -238,46 +243,36 @@ class _OfflineState extends State<OfflineScreen> {
   }
 
   buildBody(context) {
-    if (is_logged_in == false) {
-      return Container(
-          height: 100,
-          child: Center(
-              child: Text(
-            AppLocalizations.of(context)!.you_need_to_log_in,
-            style: TextStyle(color: MyTheme.font_grey),
-          )));
-    } else {
-      return RefreshIndicator(
-        color: MyTheme.accent_color,
-        backgroundColor: Colors.white,
-        onRefresh: _onPageRefresh,
-        displacement: 10,
-        child: CustomScrollView(
-          controller: _mainScrollController,
-          physics: const BouncingScrollPhysics(
-              parent: AlwaysScrollableScrollPhysics()),
-          slivers: [
-            SliverList(
-              delegate: SliverChildListDelegate([
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: HtmlContentWebView(
-                    html: widget.paymentInstruction ?? """<p>Heading</p>""",
-                  ),
+    return RefreshIndicator(
+      color: MyTheme.accent_color,
+      backgroundColor: Colors.white,
+      onRefresh: _onPageRefresh,
+      displacement: 10,
+      child: CustomScrollView(
+        controller: _mainScrollController,
+        physics: const BouncingScrollPhysics(
+            parent: AlwaysScrollableScrollPhysics()),
+        slivers: [
+          SliverList(
+            delegate: SliverChildListDelegate([
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: HtmlContentWebView(
+                  html: widget.paymentInstruction ?? """<p>Heading</p>""",
                 ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                  child: Divider(
-                    height: 24,
-                  ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: Divider(
+                  height: 24,
                 ),
-                buildProfileForm(context)
-              ]),
-            )
-          ],
-        ),
-      );
-    }
+              ),
+              buildProfileForm(context)
+            ]),
+          )
+        ],
+      ),
+    );
   }
 
   Widget buildProfileForm(context) {
@@ -397,13 +392,21 @@ class _OfflineState extends State<OfflineScreen> {
                       shape: RoundedRectangleBorder(
                           borderRadius:
                               const BorderRadius.all(Radius.circular(8.0))),
-                      child: Text(
-                        AppLocalizations.of(context)!.photo_proof_ucf,
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600),
-                      ),
+                      child: loadingState
+                          ? SizedBox(
+                              height: 15,
+                              width: 15,
+                              child: CircularProgressIndicator(
+                                color: MyTheme.white,
+                                strokeWidth: 2,
+                              ))
+                          : Text(
+                              AppLocalizations.of(context)!.photo_proof_ucf,
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600),
+                            ),
                       onPressed: () {
                         onPickPhoto(context);
                       },

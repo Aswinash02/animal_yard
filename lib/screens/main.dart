@@ -1,15 +1,12 @@
 import 'package:active_ecommerce_flutter/helpers/shared_value_helper.dart';
 import 'package:active_ecommerce_flutter/my_theme.dart';
 import 'package:active_ecommerce_flutter/presenter/cart_counter.dart';
-import 'package:active_ecommerce_flutter/providers/locale_provider.dart';
 import 'package:active_ecommerce_flutter/screens/cart.dart';
 import 'package:active_ecommerce_flutter/screens/category_list_n_product/category_list.dart';
-import 'package:active_ecommerce_flutter/screens/common_webview_screen.dart';
 import 'package:active_ecommerce_flutter/screens/home.dart';
 import 'package:active_ecommerce_flutter/screens/profile.dart';
 import 'package:active_ecommerce_flutter/screens/seller_section/add_product/seller_add_product.dart';
-import 'package:active_ecommerce_flutter/screens/seller_section/chat_list/chat_list_page.dart';
-import 'package:active_ecommerce_flutter/screens/seller_section/chat_list/conversation_seller.dart';
+import 'package:active_ecommerce_flutter/screens/seller_section/chat_list/widget/chat_tab_bar.dart';
 import 'package:active_ecommerce_flutter/screens/seller_section/seller_products.dart';
 import 'package:badges/badges.dart' as badges;
 import 'package:flutter/material.dart';
@@ -40,16 +37,14 @@ class SellerDashBoard extends StatefulWidget {
 class _SellerDashBoardState extends State<SellerDashBoard> {
   int _selectedIndex = 0;
 
-  List<Widget> _buildSellerPageList =
-     [
-      Home(),
-      ProductSeller(
-        fromBottomBar: false,
-      ),
-      ChatList(),
-      Profile(),
-    ];
-
+  List<Widget> _buildSellerPageList = [
+    Home(),
+    ProductSeller(
+      fromBottomBar: false,
+    ),
+    ChatTabBar(),
+    Profile(),
+  ];
 
   void _onItemTapped(int index) {
     setState(() {
@@ -76,8 +71,7 @@ class _SellerDashBoardState extends State<SellerDashBoard> {
           onPressed: () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => AddNewProduct()
-                  ),
+              MaterialPageRoute(builder: (context) => AddNewProduct()),
             );
           },
           child: Icon(Icons.add),

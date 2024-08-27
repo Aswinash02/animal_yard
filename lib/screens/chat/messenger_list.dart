@@ -1,4 +1,6 @@
-import 'package:active_ecommerce_flutter/custom/lang_text.dart';
+import 'package:active_ecommerce_flutter/custom/buttons.dart';
+import 'package:active_ecommerce_flutter/custom/device_info.dart';
+import 'package:active_ecommerce_flutter/custom/my_widget.dart';
 import 'package:active_ecommerce_flutter/custom/useful_elements.dart';
 import 'package:active_ecommerce_flutter/helpers/shared_value_helper.dart';
 import 'package:active_ecommerce_flutter/helpers/shimmer_helper.dart';
@@ -7,13 +9,14 @@ import 'package:active_ecommerce_flutter/repositories/chat_repository.dart';
 import 'package:active_ecommerce_flutter/screens/chat/chat.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:shimmer/shimmer.dart';
 
-class MessengerList extends StatefulWidget {
+class BuyerChatList extends StatefulWidget {
   @override
-  _MessengerListState createState() => _MessengerListState();
+  _BuyerChatListState createState() => _BuyerChatListState();
 }
 
-class _MessengerListState extends State<MessengerList> {
+class _BuyerChatListState extends State<BuyerChatList> {
   ScrollController _xcrollController = ScrollController();
 
   List<dynamic> _list = [];
@@ -48,7 +51,7 @@ class _MessengerListState extends State<MessengerList> {
     _isInitial = false;
     _totalData = conversatonResponse.meta.total;
     _showLoadingContainer = false;
-    setState(() {});
+    if (mounted) setState(() {});
   }
 
   reset() {
@@ -70,37 +73,29 @@ class _MessengerListState extends State<MessengerList> {
     return Directionality(
       textDirection:
           app_language_rtl.$! ? TextDirection.rtl : TextDirection.ltr,
-      child: Scaffold(
-        backgroundColor: Colors.white,
-        appBar: buildAppBar(context),
-        body: Stack(
-          children: [
-            RefreshIndicator(
-              color: MyTheme.accent_color,
-              backgroundColor: Colors.white,
-              onRefresh: _onRefresh,
-              displacement: 0,
-              child: CustomScrollView(
-                controller: _xcrollController,
-                physics: const BouncingScrollPhysics(
-                    parent: AlwaysScrollableScrollPhysics()),
-                slivers: [
-                  SliverList(
-                    delegate: SliverChildListDelegate([
-                      Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: buildMessengerList(),
-                      ),
-                    ]),
-                  )
-                ],
-              ),
+      child: Stack(
+        children: [
+          RefreshIndicator(
+            color: MyTheme.accent_color,
+            backgroundColor: Colors.white,
+            onRefresh: _onRefresh,
+            displacement: 0,
+            child: CustomScrollView(
+              slivers: [
+                SliverToBoxAdapter(
+                  child: Container(
+                    width: DeviceInfo(context).width,
+                    //height: DeviceInfo(context).getHeight(),
+                    padding: EdgeInsets.symmetric(horizontal: 15.0),
+                    child: buildChatListView(),
+                  ),
+                ),
+              ],
             ),
-            Align(
-                alignment: Alignment.bottomCenter,
-                child: buildLoadingContainer())
-          ],
-        ),
+          ),
+          Align(
+              alignment: Alignment.bottomCenter, child: buildLoadingContainer())
+        ],
       ),
     );
   }
@@ -140,120 +135,145 @@ class _MessengerListState extends State<MessengerList> {
     );
   }
 
-  buildMessengerList() {
-    if (_isInitial && _list.length == 0) {
-      return SingleChildScrollView(
-          child: ShimmerHelper()
-              .buildListShimmer(item_count: 10, item_height: 100.0));
-    } else if (_list.length > 0) {
-      return SingleChildScrollView(
-        child: ListView.builder(
-          itemCount: _list.length,
-          scrollDirection: Axis.vertical,
-          padding: EdgeInsets.all(0.0),
-          physics: NeverScrollableScrollPhysics(),
-          shrinkWrap: true,
-          itemBuilder: (context, index) {
-            return Padding(
-              padding: const EdgeInsets.only(
-                  top: 4.0, bottom: 4.0, left: 16.0, right: 16.0),
-              child: buildMessengerItemCard(index),
-            );
-          },
-        ),
-      );
-    } else if (_totalData == 0) {
-      return Center(child: Text(LangText(context).local.no_data_is_available));
-    } else {
-      return Container(); // should never be happening
-    }
+  Widget buildChatListView() {
+    return _isInitial && _list.length == 0
+        ? chatListShimmer()
+        : _list.isEmpty
+            ? Center(
+                child: Text("No Chat History Found"),
+              )
+            : ListView.builder(
+                physics: NeverScrollableScrollPhysics(),
+                shrinkWrap: true,
+                itemCount: _list.length,
+                itemBuilder: (context, index) {
+                  return Container(
+                      width: 100,
+                      child: buildChatItem(
+                          index,
+                          _list[index].id,
+                          _list[index].shop_name,
+                          _list[index].shop_logo,
+                          _list[index].title,
+                          true));
+                });
   }
 
-  buildMessengerItemCard(index) {
-    return GestureDetector(
-      onTap: () {
-        Navigator.push(context, MaterialPageRoute(builder: (context) {
-          return ChatScreen(
-            conversation_id: _list[index].id,
-            messenger_name: _list[index].shop_name,
-            messenger_title: _list[index].title,
-            messenger_image: _list[index].shop_logo,
-          );
-        }));
-      },
-      child: Padding(
-        padding: const EdgeInsets.only(bottom: 8.0),
-        child:
+  Widget buildChatItem(
+      index, conversationId, String userName, img, sms, bool isActive) {
+    return Container(
+      margin: EdgeInsets.only(top: index == 0 ? 20 : 0, bottom: 20),
+      child: Buttons(
+        padding: EdgeInsets.zero,
+        onPressed: () {
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => ChatScreen(
+                        conversation_id: _list[index].id,
+                        messenger_name: _list[index].shop_name,
+                        messenger_title: _list[index].title,
+                        messenger_image: _list[index].shop_logo,
+                      )));
+        },
+        child: Row(
+          children: [
             Container(
-              color: Colors.transparent,
-              child: Row(mainAxisAlignment: MainAxisAlignment.start, children: <Widget>[
-          Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(35),
-                border: Border.all(
-                    color: Color.fromRGBO(112, 112, 112, .3), width: 1),
-                //shape: BoxShape.rectangle,
+              width: 35,
+              height: 35,
+              margin: EdgeInsets.only(right: 14),
+              child: Stack(
+                children: [
+                  MyWidget.roundImageWithPlaceholder(
+                      elevation: 4,
+                      borderWidth: 1,
+                      url: img,
+                      width: 35.0,
+                      height: 35.0,
+                      fit: BoxFit.cover,
+                      borderRadius: 16),
+                  Visibility(
+                    visible: false,
+                    child: Positioned(
+                        right: 1,
+                        top: 2,
+                        child: MyWidget().myContainer(
+                            height: 7,
+                            width: 7,
+                            borderRadius: 7,
+                            borderColor: Colors.white,
+                            bgColor: isActive ? Colors.green : MyTheme.grey_153,
+                            borderWith: 1)),
+                  )
+                ],
               ),
-              child: ClipRRect(
-                  borderRadius: BorderRadius.circular(35),
-                  child: FadeInImage.assetNetwork(
-                    placeholder: 'assets/placeholder.png',
-                    image: _list[index].shop_logo,
-                    fit: BoxFit.contain,
-                  )),
-          ),
-          Container(
-              height: 50,
+            ),
+            Container(
+              width: DeviceInfo(context).width! - 80,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                mainAxisSize: MainAxisSize.max,
                 children: [
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          _list[index].shop_name,
-                          textAlign: TextAlign.left,
-                          overflow: TextOverflow.ellipsis,
-                          maxLines: 1,
-                          style: TextStyle(
-                              color: MyTheme.font_grey,
-                              fontSize: 13,
-                              height: 1.6,
-                              fontWeight: FontWeight.w600),
-                        ),
-                        Text(
-                          _list[index].title,
-                          textAlign: TextAlign.left,
-                          overflow: TextOverflow.ellipsis,
-                          maxLines: 1,
-                          style: TextStyle(
-                              color: MyTheme.medium_grey,
-                              height: 1.6,
-                              fontWeight: FontWeight.w600),
-                        ),
-                      ],
+                  Container(
+                    width: DeviceInfo(context).width!,
+                    child: Text(
+                      userName,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          color: MyTheme.accent_color),
+                    ),
+                  ),
+                  Container(
+                    child: Text(
+                      sms,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.normal,
+                        color: MyTheme.grey_153,
+                      ),
                     ),
                   ),
                 ],
               ),
-          ),
-          Spacer(),
-          Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Icon(
-                Icons.arrow_forward_ios_rounded,
-                color: MyTheme.medium_grey,
-                size: 14,
-              ),
-          )
-        ]),
             ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget chatListShimmer() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 15.0),
+      child: Column(
+        children: List.generate(
+            20,
+            (index) => Container(
+                  margin: EdgeInsets.only(bottom: 10),
+                  child: Row(
+                    children: [
+                      Shimmer.fromColors(
+                        baseColor: MyTheme.shimmer_base,
+                        highlightColor: MyTheme.shimmer_highlighted,
+                        child: Container(
+                          height: 35,
+                          width: 35,
+                          margin: EdgeInsets.only(right: 14),
+                          decoration: BoxDecoration(
+                            color: MyTheme.brick_red,
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                        ),
+                      ),
+                      ShimmerHelper().buildBasicShimmer(
+                          height: 35, width: DeviceInfo(context).width! - 80),
+                    ],
+                  ),
+                )),
       ),
     );
   }

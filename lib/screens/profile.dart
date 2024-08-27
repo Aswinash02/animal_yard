@@ -16,6 +16,7 @@ import 'package:active_ecommerce_flutter/screens/address.dart';
 import 'package:active_ecommerce_flutter/screens/auction/auction_products.dart';
 import 'package:active_ecommerce_flutter/screens/auth/login.dart';
 import 'package:active_ecommerce_flutter/screens/auth/registration.dart';
+import 'package:active_ecommerce_flutter/screens/cart.dart';
 import 'package:active_ecommerce_flutter/screens/change_language.dart';
 import 'package:active_ecommerce_flutter/screens/chat/messenger_list.dart';
 import 'package:active_ecommerce_flutter/screens/classified_ads/classified_ads.dart';
@@ -154,8 +155,6 @@ class _ProfileState extends State<Profile> {
     var newtxt = (txt == null || txt == "" || txt == null.toString())
         ? blank_zeros
         : txt;
-
-
 
     if (default_length > txt.length) {
       newtxt = leading_zeros + newtxt;
@@ -419,31 +418,23 @@ class _ProfileState extends State<Profile> {
               ],
             ),
           ),
-          buildHorizontalSettingItem(
-              is_logged_in.$,
-              "assets/edit.png",
-              AppLocalizations.of(context)!.edit_profile_ucf,
-              () {
-                      AIZRoute.push(context, ProfileEdit()).then((value) {
-                        //onPopped(value);
-                      });
-                    }
-                  ),
-          buildHorizontalSettingItem(
-              is_logged_in.$,
-              "assets/location.png",
-              AppLocalizations.of(context)!.address_ucf,
-              () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) {
-                            return Address();
-                          },
-                        ),
-                      );
-                    }
-                  ),
+          buildHorizontalSettingItem(is_logged_in.$, "assets/edit.png",
+              AppLocalizations.of(context)!.edit_profile_ucf, () {
+            AIZRoute.push(context, ProfileEdit()).then((value) {
+              //onPopped(value);
+            });
+          }),
+          buildHorizontalSettingItem(is_logged_in.$, "assets/location.png",
+              AppLocalizations.of(context)!.address_ucf, () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) {
+                  return Address();
+                },
+              ),
+            );
+          }),
         ],
       ),
     );
@@ -459,7 +450,7 @@ class _ProfileState extends State<Profile> {
             img,
             height: 16,
             width: 16,
-            color:  MyTheme.accent_color ,
+            color: MyTheme.accent_color,
           ),
           SizedBox(
             height: 5,
@@ -469,7 +460,7 @@ class _ProfileState extends State<Profile> {
             textAlign: TextAlign.center,
             style: TextStyle(
                 fontSize: 10,
-                color: MyTheme.accent_color ,
+                color: MyTheme.accent_color,
                 fontWeight: FontWeight.w500),
           )
         ],
@@ -548,98 +539,58 @@ class _ProfileState extends State<Profile> {
               }),
             ),
           buildSettingAndAddonsHorizontalMenuItem(
-              "assets/orders.png",
-              AppLocalizations.of(context)!.orders_ucf,
-              is_logged_in.$
-                  ? () {
-                      Navigator.push(context,
-                          MaterialPageRoute(builder: (context) {
-                        return OrderList();
-                      }));
-                    }
-                  : () => null),
-          buildSettingAndAddonsHorizontalMenuItem(
-              "assets/heart.png",
-              AppLocalizations.of(context)!.my_wishlist_ucf,
-              is_logged_in.$
-                  ? () {
-                      Navigator.push(context,
-                          MaterialPageRoute(builder: (context) {
-                        return Wishlist();
-                      }));
-                    }
-                  : () => null),
-          if (club_point_addon_installed.$)
-            buildSettingAndAddonsHorizontalMenuItem(
-                "assets/points.png",
-                AppLocalizations.of(context)!.earned_points_ucf,
-                is_logged_in.$
-                    ? () {
-                        Navigator.push(context,
-                            MaterialPageRoute(builder: (context) {
-                          return Clubpoint();
-                        }));
-                      }
-                    : () => null),
-          if (refund_addon_installed.$)
-            buildSettingAndAddonsHorizontalMenuItem(
-                "assets/refund.png",
-                AppLocalizations.of(context)!.refund_requests_ucf,
-                is_logged_in.$
-                    ? () {
-                        Navigator.push(context,
-                            MaterialPageRoute(builder: (context) {
-                          return RefundRequest();
-                        }));
-                      }
-                    : () => null),
-          if (conversation_system_status.$)
-            buildSettingAndAddonsHorizontalMenuItem(
-                "assets/messages.png",
-                AppLocalizations.of(context)!.messages_ucf,
-                is_logged_in.$
-                    ? () {
-                        Navigator.push(context,
-                            MaterialPageRoute(builder: (context) {
-                          return MessengerList();
-                        }));
-                      }
-                    : () => null),
-          buildSettingAndAddonsHorizontalMenuItem(
-              "assets/auction.png",
-              "Messages",
+              "assets/orders.png", AppLocalizations.of(context)!.orders_ucf,
               () {
-                      Navigator.push(context,
-                          MaterialPageRoute(builder: (context) {
-                        return MessengerList();
-                      }));
-                    }
-                  ),
-          buildHorizontalSettingItem(
-              is_logged_in.$,
-              "assets/edit.png",
-              AppLocalizations.of(context)!.edit_profile_ucf,
-               () {
-                      AIZRoute.push(context, ProfileEdit()).then((value) {
-                        //onPopped(value);
-                      });
-                    }
-                  ),
-          buildHorizontalSettingItem(
-              is_logged_in.$,
-              "assets/location.png",
-              AppLocalizations.of(context)!.address_ucf,
-               () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) {
-                            return Address();
-                          },
-                        ),
-                      );
-                    }
-                  ),
+            Navigator.push(context, MaterialPageRoute(builder: (context) {
+              return OrderList();
+            }));
+          }),
+          buildSettingAndAddonsHorizontalMenuItem(
+              "assets/heart.png", AppLocalizations.of(context)!.my_wishlist_ucf,
+              () async {
+            await Navigator.push(context, MaterialPageRoute(builder: (context) {
+              return Wishlist();
+            })).then((value) => onPopped(value));
+          }),
+          if (club_point_addon_installed.$)
+            buildSettingAndAddonsHorizontalMenuItem("assets/points.png",
+                AppLocalizations.of(context)!.earned_points_ucf, () {
+              Navigator.push(context, MaterialPageRoute(builder: (context) {
+                return Clubpoint();
+              }));
+            }),
+          if (refund_addon_installed.$)
+            buildSettingAndAddonsHorizontalMenuItem("assets/refund.png",
+                AppLocalizations.of(context)!.refund_requests_ucf, () {
+              Navigator.push(context, MaterialPageRoute(builder: (context) {
+                return RefundRequest();
+              }));
+            }),
+          buildSettingAndAddonsHorizontalMenuItem("assets/cart.png", "Cart",
+              () async {
+            await Navigator.push(context, MaterialPageRoute(builder: (context) {
+              return Cart(
+                has_bottomnav: false,
+              );
+            })).then((value) => onPopped(value));
+          }),
+          buildHorizontalSettingItem(is_logged_in.$, "assets/edit.png",
+              AppLocalizations.of(context)!.edit_profile_ucf, () {
+            AIZRoute.push(context, ProfileEdit()).then((value) {
+              //onPopped(value);
+            });
+          }),
+          buildHorizontalSettingItem(is_logged_in.$, "assets/location.png",
+              AppLocalizations.of(context)!.address_ucf, () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) {
+                  return Address();
+                },
+              ),
+            );
+          }),
           buildHorizontalSettingItem(true, "assets/language.png",
               AppLocalizations.of(context)!.language_ucf, () {
             Navigator.push(
@@ -661,20 +612,12 @@ class _ProfileState extends State<Profile> {
     return Container(
       alignment: Alignment.center,
       child: InkWell(
-        onTap:
-            onTap,
-
+        onTap: onTap,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Image.asset(
-              img,
-              width: 16,
-              height: 16,
-              color:
-                   MyTheme.accent_color
-
-            ),
+            Image.asset(img,
+                width: 16, height: 16, color: MyTheme.accent_color),
             SizedBox(
               height: 10,
             ),
@@ -682,10 +625,7 @@ class _ProfileState extends State<Profile> {
               text,
               textAlign: TextAlign.center,
               maxLines: 1,
-              style: TextStyle(
-                  color:MyTheme.accent_color
-                      ,
-                  fontSize: 12),
+              style: TextStyle(color: MyTheme.accent_color, fontSize: 12),
             )
           ],
         ),

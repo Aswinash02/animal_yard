@@ -26,9 +26,6 @@ class _WishlistState extends State<Wishlist> {
 
   @override
   void initState() {
-    // if (is_logged_in.$ == true) {
-    //   fetchWishlistItems();
-    // }
     fetchWishlistItems();
 
     super.initState();
@@ -122,15 +119,7 @@ class _WishlistState extends State<Wishlist> {
   }
 
   buildWishlist() {
-    if (is_logged_in.$ == false) {
-      return Container(
-          height: 100,
-          child: Center(
-              child: Text(
-            AppLocalizations.of(context)!.you_need_to_log_in,
-            style: TextStyle(color: MyTheme.font_grey),
-          )));
-    } else if (_wishlistInit == true && _wishlistItems.length == 0) {
+    if (_wishlistInit == true && _wishlistItems.length == 0) {
       return SingleChildScrollView(
         child: ShimmerHelper().buildListShimmer(item_count: 10),
       );
@@ -145,35 +134,17 @@ class _WishlistState extends State<Wishlist> {
           padding: EdgeInsets.only(top: 10.0, bottom: 10, left: 18, right: 18),
           physics: NeverScrollableScrollPhysics(),
           itemBuilder: (context, index) {
-            // 3
             return MiniProductCard(
-              // product: _wishlistItems[index],
               id: _wishlistItems[index].product.id,
               slug: _wishlistItems[index].product.slug,
               image: _wishlistItems[index].product.thumbnail_image,
               name: _wishlistItems[index].product.name,
               main_price: _wishlistItems[index].product.base_price,
-              // is_wholesale: _wishlistItems[index].product.isWholesale,
               stroked_price: "0",
-
               has_discount: false,
             );
           },
         ),
-
-        /*
-        ListView.builder(
-          itemCount: _wishlistItems.length,
-          scrollDirection: Axis.vertical,
-          physics: NeverScrollableScrollPhysics(),
-          shrinkWrap: true,
-          itemBuilder: (context, index) {
-            return Padding(
-              padding: const EdgeInsets.only(bottom: 3.0),
-              child: buildWishListItem(index),
-            );
-          },
-        ),*/
       );
     } else {
       return Container(
@@ -184,14 +155,14 @@ class _WishlistState extends State<Wishlist> {
     }
   }
 
-  buildWishListItem(index) {
+  buildWishListItem(index) { 
     return InkWell(
-      onTap: () {
-        Navigator.push(context, MaterialPageRoute(builder: (context) {
+      onTap: () async {
+       await Navigator.push(context, MaterialPageRoute(builder: (context) {
           return ProductDetails(
             slug: _wishlistItems[index].product.slug,
           );
-        }));
+        })).then((value) => reset());
       },
       child: Stack(
         children: [

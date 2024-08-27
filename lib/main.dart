@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:active_ecommerce_flutter/common/no_internet_screen.dart';
+import 'package:active_ecommerce_flutter/controllers/chat_controller.dart';
 import 'package:active_ecommerce_flutter/controllers/local_controller.dart';
 import 'package:active_ecommerce_flutter/custom/aiz_route.dart';
 import 'package:active_ecommerce_flutter/helpers/main_helpers.dart';
@@ -261,8 +262,7 @@ class _MyAppState extends State<MyApp> {
 
   @override
   void initState() {
-    routes.routerDelegate.addListener(() {
-    });
+    routes.routerDelegate.addListener(() {});
     routes.routeInformationProvider.addListener(() {});
     super.initState();
   }
@@ -271,6 +271,7 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
     final LocaleController localeController = Get.put(LocaleController());
+    // Get.put(ChatController());
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (context) => CartCounter()),

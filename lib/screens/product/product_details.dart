@@ -176,8 +176,7 @@ class _ProductDetailsState extends State<ProductDetails>
         await ProductRepository().getFrequentlyBoughProducts(slug: widget.slug);
     _relatedProducts.addAll(relatedProductResponse.products!);
     _relatedProductInit = true;
-
-    setState(() {});
+    if (mounted) setState(() {});
   }
 
   fetchTopProducts() async {
@@ -221,7 +220,7 @@ class _ProductDetailsState extends State<ProductDetails>
     );
 
     _isInWishList = wishListCheckResponse.is_in_wishlist;
-    setState(() {});
+    if (mounted) setState(() {});
   }
 
   addToWishList() async {
@@ -236,7 +235,7 @@ class _ProductDetailsState extends State<ProductDetails>
         .remove(product_id: _productDetails!.id.toString());
 
     _isInWishList = wishListCheckResponse.is_in_wishlist;
-    setState(() {});
+    if (mounted) setState(() {});
   }
 
   onWishTap() {
@@ -284,7 +283,7 @@ class _ProductDetailsState extends State<ProductDetails>
       pindex++;
     });
     setQuantity(_quantity);
-    setState(() {});
+    if (mounted) setState(() {});
   }
 
   reset() {
@@ -766,7 +765,6 @@ class _ProductDetailsState extends State<ProductDetails>
 
   @override
   Widget build(BuildContext context) {
-    final double statusBarHeight = MediaQuery.of(context).padding.top;
     SnackBar _addedToCartSnackbar = SnackBar(
       content: Text(
         AppLocalizations.of(context)!.added_to_cart,
@@ -798,7 +796,6 @@ class _ProductDetailsState extends State<ProductDetails>
                     ? buildAdminBottomAppBar(context, _addedToCartSnackbar)
                     : buildSellerBottomAppBar()
                 : SizedBox(),
-            //appBar: buildAppBar(statusBarHeight, context),
             body: RefreshIndicator(
               color: MyTheme.accent_color,
               backgroundColor: Colors.white,
@@ -813,7 +810,6 @@ class _ProductDetailsState extends State<ProductDetails>
                     backgroundColor: Colors.white.withOpacity(opacity),
                     pinned: true,
                     automaticallyImplyLeading: false,
-                    //titleSpacing: 0,
                     title: Row(
                       children: [
                         Builder(
@@ -1028,7 +1024,8 @@ class _ProductDetailsState extends State<ProductDetails>
                                   ),
                                 )
                               : SizedBox(),
-                          _productDetails != null
+                          _productDetails != null &&
+                                  _productDetails!.added_by != "admin"
                               ? Padding(
                                   padding: const EdgeInsets.symmetric(
                                       horizontal: 6.0),

@@ -8,6 +8,7 @@ import 'package:active_ecommerce_flutter/my_theme.dart';
 import 'package:active_ecommerce_flutter/repositories/chat_repository.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_chat_bubble/chat_bubble.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:intl/intl.dart' as intl;
@@ -98,34 +99,30 @@ class _ChatScreenState extends State<ChatScreen> {
     setState(() {});
     var chatText = _chatTextController.text.toString();
     _chatTextController.clear();
-    //print(chatText);
     if (chatText != "") {
-      final DateTime now = DateTime.now();
-      final intl.DateFormat date_formatter = intl.DateFormat('yyyy-MM-dd');
-      final intl.DateFormat time_formatter = intl.DateFormat('hh:ss');
-      final String formatted_date = date_formatter.format(now);
-      final String formatted_time = time_formatter.format(now);
-
       var messageResponse = await ChatRepository().getInserMessageResponse(
           conversation_id: widget.conversation_id, message: chatText);
-      loadingState = true;
+
       _list = [
         messageResponse.data,
         _list,
       ].expand((x) => x).toList(); //prepend
       _last_id = _list[0].id;
-      setState(() {});
 
-      _xcrollController.animateTo(
-        _xcrollController.position.maxScrollExtent + 100,
-        curve: Curves.easeOut,
-        duration: const Duration(milliseconds: 500),
-      );
+      if (_xcrollController.hasClients) {
+        _xcrollController.animateTo(
+          _xcrollController.position.maxScrollExtent + 100,
+          duration: const Duration(milliseconds: 500),
+          curve: Curves.easeOut,
+        );
+      }
     }
+    loadingState = false;
+    setState(() {});
   }
 
   fetch_new_message() async {
-    await Future.delayed(const Duration(seconds: 5), () {
+    await Future.delayed(const Duration(seconds: 4), () {
       get_new_message();
     }).then((value) {
       fetch_new_message();
@@ -386,72 +383,6 @@ class _ChatScreenState extends State<ChatScreen> {
             _list[index].time);
   }
 
-  Row buildMessageSendingRow(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: [
-        Container(
-          height: 40,
-          width: (MediaQuery.of(context).size.width - 32) * (4 / 5),
-          child: TextField(
-            autofocus: false,
-            maxLines: null,
-            controller: _chatTextController,
-            decoration: InputDecoration(
-                filled: true,
-                fillColor: Color.fromRGBO(251, 251, 251, 1),
-                hintText: AppLocalizations.of(context)!.type_your_message_here,
-                hintStyle:
-                    TextStyle(fontSize: 14.0, color: MyTheme.textfield_grey),
-                enabledBorder: OutlineInputBorder(
-                  borderSide:
-                      BorderSide(color: MyTheme.textfield_grey, width: 0.5),
-                  borderRadius: const BorderRadius.all(
-                    Radius.circular(35.0),
-                  ),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderSide:
-                      BorderSide(color: MyTheme.medium_grey, width: 0.5),
-                  borderRadius: const BorderRadius.all(
-                    Radius.circular(35.0),
-                  ),
-                ),
-                contentPadding: EdgeInsets.symmetric(horizontal: 16.0)),
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: GestureDetector(
-            onTap: loadingState
-                ? null
-                : () {
-                    onTapSendMessage();
-                  },
-            child: Container(
-              width: 40,
-              height: 40,
-              margin: EdgeInsets.symmetric(vertical: 4.0, horizontal: 2.0),
-              decoration: BoxDecoration(
-                color: MyTheme.accent_color,
-                borderRadius: BorderRadius.circular(35),
-                border: Border.all(
-                    color: Color.fromRGBO(112, 112, 112, .3), width: 1),
-                //shape: BoxShape.rectangle,
-              ),
-              child: Center(
-                child: Icon(
-                  Icons.send,
-                  color: Colors.white,
-                  size: 16,
-                ),
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
 
   getSenderView(
           CustomClipper clipper, BuildContext context, text, date, time) =>
@@ -638,6 +569,9 @@ class _ChatScreenState extends State<ChatScreen> {
                 ),
                 child: TextField(
                   controller: _chatTextController,
+                  inputFormatters: [
+                    FilteringTextInputFormatter.deny(RegExp(r'^\s')),
+                  ],
                   decoration: const InputDecoration(
                       hintText: "Write message...",
                       hintStyle: TextStyle(color: Colors.black54),
@@ -649,12 +583,11 @@ class _ChatScreenState extends State<ChatScreen> {
               width: 15,
             ),
             FloatingActionButton(
-              onPressed:
-                  _chatTextController.text.trim().isNotEmpty && loadingState
-                      ? () {
-                          onTapSendMessage();
-                        }
-                      : null,
+              onPressed: _chatTextController.text.isEmpty && loadingState
+                  ? null
+                  : () {
+                      onTapSendMessage();
+                    },
               child: const Icon(
                 Icons.send,
                 color: Colors.white,
