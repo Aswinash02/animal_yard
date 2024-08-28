@@ -1,16 +1,17 @@
-import 'package:active_ecommerce_flutter/helpers/shared_value_helper.dart';
+import 'dart:async';
+
+import 'package:active_ecommerce_flutter/controllers/chat_controller.dart';
+import 'package:active_ecommerce_flutter/data_model/conversation_response.dart';
+import 'package:active_ecommerce_flutter/data_model/seller_chat_list.dart';
 import 'package:active_ecommerce_flutter/my_theme.dart';
-import 'package:active_ecommerce_flutter/presenter/cart_counter.dart';
-import 'package:active_ecommerce_flutter/screens/cart.dart';
-import 'package:active_ecommerce_flutter/screens/category_list_n_product/category_list.dart';
+import 'package:active_ecommerce_flutter/repositories/chat_repository.dart';
 import 'package:active_ecommerce_flutter/screens/home.dart';
 import 'package:active_ecommerce_flutter/screens/profile.dart';
 import 'package:active_ecommerce_flutter/screens/seller_section/add_product/seller_add_product.dart';
 import 'package:active_ecommerce_flutter/screens/seller_section/chat_list/widget/chat_tab_bar.dart';
 import 'package:active_ecommerce_flutter/screens/seller_section/seller_products.dart';
-import 'package:badges/badges.dart' as badges;
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:get/get.dart';
 
 class Main extends StatefulWidget {
   Main({Key? key, this.goBack = true}) : super(key: key);
@@ -23,7 +24,7 @@ class Main extends StatefulWidget {
 class _MainState extends State<Main> {
   @override
   Widget build(BuildContext context) {
-    return user_type.$ == 'customer' ? CustomerDashBoard() : SellerDashBoard();
+    return SellerDashBoard();
   }
 }
 
@@ -35,6 +36,44 @@ class SellerDashBoard extends StatefulWidget {
 }
 
 class _SellerDashBoardState extends State<SellerDashBoard> {
+  StreamSubscription<void>? _chatStreamSubscription;
+
+  @override
+  void initState() {
+    _chatStreamSubscription = listenChatStream().listen((_) {});
+    super.initState();
+  }
+
+  Stream<void> listenChatStream() async* {
+    print('yes entered ======== >');
+    while (true) {
+      ConversationResponse buyerMessageCount =
+          await ChatRepository().getConversationResponse();
+      ChatListResponse sellerMessageCount =
+          await ChatRepository().getChatList();
+      if (buyerMessageCount.unReadSeller != 0) {
+        Get.find<ChatController>().isBatch(buyerMessageCount.unReadSeller!);
+      }
+      if (sellerMessageCount.unReadSeller != 0) {
+        Get.find<ChatController>().isBatch(buyerMessageCount.unReadSeller!);
+      }
+      print('badgeCount.unReadSeller ---- > ${buyerMessageCount.unReadSeller}');
+      print(
+          'badgeCount.unReadCustomer ---- > ${buyerMessageCount.unReadCustomer}');
+      print('---- > ${sellerMessageCount.unReadSeller}');
+      print('---- > ${sellerMessageCount.unReadCustomer}');
+
+      yield null;
+      await Future.delayed(Duration(seconds: 5)); // Adjust the delay as needed
+    }
+  }
+
+  @override
+  void dispose() {
+    _chatStreamSubscription?.cancel();
+    super.dispose();
+  }
+
   int _selectedIndex = 0;
 
   List<Widget> _buildSellerPageList = [
@@ -123,14 +162,34 @@ class _SellerDashBoardState extends State<SellerDashBoard> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
-                        IconButton(
-                          icon: CustomIcon(
-                            icon: "assets/messages.png",
-                            color: _selectedIndex == 2
-                                ? MyTheme.accent_color
-                                : Colors.grey,
-                          ),
-                          onPressed: () => _onItemTapped(2),
+                        Stack(
+                          children: [
+                            IconButton(
+                              icon: CustomIcon(
+                                icon: "assets/messages.png",
+                                color: _selectedIndex == 2
+                                    ? MyTheme.accent_color
+                                    : Colors.grey,
+                              ),
+                              onPressed: () => _onItemTapped(2),
+                            ),
+                            Obx(
+                              () => Get.find<ChatController>().count > 0
+                                  ? Positioned(
+                                      right: 6,
+                                      top: 6,
+                                      child: Container(
+                                        padding: EdgeInsets.all(4),
+                                        decoration: BoxDecoration(
+                                          color: MyTheme.accent_color,
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                        ),
+                                      ),
+                                    )
+                                  : SizedBox(),
+                            ),
+                          ],
                         ),
                         IconButton(
                           icon: CustomIcon(
@@ -145,123 +204,6 @@ class _SellerDashBoardState extends State<SellerDashBoard> {
                     ),
                   ),
                 )
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class CustomerDashBoard extends StatefulWidget {
-  const CustomerDashBoard({Key? key}) : super(key: key);
-
-  @override
-  State<CustomerDashBoard> createState() => _CustomerDashBoardState();
-}
-
-class _CustomerDashBoardState extends State<CustomerDashBoard> {
-  int _selectedIndex = 0;
-
-  List<Widget> customerList = [
-    Home(),
-    CategoryList(
-      slug: "",
-      is_base_category: true,
-      digital: 1,
-    ),
-    Cart(
-      has_bottomnav: true,
-      from_navigation: true,
-      counter: CartCounter(),
-    ),
-    Profile(),
-  ];
-
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: () async {
-        if (_selectedIndex != 0) {
-          setState(() {
-            _selectedIndex = 0;
-          });
-          return false;
-        }
-        return true;
-      },
-      child: Scaffold(
-        body: customerList[_selectedIndex],
-        bottomNavigationBar: BottomAppBar(
-          child: Container(
-            height: 70,
-            child: Row(
-              mainAxisSize: MainAxisSize.max,
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: <Widget>[
-                IconButton(
-                  icon: CustomIcon(
-                    icon: "assets/home.png",
-                    color: _selectedIndex == 0
-                        ? MyTheme.accent_color
-                        : Colors.grey,
-                  ),
-                  onPressed: () => _onItemTapped(0),
-                ),
-                IconButton(
-                  icon: CustomIcon(
-                    icon: "assets/categories.png",
-                    color: _selectedIndex == 1
-                        ? MyTheme.accent_color
-                        : Colors.grey,
-                  ),
-                  onPressed: () => _onItemTapped(1),
-                ),
-                IconButton(
-                  icon: badges.Badge(
-                    badgeStyle: badges.BadgeStyle(
-                      shape: badges.BadgeShape.circle,
-                      badgeColor: MyTheme.accent_color,
-                      borderRadius: BorderRadius.circular(10),
-                      padding: EdgeInsets.all(4),
-                    ),
-                    badgeAnimation: badges.BadgeAnimation.slide(
-                      toAnimate: false,
-                    ),
-                    child: CustomIcon(
-                      icon: "assets/cart.png",
-                      color: _selectedIndex == 2
-                          ? MyTheme.accent_color
-                          : Colors.grey,
-                    ),
-                    badgeContent: Consumer<CartCounter>(
-                      builder: (context, cart, child) {
-                        return Text(
-                          "${cart.cartCounter}",
-                          style: TextStyle(fontSize: 10, color: Colors.white),
-                        );
-                      },
-                    ),
-                  ),
-                  onPressed: () => _onItemTapped(2),
-                  color: _selectedIndex == 2 ? Colors.amber[800] : Colors.grey,
-                ),
-                IconButton(
-                  icon: CustomIcon(
-                    icon: "assets/profile.png",
-                    color: _selectedIndex == 3
-                        ? MyTheme.accent_color
-                        : Colors.grey,
-                  ),
-                  onPressed: () => _onItemTapped(3),
-                ),
               ],
             ),
           ),

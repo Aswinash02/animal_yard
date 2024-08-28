@@ -715,10 +715,6 @@ class _ProductDetailsState extends State<ProductDetails>
   }
 
   onPressSendMessage() async {
-    if (!is_logged_in.$) {
-      showLoginWarning();
-      return;
-    }
     loading();
     var title = sellerChatTitleController.text.toString();
     var message = sellerChatMessageController.text.toString();

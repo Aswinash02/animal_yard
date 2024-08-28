@@ -271,7 +271,7 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
     final LocaleController localeController = Get.put(LocaleController());
-    // Get.put(ChatController());
+    Get.put(ChatController());
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (context) => CartCounter()),

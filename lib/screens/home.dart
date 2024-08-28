@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:active_ecommerce_flutter/app_config.dart';
 import 'package:active_ecommerce_flutter/common/custom_app_bar.dart';
 import 'package:active_ecommerce_flutter/common/custom_text.dart';
@@ -10,8 +12,10 @@ import 'package:active_ecommerce_flutter/helpers/shimmer_helper.dart';
 import 'package:active_ecommerce_flutter/my_theme.dart';
 import 'package:active_ecommerce_flutter/presenter/cart_counter.dart';
 import 'package:active_ecommerce_flutter/presenter/home_presenter.dart';
+import 'package:active_ecommerce_flutter/repositories/chat_repository.dart';
 import 'package:active_ecommerce_flutter/screens/cart.dart';
 import 'package:active_ecommerce_flutter/screens/category_list_n_product/category_products.dart';
+import 'package:active_ecommerce_flutter/screens/filter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:get/get.dart';
@@ -45,6 +49,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
       change();
     });
     // TODO: implement initState
+
     super.initState();
   }
 
@@ -67,6 +72,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
   @override
   void dispose() {
     homeData.pirated_logo_controller.dispose();
+
     super.dispose();
   }
 

@@ -22,6 +22,8 @@ class ChatRepository {
           "App-Language": app_language.$!,
         },
         middleware: BannedUser());
+    print('response======= 23 > ${response.body}');
+
     return conversationResponseFromJson(response.body);
   }
 
@@ -29,7 +31,9 @@ class ChatRepository {
       {required conversation_id, page = 1}) async {
     String url =
         ("${AppConfig.BASE_URL}/chat/messages/${conversation_id}?page=${page}");
-    final response = await ApiRequest.get(
+    print('url message ========= > $url');
+    final response =
+    await ApiRequest.get(
         url: url,
         headers: {
           "Authorization": "Bearer ${access_token.$}",
@@ -101,7 +105,7 @@ class ChatRepository {
 
   Future<ChatListResponse> getChatList() async {
     String url = ("${AppConfig.BASE_URL_WITH_PREFIX}/conversations");
-
+    print('url ------ > $url');
     final response = await ApiRequest.get(
       url: url,
       headers: {
@@ -110,7 +114,7 @@ class ChatRepository {
         "Authorization": "Bearer ${access_token.$}",
       },
     );
-
+    print('response seller chat ------ ${response.body}');
     return chatListResponseFromJson(response.body);
   }
 

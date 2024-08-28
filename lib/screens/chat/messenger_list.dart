@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:active_ecommerce_flutter/common/custom_text.dart';
 import 'package:active_ecommerce_flutter/custom/buttons.dart';
 import 'package:active_ecommerce_flutter/custom/device_info.dart';
 import 'package:active_ecommerce_flutter/custom/my_widget.dart';
@@ -18,6 +21,7 @@ class BuyerChatList extends StatefulWidget {
 
 class _BuyerChatListState extends State<BuyerChatList> {
   ScrollController _xcrollController = ScrollController();
+  StreamSubscription<void>? _chatStreamSubscription;
 
   List<dynamic> _list = [];
   bool _isInitial = true;
@@ -30,7 +34,7 @@ class _BuyerChatListState extends State<BuyerChatList> {
     // TODO: implement initState
     super.initState();
 
-    fetchData();
+    _chatStreamSubscription = fetchData().listen((_) {});
 
     _xcrollController.addListener(() {
       if (_xcrollController.position.pixels ==
@@ -44,14 +48,25 @@ class _BuyerChatListState extends State<BuyerChatList> {
     });
   }
 
-  fetchData() async {
-    var conversatonResponse =
-        await ChatRepository().getConversationResponse(page: _page);
-    _list.addAll(conversatonResponse.conversation_item_list);
-    _isInitial = false;
-    _totalData = conversatonResponse.meta.total;
-    _showLoadingContainer = false;
-    if (mounted) setState(() {});
+  Stream<void> fetchData() async* {
+    while (true) {
+      var conversationResponse =
+          await ChatRepository().getConversationResponse();
+
+      var newItems = conversationResponse.conversation_item_list.where((item) {
+        return !_list.any((existingItem) => existingItem.id == item.id);
+      }).toList();
+      _list.insertAll(0, newItems);
+
+      _isInitial = false;
+      _totalData = conversationResponse.meta.total;
+      _showLoadingContainer = false;
+
+      if (mounted) setState(() {});
+      yield null;
+
+      await Future.delayed(Duration(seconds: 5)); // Adjust the delay as needed
+    }
   }
 
   reset() {
@@ -66,6 +81,20 @@ class _BuyerChatListState extends State<BuyerChatList> {
   Future<void> _onRefresh() async {
     reset();
     fetchData();
+  }
+
+  @override
+  void deactivate() {
+    // TODO: implement deactivate
+    print('deactived -- mgs---------');
+    _chatStreamSubscription?.cancel();
+    super.deactivate();
+  }
+
+  @override
+  void dispose() {
+    _chatStreamSubscription?.cancel();
+    super.dispose();
   }
 
   @override
@@ -155,12 +184,13 @@ class _BuyerChatListState extends State<BuyerChatList> {
                           _list[index].shop_name,
                           _list[index].shop_logo,
                           _list[index].title,
-                          true));
+                          true,
+                          _list[index].unReadSeller));
                 });
   }
 
-  Widget buildChatItem(
-      index, conversationId, String userName, img, sms, bool isActive) {
+  Widget buildChatItem(index, conversationId, String userName, img, sms,
+      bool isActive, int count) {
     return Container(
       margin: EdgeInsets.only(top: index == 0 ? 20 : 0, bottom: 20),
       child: Buttons(
@@ -209,7 +239,7 @@ class _BuyerChatListState extends State<BuyerChatList> {
               ),
             ),
             Container(
-              width: DeviceInfo(context).width! - 80,
+              width: DeviceInfo(context).width! - 110,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -240,6 +270,20 @@ class _BuyerChatListState extends State<BuyerChatList> {
                 ],
               ),
             ),
+            count != 0
+                ? Container(
+                    height: 24,
+                    width: 24,
+                    child: Center(
+                        child: CustomText(
+                      text: count.toString(),
+                      fontSize: 12,
+                      color: MyTheme.white,
+                    )),
+                    decoration: BoxDecoration(
+                        color: MyTheme.accent_color, shape: BoxShape.circle),
+                  )
+                : SizedBox(),
           ],
         ),
       ),
@@ -251,29 +295,30 @@ class _BuyerChatListState extends State<BuyerChatList> {
       padding: const EdgeInsets.symmetric(vertical: 15.0),
       child: Column(
         children: List.generate(
-            20,
-            (index) => Container(
-                  margin: EdgeInsets.only(bottom: 10),
-                  child: Row(
-                    children: [
-                      Shimmer.fromColors(
-                        baseColor: MyTheme.shimmer_base,
-                        highlightColor: MyTheme.shimmer_highlighted,
-                        child: Container(
-                          height: 35,
-                          width: 35,
-                          margin: EdgeInsets.only(right: 14),
-                          decoration: BoxDecoration(
-                            color: MyTheme.brick_red,
-                            borderRadius: BorderRadius.circular(30),
-                          ),
-                        ),
-                      ),
-                      ShimmerHelper().buildBasicShimmer(
-                          height: 35, width: DeviceInfo(context).width! - 80),
-                    ],
+          20,
+          (index) => Container(
+            margin: EdgeInsets.only(bottom: 10),
+            child: Row(
+              children: [
+                Shimmer.fromColors(
+                  baseColor: MyTheme.shimmer_base,
+                  highlightColor: MyTheme.shimmer_highlighted,
+                  child: Container(
+                    height: 35,
+                    width: 35,
+                    margin: EdgeInsets.only(right: 14),
+                    decoration: BoxDecoration(
+                      color: MyTheme.brick_red,
+                      borderRadius: BorderRadius.circular(30),
+                    ),
                   ),
-                )),
+                ),
+                ShimmerHelper().buildBasicShimmer(
+                    height: 35, width: DeviceInfo(context).width! - 80),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }

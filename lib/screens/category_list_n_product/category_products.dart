@@ -7,6 +7,7 @@ import 'package:active_ecommerce_flutter/helpers/shimmer_helper.dart';
 import 'package:active_ecommerce_flutter/my_theme.dart';
 import 'package:active_ecommerce_flutter/repositories/category_repository.dart';
 import 'package:active_ecommerce_flutter/repositories/product_repository.dart';
+import 'package:active_ecommerce_flutter/screens/filter.dart';
 import 'package:active_ecommerce_flutter/screens/home.dart';
 import 'package:active_ecommerce_flutter/ui_elements/product_card.dart';
 import 'package:flutter/cupertino.dart';
@@ -15,7 +16,8 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 
 class CategoryProducts extends StatefulWidget {
-  CategoryProducts({Key? key, required this.slug, this.isFood = false}) : super(key: key);
+  CategoryProducts({Key? key, required this.slug, this.isFood = false})
+      : super(key: key);
   final String slug;
   final bool isFood;
 
@@ -63,7 +65,6 @@ class _CategoryProductsState extends State<CategoryProducts> {
     fetchAllDate(widget.slug);
 
     _xcrollController.addListener(() {
-
       if (_xcrollController.position.pixels ==
           _xcrollController.position.maxScrollExtent) {
         setState(() {
@@ -151,7 +152,7 @@ class _CategoryProductsState extends State<CategoryProducts> {
 
   AppBar buildAppBar(BuildContext context) {
     return AppBar(
-      automaticallyImplyLeading: false,
+      // automaticallyImplyLeading: false,
       flexibleSpace: Container(
         height: DeviceInfo(context).height! / 4,
         width: DeviceInfo(context).width,
@@ -161,7 +162,23 @@ class _CategoryProductsState extends State<CategoryProducts> {
           "assets/background_1.png",
         ),
       ),
-      title: buildAppBarTitle(context),
+      title: CustomText(
+          text: categoryInfo?.name ?? "",
+          fontSize: 16,
+          maxLines: 1,
+          color: MyTheme.white,
+          fontWeight: FontWeight.bold),
+      // title: buildAppBarTitle(context),
+      actions: [
+        IconButton(
+          onPressed: () {
+            Navigator.push(context, MaterialPageRoute(builder: (context) {
+              return Filter();
+            }));
+          },
+          icon: Icon(Icons.search),
+        ),
+      ],
       elevation: 0.0,
       titleSpacing: 0,
     );
