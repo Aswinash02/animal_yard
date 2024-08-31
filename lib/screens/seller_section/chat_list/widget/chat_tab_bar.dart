@@ -2,8 +2,8 @@ import 'package:active_ecommerce_flutter/common/custom_app_bar.dart';
 import 'package:active_ecommerce_flutter/custom/buttons.dart';
 import 'package:active_ecommerce_flutter/custom/lang_text.dart';
 import 'package:active_ecommerce_flutter/my_theme.dart';
-import 'package:active_ecommerce_flutter/screens/chat/messenger_list.dart';
-import 'package:active_ecommerce_flutter/screens/seller_section/chat_list/chat_list_page.dart';
+import 'package:active_ecommerce_flutter/screens/chat/buyer_chat_list.dart';
+import 'package:active_ecommerce_flutter/screens/seller_section/chat_list/seller_chat_list_page.dart';
 import 'package:flutter/material.dart';
 
 class ChatTabBar extends StatefulWidget {

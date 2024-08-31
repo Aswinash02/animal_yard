@@ -172,9 +172,9 @@ class _CategoryProductsState extends State<CategoryProducts> {
       actions: [
         IconButton(
           onPressed: () {
-            Navigator.push(context, MaterialPageRoute(builder: (context) {
-              return Filter();
-            }));
+            // Navigator.push(context, MaterialPageRoute(builder: (context) {
+            //   return Filter();
+            // }));
           },
           icon: Icon(Icons.search),
         ),

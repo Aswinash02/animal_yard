@@ -18,7 +18,7 @@ import 'package:active_ecommerce_flutter/screens/auth/login.dart';
 import 'package:active_ecommerce_flutter/screens/auth/registration.dart';
 import 'package:active_ecommerce_flutter/screens/cart.dart';
 import 'package:active_ecommerce_flutter/screens/change_language.dart';
-import 'package:active_ecommerce_flutter/screens/chat/messenger_list.dart';
+import 'package:active_ecommerce_flutter/screens/chat/buyer_chat_list.dart';
 import 'package:active_ecommerce_flutter/screens/classified_ads/classified_ads.dart';
 import 'package:active_ecommerce_flutter/screens/classified_ads/my_classified_ads.dart';
 import 'package:active_ecommerce_flutter/screens/club_point.dart';

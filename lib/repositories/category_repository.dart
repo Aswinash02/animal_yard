@@ -17,6 +17,8 @@ class CategoryRepository {
     final response = await ApiRequest.get(url: url, headers: {
       "App-Language": app_language.$!,
     });
+
+    print('CategoryResponse ------ > ${response.body}');
     return categoryResponseFromJson(response.body);
 
   }

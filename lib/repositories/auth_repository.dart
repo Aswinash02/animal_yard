@@ -10,6 +10,7 @@ import 'package:active_ecommerce_flutter/data_model/password_forget_response.dar
 import 'package:active_ecommerce_flutter/data_model/resend_code_response.dart';
 import 'package:active_ecommerce_flutter/helpers/shared_value_helper.dart';
 import 'package:active_ecommerce_flutter/repositories/api-request.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 
 class AuthRepository {
   Future<LoginResponse> getLoginResponse(String? email, String loginBy) async {
@@ -158,9 +159,11 @@ class AuthRepository {
     return resendCodeResponseFromJson(response.body);
   }
 
-  Future<LoginResponse> getConfirmCodeResponse(
-      String otp, String phone) async {
-    var post_body = jsonEncode({"phone": phone, "otp": otp});
+  Future<LoginResponse> getConfirmCodeResponse(String otp, String phone) async {
+    String deviceToken = await getToken();
+    print('device token ========= > ${deviceToken}');
+    var post_body =
+        jsonEncode({"phone": phone, "otp": otp, "device_token": deviceToken});
 
     String url = ("${AppConfig.BASE_URL}/auth/confirm_code");
     final response = await ApiRequest.post(
@@ -171,7 +174,16 @@ class AuthRepository {
           "Authorization": "Bearer ${access_token.$}",
         },
         body: post_body);
+    print('response.body login ------ > ${response.body}');
     return loginResponseFromJson(response.body);
+  }
+
+  Future<String> getToken() async {
+    final _firebaseInstance = FirebaseMessaging.instance;
+
+    String? token = await _firebaseInstance.getToken();
+    print('token  $token');
+    return token ?? '';
   }
 
   Future<PasswordForgetResponse> getPasswordForgetResponse(

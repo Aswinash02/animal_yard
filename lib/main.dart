@@ -37,6 +37,7 @@ import 'package:active_ecommerce_flutter/screens/product/todays_deal_products.da
 import 'package:active_ecommerce_flutter/screens/profile.dart';
 import 'package:active_ecommerce_flutter/screens/seller_details.dart';
 import 'package:active_ecommerce_flutter/screens/splash_screen.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
@@ -51,6 +52,7 @@ import 'app_config.dart';
 
 main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
   FlutterDownloader.initialize(
       debug: true,
       // optional: set to false to disable printing logs to console (default: true)
@@ -161,14 +163,14 @@ var routes = GoRouter(
                       child: (BrandProducts(
                     slug: getParameter(state, "slug"),
                   )))),
-          GoRoute(
-              path: "brands",
-              name: "Brands",
-              pageBuilder: (BuildContext context, GoRouterState state) =>
-                  MaterialPage(
-                      child: Filter(
-                    selected_filter: "brands",
-                  ))),
+          // GoRoute(
+              // path: "brands",
+              // name: "Brands",
+              // pageBuilder: (BuildContext context, GoRouterState state) =>
+              //     MaterialPage(
+              //         child: Filter(
+              //       selected_filter: "brands",
+              //     ))),
           GoRoute(
               path: "cart",
               pageBuilder: (BuildContext context, GoRouterState state) =>
@@ -214,13 +216,13 @@ var routes = GoRouter(
                       child: (OrderDetails(
                     id: int.parse(getParameter(state, "id")),
                   )))),
-          GoRoute(
-              path: "sellers",
-              pageBuilder: (BuildContext context, GoRouterState state) =>
-                  MaterialPage(
-                      child: (Filter(
-                    selected_filter: "sellers",
-                  )))),
+          // GoRoute(
+          //     path: "sellers",
+          //     pageBuilder: (BuildContext context, GoRouterState state) =>
+          //         MaterialPage(
+          //             child: (Filter(
+          //           selected_filter: "sellers",
+          //         )))),
           GoRoute(
               path: "shop/:slug",
               pageBuilder: (BuildContext context, GoRouterState state) =>

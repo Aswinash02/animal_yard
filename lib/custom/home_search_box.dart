@@ -16,9 +16,9 @@ class HomeSearchBox extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        Navigator.push(context, MaterialPageRoute(builder: (context) {
-          return Filter();
-        }));
+        // Navigator.push(context, MaterialPageRoute(builder: (context) {
+        //   return Filter();
+        // }));
       },
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -51,9 +51,9 @@ class HomeSearchBox extends StatelessWidget {
           ),
           IconButton(
             onPressed: () {
-              Navigator.push(context, MaterialPageRoute(builder: (context) {
-                return Filter();
-              }));
+              // Navigator.push(context, MaterialPageRoute(builder: (context) {
+              //   return Filter();
+              // }));
             },
             icon: Icon(Icons.filter_alt_sharp, color: MyTheme.accent_color),
           )

@@ -5,9 +5,10 @@ import 'package:active_ecommerce_flutter/repositories/api-request.dart';
 
 class SearchRepository {
   Future<List<SearchSuggestionResponse>> getSearchSuggestionListResponse(
-      {query_key = "", type = "product"}) async {
+      {query_key = "", type = "product",categoryId = 0}) async {
     String url =
-        ("${AppConfig.BASE_URL}/get-search-suggestions?query_key=$query_key&type=$type");
+        ("${AppConfig.BASE_URL}/get-search-suggestions?query_key=$query_key&type=$type&category_id=$categoryId");
+    print('url ========= > ${url}');
     final response = await ApiRequest.get(
       url: url,
       headers: {

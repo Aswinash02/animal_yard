@@ -1,3 +1,4 @@
+import 'package:active_ecommerce_flutter/common/custom_text.dart';
 import 'package:active_ecommerce_flutter/custom/btn.dart';
 import 'package:active_ecommerce_flutter/custom/toast_component.dart';
 import 'package:active_ecommerce_flutter/custom/useful_elements.dart';
@@ -41,12 +42,16 @@ class WhichFilter {
 }
 
 class Filter extends StatefulWidget {
-  Filter({
-    Key? key,
-    this.selected_filter = "product",
-  }) : super(key: key);
+  Filter(
+      {Key? key,
+      this.selected_filter = "product",
+      required this.id,
+      required this.title})
+      : super(key: key);
 
   final String selected_filter;
+  final int id;
+  final String title;
 
   @override
   _FilterState createState() => _FilterState();
@@ -69,7 +74,8 @@ class _FilterState extends State<Filter> {
 
   List<WhichFilter> _which_filter_list = WhichFilter.getWhichFilterList();
   List<DropdownMenuItem<WhichFilter>>? _dropdownWhichFilterItems;
-  List<dynamic> _selectedCategories = [];
+
+  // List<dynamic> _selectedCategories = [];
   List<dynamic> _selectedBrands = [];
 
   final TextEditingController _searchController = new TextEditingController();
@@ -155,10 +161,15 @@ class _FilterState extends State<Filter> {
     fetchFilteredBrands();
 
     if (_selectedFilter!.option_key == "sellers") {
+      print('sellers ========== >');
       fetchShopData();
     } else if (_selectedFilter!.option_key == "brands") {
+      print('brands ========== >');
+
       fetchBrandData();
     } else {
+      print('fetchProductData ========== >');
+
       fetchProductData();
     }
 
@@ -199,12 +210,13 @@ class _FilterState extends State<Filter> {
   }
 
   fetchProductData() async {
+    // print("_selectedCategories ====== > ${_selectedCategories.join(",").toString()}");
     var productResponse = await ProductRepository().getFilteredProducts(
         page: _productPage,
         name: _searchKey,
         sort_key: _selectedSort,
         brands: _selectedBrands.join(",").toString(),
-        categories: _selectedCategories.join(",").toString(),
+        categories: widget.id.toString(),
         max: _maxPriceController.text.toString(),
         min: _minPriceController.text.toString());
 
@@ -212,7 +224,7 @@ class _FilterState extends State<Filter> {
     _isProductInitial = false;
     _totalProductData = productResponse.meta!.total;
     _showProductLoadingContainer = false;
-    setState(() {});
+    if (mounted) setState(() {});
   }
 
   resetProductList() {
@@ -681,118 +693,134 @@ class _FilterState extends State<Filter> {
     );
   }
 
-  Row buildTopAppbar(BuildContext context) {
-    return Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: <Widget>[
-          IconButton(
-            padding: EdgeInsets.zero,
-            icon: UsefulElements.backButton(context),
-            onPressed: () => Navigator.of(context).pop(),
+  Widget buildTopAppbar(BuildContext context) {
+    return SafeArea(
+      child: Column(
+        children: [
+          Row(
+            children: [
+              IconButton(
+                icon: UsefulElements.backButton(context),
+                onPressed: () => Navigator.of(context).pop(),
+              ),
+              CustomText(text: widget.title)
+            ],
           ),
-          Container(
-            width: MediaQuery.of(context).size.width * .6,
-            child: Container(
-              child: Padding(
-                  padding: MediaQuery.of(context).viewPadding.top >
-                          30 //MediaQuery.of(context).viewPadding.top is the statusbar height, with a notch phone it results almost 50, without a notch it shows 24.0.For safety we have checked if its greater than thirty
-                      ? const EdgeInsets.symmetric(
-                          vertical: 36.0, horizontal: 0.0)
-                      : const EdgeInsets.symmetric(
-                          vertical: 14.0, horizontal: 0.0),
-                  child: TypeAheadField(
-                    suggestionsCallback: (pattern) async {
-                      //return await BackendService.getSuggestions(pattern);
-                      var suggestions = await SearchRepository()
-                          .getSearchSuggestionListResponse(
-                              query_key: pattern,
-                              type: _selectedFilter!.option_key);
-                      return suggestions;
-                    },
-                    loadingBuilder: (context) {
-                      return Container(
-                        height: 50,
-                        child: Center(
-                            child: Text(
-                                AppLocalizations.of(context)!
-                                    .loading_suggestions,
-                                style: TextStyle(color: MyTheme.medium_grey))),
-                      );
-                    },
-                    itemBuilder: (context, dynamic suggestion) {
-                      var subtitle =
-                          "${AppLocalizations.of(context)!.searched_for_all_lower} ${suggestion.count} ${AppLocalizations.of(context)!.times_all_lower}";
-                      if (suggestion.type != "search") {
-                        subtitle =
-                            "${suggestion.type_string} ${AppLocalizations.of(context)!.found_all_lower}";
-                      }
-                      return ListTile(
-                        dense: true,
-                        title: Text(
-                          suggestion.query,
-                          style: TextStyle(
-                              color: suggestion.type != "search"
-                                  ? MyTheme.accent_color
-                                  : MyTheme.font_grey),
-                        ),
-                        subtitle: Text(subtitle,
-                            style: TextStyle(
-                                color: suggestion.type != "search"
-                                    ? MyTheme.font_grey
-                                    : MyTheme.medium_grey)),
-                      );
-                    },
-                    noItemsFoundBuilder: (context) {
-                      return Container(
-                        height: 50,
-                        child: Center(
-                            child: Text(
-                                AppLocalizations.of(context)!
-                                    .no_suggestion_available,
-                                style: TextStyle(color: MyTheme.medium_grey))),
-                      );
-                    },
-                    onSuggestionSelected: (dynamic suggestion) {
-                      _searchController.text = suggestion.query;
-                      _searchKey = suggestion.query;
-                      setState(() {});
-                      _onSearchSubmit();
-                    },
-                    textFieldConfiguration: TextFieldConfiguration(
-                      onTap: () {},
-                      //autofocus: true,
-                      controller: _searchController,
-                      onSubmitted: (txt) {
-                        _searchKey = txt;
+          Padding(
+            padding: const EdgeInsets.only(left: 10.0),
+            child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  Expanded(
+                    child: Container(
+                      child: Container(
+                        child: Padding(
+                            padding: MediaQuery.of(context).viewPadding.top >
+                                    30 //MediaQuery.of(context).viewPadding.top is the statusbar height, with a notch phone it results almost 50, without a notch it shows 24.0.For safety we have checked if its greater than thirty
+                                ? const EdgeInsets.symmetric(horizontal: 0.0)
+                                : const EdgeInsets.symmetric(horizontal: 0.0),
+                            child: TypeAheadField(
+                              suggestionsCallback: (pattern) async {
+                                //return await BackendService.getSuggestions(pattern);
+                                var suggestions = await SearchRepository()
+                                    .getSearchSuggestionListResponse(
+                                        query_key: pattern,
+                                        type: _selectedFilter!.option_key,
+                                        categoryId: widget.id);
+                                return suggestions;
+                              },
+                              loadingBuilder: (context) {
+                                return Container(
+                                  height: 50,
+                                  child: Center(
+                                      child: Text(
+                                          AppLocalizations.of(context)!
+                                              .loading_suggestions,
+                                          style: TextStyle(
+                                              color: MyTheme.medium_grey))),
+                                );
+                              },
+                              itemBuilder: (context, dynamic suggestion) {
+                                var subtitle =
+                                    "${AppLocalizations.of(context)!.searched_for_all_lower} ${suggestion.count} ${AppLocalizations.of(context)!.times_all_lower}";
+                                if (suggestion.type != "search") {
+                                  subtitle =
+                                      "${suggestion.type_string} ${AppLocalizations.of(context)!.found_all_lower}";
+                                }
+                                return ListTile(
+                                  dense: true,
+                                  title: Text(
+                                    suggestion.query,
+                                    style: TextStyle(
+                                        color: suggestion.type != "search"
+                                            ? MyTheme.accent_color
+                                            : MyTheme.font_grey),
+                                  ),
+                                  subtitle: Text(subtitle,
+                                      style: TextStyle(
+                                          color: suggestion.type != "search"
+                                              ? MyTheme.font_grey
+                                              : MyTheme.medium_grey)),
+                                );
+                              },
+                              noItemsFoundBuilder: (context) {
+                                return Container(
+                                  height: 50,
+                                  child: Center(
+                                      child: Text(
+                                          AppLocalizations.of(context)!
+                                              .no_suggestion_available,
+                                          style: TextStyle(
+                                              color: MyTheme.medium_grey))),
+                                );
+                              },
+                              onSuggestionSelected: (dynamic suggestion) {
+                                _searchController.text = suggestion.query;
+                                _searchKey = suggestion.query;
+                                setState(() {});
+                                _onSearchSubmit();
+                              },
+                              textFieldConfiguration: TextFieldConfiguration(
+                                onTap: () {},
+                                //autofocus: true,
+                                controller: _searchController,
+                                onSubmitted: (txt) {
+                                  _searchKey = txt;
+                                  setState(() {});
+                                  _onSearchSubmit();
+                                },
+                                decoration: InputDecoration(
+                                    hintText: AppLocalizations.of(context)!
+                                        .search_here_ucf,
+                                    hintStyle: TextStyle(
+                                        fontSize: 12.0,
+                                        color: MyTheme.textfield_grey),
+                                    enabledBorder: OutlineInputBorder(
+                                      borderSide: BorderSide(
+                                          color: MyTheme.white, width: 0.0),
+                                    ),
+                                    focusedBorder: OutlineInputBorder(
+                                      borderSide: BorderSide(
+                                          color: MyTheme.white, width: 0.0),
+                                    ),
+                                    contentPadding: EdgeInsets.all(0.0)),
+                              ),
+                            )),
+                      ),
+                    ),
+                  ),
+                  IconButton(
+                      icon: Icon(Icons.search, color: MyTheme.dark_grey),
+                      onPressed: () {
+                        _searchKey = _searchController.text.toString();
                         setState(() {});
                         _onSearchSubmit();
-                      },
-                      decoration: InputDecoration(
-                          hintText:
-                              AppLocalizations.of(context)!.search_here_ucf,
-                          hintStyle: TextStyle(
-                              fontSize: 12.0, color: MyTheme.textfield_grey),
-                          enabledBorder: OutlineInputBorder(
-                            borderSide:
-                                BorderSide(color: MyTheme.white, width: 0.0),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderSide:
-                                BorderSide(color: MyTheme.white, width: 0.0),
-                          ),
-                          contentPadding: EdgeInsets.all(0.0)),
-                    ),
-                  )),
-            ),
+                      }),
+                ]),
           ),
-          IconButton(
-              icon: Icon(Icons.search, color: MyTheme.dark_grey),
-              onPressed: () {
-                _searchKey = _searchController.text.toString();
-                setState(() {});
-                _onSearchSubmit();
-              }),
-        ]);
+        ],
+      ),
+    );
   }
 
   buildFilterDrawer() {
@@ -899,41 +927,59 @@ class _FilterState extends State<Filter> {
                   ),
                 ),
               ),
-              Expanded(
-                child: CustomScrollView(slivers: [
-                  SliverList(
-                    delegate: SliverChildListDelegate([
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                        child: Text(
-                          AppLocalizations.of(context)!.categories_ucf,
-                          style: TextStyle(
-                              fontSize: 14, fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                      _filterCategoryList.length == 0
-                          ? Container(
-                              height: 100,
-                              child: Center(
-                                child: Text(
-                                  AppLocalizations.of(context)!
-                                      .no_category_is_available,
-                                  style: TextStyle(color: MyTheme.font_grey),
-                                ),
-                              ),
-                            )
-                          : SingleChildScrollView(
-                              child: buildFilterCategoryList(),
-                            ),
-                    ]),
-                  )
-                ]),
-              ),
+              // Expanded(
+              //   child: CustomScrollView(slivers: [
+              //     SliverList(
+              //       delegate: SliverChildListDelegate([
+              //         Padding(
+              //           padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              //           child: Text(
+              //             AppLocalizations.of(context)!.categories_ucf,
+              //             style: TextStyle(
+              //                 fontSize: 14, fontWeight: FontWeight.bold),
+              //           ),
+              //         ),
+              //         // _filterCategoryList.length == 0
+              //         //     ? Container(
+              //         //         height: 100,
+              //         //         child: Center(
+              //         //           child: Text(
+              //         //             AppLocalizations.of(context)!
+              //         //                 .no_category_is_available,
+              //         //             style: TextStyle(color: MyTheme.font_grey),
+              //         //           ),
+              //         //         ),
+              //         //       )
+              //         //     : SingleChildScrollView(
+              //         //         child: buildFilterCategoryList(),
+              //         //       ),
+              //       ]),
+              //     )
+              //   ]),
+              // ),
               Container(
                 height: 70,
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
+                    Btn.basic(
+                      color: Color.fromRGBO(234, 67, 53, 1),
+                      shape: RoundedRectangleBorder(
+                        side: new BorderSide(
+                            color: MyTheme.light_grey, width: 2.0),
+                        borderRadius: BorderRadius.circular(4.0),
+                      ),
+                      child: Text(
+                        "DEFAULT",
+                        style: TextStyle(color: Colors.white, fontSize: 13),
+                      ),
+                      onPressed: () {
+                        _minPriceController.clear();
+                        _maxPriceController.clear();
+                        _onProductListRefresh();
+                        Navigator.pop(context);
+                      },
+                    ),
                     Btn.basic(
                       color: Color.fromRGBO(234, 67, 53, 1),
                       shape: RoundedRectangleBorder(
@@ -949,7 +995,7 @@ class _FilterState extends State<Filter> {
                         _minPriceController.clear();
                         _maxPriceController.clear();
                         setState(() {
-                          _selectedCategories.clear();
+                          // _selectedCategories.clear();
                           _selectedBrands.clear();
                         });
                         Navigator.pop(context);
@@ -979,6 +1025,8 @@ class _FilterState extends State<Filter> {
                         if (apply) {
                           _applyProductFilter();
                         }
+                        _minPriceController.clear();
+                        _maxPriceController.clear();
                         Navigator.pop(context);
                       },
                     )
@@ -1023,37 +1071,37 @@ class _FilterState extends State<Filter> {
     );
   }
 
-  ListView buildFilterCategoryList() {
-    return ListView(
-      padding: EdgeInsets.only(top: 16.0, bottom: 16.0),
-      physics: NeverScrollableScrollPhysics(),
-      shrinkWrap: true,
-      children: <Widget>[
-        ..._filterCategoryList
-            .map(
-              (category) => CheckboxListTile(
-                controlAffinity: ListTileControlAffinity.leading,
-                dense: true,
-                title: Text(category.name),
-                value: _selectedCategories.contains(category.id),
-                onChanged: (bool? value) {
-                  if (value!) {
-                    setState(() {
-                      _selectedCategories.clear();
-                      _selectedCategories.add(category.id);
-                    });
-                  } else {
-                    setState(() {
-                      _selectedCategories.remove(category.id);
-                    });
-                  }
-                },
-              ),
-            )
-            .toList()
-      ],
-    );
-  }
+  // ListView buildFilterCategoryList() {
+  //   return ListView(
+  //     padding: EdgeInsets.only(top: 16.0, bottom: 16.0),
+  //     physics: NeverScrollableScrollPhysics(),
+  //     shrinkWrap: true,
+  //     children: <Widget>[
+  //       ..._filterCategoryList
+  //           .map(
+  //             (category) => CheckboxListTile(
+  //               controlAffinity: ListTileControlAffinity.leading,
+  //               dense: true,
+  //               title: Text(category.name),
+  //               value: _selectedCategories.contains(category.id),
+  //               onChanged: (bool? value) {
+  //                 if (value!) {
+  //                   setState(() {
+  //                     // _selectedCategories.clear();
+  //                     // _selectedCategories.add(category.id);
+  //                   });
+  //                 } else {
+  //                   setState(() {
+  //                     // _selectedCategories.remove(category.id);
+  //                   });
+  //                 }
+  //               },
+  //             ),
+  //           )
+  //           .toList()
+  //     ],
+  //   );
+  // }
 
   Container buildProductList() {
     return Container(
@@ -1085,7 +1133,7 @@ class _FilterState extends State<Filter> {
             children: [
               SizedBox(
                   height:
-                      MediaQuery.of(context).viewPadding.top > 40 ? 180 : 145
+                      MediaQuery.of(context).viewPadding.top > 40 ? 210 : 175
                   //MediaQuery.of(context).viewPadding.top is the statusbar height, with a notch phone it results almost 50, without a notch it shows 24.0.For safety we have checked if its greater than thirty
                   ),
               MasonryGridView.count(

@@ -368,10 +368,17 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                       const EdgeInsets.symmetric(horizontal: 8.0, vertical: 10),
                   child: GestureDetector(
                       onTap: () {
+                        // Navigator.push(context,
+                        //     MaterialPageRoute(builder: (context) {
+                        //   return CategoryProducts(
+                        //     slug: data.slug,
+                        //   );
+                        // }));
                         Navigator.push(context,
                             MaterialPageRoute(builder: (context) {
-                          return CategoryProducts(
-                            slug: data.slug,
+                          return Filter(
+                            id: data.id,
+                            title: data.name,
                           );
                         }));
                       },

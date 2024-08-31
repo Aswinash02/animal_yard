@@ -1,15 +1,15 @@
 import 'dart:async';
 
 import 'package:active_ecommerce_flutter/common/custom_text.dart';
+import 'package:active_ecommerce_flutter/controllers/chat_controller.dart';
 import 'package:active_ecommerce_flutter/custom/buttons.dart';
 import 'package:active_ecommerce_flutter/custom/device_info.dart';
 import 'package:active_ecommerce_flutter/custom/my_widget.dart';
-import 'package:active_ecommerce_flutter/data_model/seller_chat_list.dart';
 import 'package:active_ecommerce_flutter/helpers/shimmer_helper.dart';
 import 'package:active_ecommerce_flutter/my_theme.dart';
-import 'package:active_ecommerce_flutter/repositories/chat_repository.dart';
 import 'package:active_ecommerce_flutter/screens/chat/chat.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:shimmer/shimmer.dart';
 
 class SellerChatList extends StatefulWidget {
@@ -20,18 +20,16 @@ class SellerChatList extends StatefulWidget {
 }
 
 class _SellerChatListState extends State<SellerChatList> {
-  List<Chat> _chatList = [];
-  bool _faceData = false;
-  bool _loadingState = false;
   StreamSubscription<void>? _chatStreamSubscription;
+  final controller = Get.find<ChatController>();
 
   faceData() {
-    getCouponList();
+    controller.fetchSellerChatList();
   }
 
   clearData() {
-    _chatList = [];
-    _faceData = false;
+    controller.sellerChatList.clear();
+    controller.sellerFaceData.value = false;
   }
 
   Future<bool> resetData() async {
@@ -47,28 +45,9 @@ class _SellerChatListState extends State<SellerChatList> {
 
   @override
   void initState() {
-    _chatStreamSubscription = getCouponList().listen((_) {});
+    _chatStreamSubscription = controller.fetchSellerChatList().listen((_) {});
     // TODO: implement initState
     super.initState();
-  }
-
-  Stream<void> getCouponList() async* {
-    _loadingState = true;
-    setState(() {});
-    while (true) {
-      var response = await ChatRepository().getChatList();
-      if (response.data != null) {
-        var newItems = response.data!.where((item) {
-          return !_chatList.any((existingItem) => existingItem.id == item.id);
-        }).toList();
-        _chatList.insertAll(0, newItems);
-      }
-      _faceData = true;
-      _loadingState = false;
-      if (mounted) setState(() {});
-      yield null;
-      await Future.delayed(Duration(seconds: 5));
-    }
   }
 
   @override
@@ -91,11 +70,16 @@ class _SellerChatListState extends State<SellerChatList> {
       child: CustomScrollView(
         slivers: [
           SliverToBoxAdapter(
-            child: Container(
-              width: DeviceInfo(context).width,
-              padding: EdgeInsets.symmetric(horizontal: 15.0),
-              child: _faceData ? buildChatListView() : chatListShimmer(),
-            ),
+            child: Obx(() {
+              print('yes rebuild');
+              return Container(
+                width: DeviceInfo(context).width,
+                padding: EdgeInsets.symmetric(horizontal: 15.0),
+                child: controller.sellerFaceData.value
+                    ? buildChatListView()
+                    : chatListShimmer(),
+              );
+            }),
           ),
         ],
       ),
@@ -135,34 +119,38 @@ class _SellerChatListState extends State<SellerChatList> {
   }
 
   Widget buildChatListView() {
-    return _loadingState
-        ? chatListShimmer()
-        : _chatList.isEmpty
-            ? Center(
-                child: Text("No Chat History Found"),
-              )
-            : ListView.builder(
-                physics: NeverScrollableScrollPhysics(),
-                shrinkWrap: true,
-                itemCount: _chatList.length,
-                itemBuilder: (context, index) {
-                  return Container(
-                      width: 100,
-                      child: buildChatItem(
-                        index,
-                        _chatList[index].id,
-                        _chatList[index].name!,
-                        _chatList[index].image,
-                        _chatList[index].title,
-                        true,
-                        _chatList[index].unReadCustomer ?? 0,
-                        _chatList[index].unReadSeller ?? 0,
-                      ));
-                });
+    return Obx(() {
+      print('rebuild chatListShimmer');
+      return controller.sellerLoadingState.value
+          ? chatListShimmer()
+          : controller.sellerChatList.isEmpty
+              ? Center(
+                  child: Text("No Chat History Found"),
+                )
+              : ListView.builder(
+                  physics: NeverScrollableScrollPhysics(),
+                  shrinkWrap: true,
+                  itemCount: controller.sellerChatList.length,
+                  itemBuilder: (context, index) {
+                    return Container(
+                        width: 100,
+                        child: buildChatItem(
+                          index,
+                          controller.sellerChatList[index].id,
+                          controller.sellerChatList[index].name!,
+                          controller.sellerChatList[index].image,
+                          controller.sellerChatList[index].title,
+                          true,
+                          controller.sellerChatList[index].unReadCustomer ?? 0,
+                          controller.sellerChatList[index].unReadSeller ?? 0,
+                        ));
+                  });
+    });
   }
 
   Widget buildChatItem(index, conversationId, String userName, img, sms,
       bool isActive, int unReadCustomer, int unReadSeller) {
+    print('yes enter isActive ------- $unReadSeller');
     return Container(
       margin: EdgeInsets.only(top: index == 0 ? 20 : 0, bottom: 20),
       child: Buttons(
@@ -172,10 +160,10 @@ class _SellerChatListState extends State<SellerChatList> {
               context,
               MaterialPageRoute(
                   builder: (context) => ChatScreen(
-                        conversation_id: _chatList[index].id,
-                        messenger_name: _chatList[index].name!,
-                        messenger_title: _chatList[index].title,
-                        messenger_image: _chatList[index].image,
+                        conversation_id: controller.sellerChatList[index].id,
+                        messenger_name: controller.sellerChatList[index].name!,
+                        messenger_title: controller.sellerChatList[index].title,
+                        messenger_image: controller.sellerChatList[index].image,
                       )));
         },
         child: Row(
@@ -242,13 +230,13 @@ class _SellerChatListState extends State<SellerChatList> {
                 ],
               ),
             ),
-            if (unReadCustomer > 0)
+            if (unReadSeller > 0)
               Container(
                 height: 24,
                 width: 24,
                 child: Center(
                     child: CustomText(
-                  text: unReadCustomer.toString(),
+                  text: unReadSeller.toString(),
                   fontSize: 12,
                   color: MyTheme.white,
                 )),

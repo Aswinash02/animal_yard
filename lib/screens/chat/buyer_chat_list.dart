@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:active_ecommerce_flutter/common/custom_text.dart';
+import 'package:active_ecommerce_flutter/controllers/chat_controller.dart';
 import 'package:active_ecommerce_flutter/custom/buttons.dart';
 import 'package:active_ecommerce_flutter/custom/device_info.dart';
 import 'package:active_ecommerce_flutter/custom/my_widget.dart';
@@ -8,10 +9,10 @@ import 'package:active_ecommerce_flutter/custom/useful_elements.dart';
 import 'package:active_ecommerce_flutter/helpers/shared_value_helper.dart';
 import 'package:active_ecommerce_flutter/helpers/shimmer_helper.dart';
 import 'package:active_ecommerce_flutter/my_theme.dart';
-import 'package:active_ecommerce_flutter/repositories/chat_repository.dart';
 import 'package:active_ecommerce_flutter/screens/chat/chat.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:get/get.dart';
 import 'package:shimmer/shimmer.dart';
 
 class BuyerChatList extends StatefulWidget {
@@ -22,19 +23,16 @@ class BuyerChatList extends StatefulWidget {
 class _BuyerChatListState extends State<BuyerChatList> {
   ScrollController _xcrollController = ScrollController();
   StreamSubscription<void>? _chatStreamSubscription;
+  final controller = Get.find<ChatController>();
 
-  List<dynamic> _list = [];
-  bool _isInitial = true;
   int _page = 1;
-  int? _totalData = 0;
-  bool _showLoadingContainer = false;
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
 
-    _chatStreamSubscription = fetchData().listen((_) {});
+    _chatStreamSubscription = controller.fetchBuyerChatList().listen((_) {});
 
     _xcrollController.addListener(() {
       if (_xcrollController.position.pixels ==
@@ -42,51 +40,29 @@ class _BuyerChatListState extends State<BuyerChatList> {
         setState(() {
           _page++;
         });
-        _showLoadingContainer = true;
-        fetchData();
+        controller.showLoadingContainer.value = true;
+        controller.fetchBuyerChatList();
       }
     });
   }
 
-  Stream<void> fetchData() async* {
-    while (true) {
-      var conversationResponse =
-          await ChatRepository().getConversationResponse();
-
-      var newItems = conversationResponse.conversation_item_list.where((item) {
-        return !_list.any((existingItem) => existingItem.id == item.id);
-      }).toList();
-      _list.insertAll(0, newItems);
-
-      _isInitial = false;
-      _totalData = conversationResponse.meta.total;
-      _showLoadingContainer = false;
-
-      if (mounted) setState(() {});
-      yield null;
-
-      await Future.delayed(Duration(seconds: 5)); // Adjust the delay as needed
-    }
-  }
-
   reset() {
-    _list.clear();
-    _isInitial = true;
-    _totalData = 0;
+    controller.buyerChatList.clear();
+    controller.isInitial.value = true;
+    controller.totalData!.value = 0;
     _page = 1;
-    _showLoadingContainer = false;
+    controller.showLoadingContainer.value = false;
     setState(() {});
   }
 
   Future<void> _onRefresh() async {
     reset();
-    fetchData();
+    controller.fetchBuyerChatList();
   }
 
   @override
   void deactivate() {
     // TODO: implement deactivate
-    print('deactived -- mgs---------');
     _chatStreamSubscription?.cancel();
     super.deactivate();
   }
@@ -112,11 +88,15 @@ class _BuyerChatListState extends State<BuyerChatList> {
             child: CustomScrollView(
               slivers: [
                 SliverToBoxAdapter(
-                  child: Container(
-                    width: DeviceInfo(context).width,
-                    //height: DeviceInfo(context).getHeight(),
-                    padding: EdgeInsets.symmetric(horizontal: 15.0),
-                    child: buildChatListView(),
+                  child: Obx(
+                    () => Container(
+                      width: DeviceInfo(context).width,
+                      padding: EdgeInsets.symmetric(horizontal: 15.0),
+                      child: controller.isInitial.value &&
+                              controller.buyerChatList.length == 0
+                          ? chatListShimmer()
+                          : buildChatListView(),
+                    ),
                   ),
                 ),
               ],
@@ -131,13 +111,14 @@ class _BuyerChatListState extends State<BuyerChatList> {
 
   Container buildLoadingContainer() {
     return Container(
-      height: _showLoadingContainer ? 36 : 0,
+      height: controller.showLoadingContainer.value ? 36 : 0,
       width: double.infinity,
       color: Colors.white,
       child: Center(
-        child: Text(_totalData == _list.length
-            ? AppLocalizations.of(context)!.no_more_items_ucf
-            : AppLocalizations.of(context)!.loading_more_items_ucf),
+        child: Text(
+            controller.totalData!.value == controller.buyerChatList.length
+                ? AppLocalizations.of(context)!.no_more_items_ucf
+                : AppLocalizations.of(context)!.loading_more_items_ucf),
       ),
     );
   }
@@ -165,32 +146,34 @@ class _BuyerChatListState extends State<BuyerChatList> {
   }
 
   Widget buildChatListView() {
-    return _isInitial && _list.length == 0
-        ? chatListShimmer()
-        : _list.isEmpty
-            ? Center(
-                child: Text("No Chat History Found"),
-              )
-            : ListView.builder(
-                physics: NeverScrollableScrollPhysics(),
-                shrinkWrap: true,
-                itemCount: _list.length,
-                itemBuilder: (context, index) {
-                  return Container(
-                      width: 100,
-                      child: buildChatItem(
-                          index,
-                          _list[index].id,
-                          _list[index].shop_name,
-                          _list[index].shop_logo,
-                          _list[index].title,
-                          true,
-                          _list[index].unReadSeller));
-                });
+    print("yes enterd buyer buildChatListView**********");
+    return Obx(
+      () => controller.buyerChatList.isEmpty
+          ? Center(
+              child: Text("No Chat History Found"),
+            )
+          : ListView.builder(
+              physics: NeverScrollableScrollPhysics(),
+              shrinkWrap: true,
+              itemCount: controller.buyerChatList.length,
+              itemBuilder: (context, index) {
+                return Container(
+                    width: 100,
+                    child: buildChatItem(
+                        index,
+                        controller.buyerChatList[index].id,
+                        controller.buyerChatList[index].shop_name!,
+                        controller.buyerChatList[index].shop_logo,
+                        controller.buyerChatList[index].title,
+                        true,
+                        controller.buyerChatList[index].unReadCustomer!));
+              }),
+    );
   }
 
   Widget buildChatItem(index, conversationId, String userName, img, sms,
-      bool isActive, int count) {
+      bool isActive, int unReadCustomer) {
+    print("yes enterd buyer **********");
     return Container(
       margin: EdgeInsets.only(top: index == 0 ? 20 : 0, bottom: 20),
       child: Buttons(
@@ -200,10 +183,12 @@ class _BuyerChatListState extends State<BuyerChatList> {
               context,
               MaterialPageRoute(
                   builder: (context) => ChatScreen(
-                        conversation_id: _list[index].id,
-                        messenger_name: _list[index].shop_name,
-                        messenger_title: _list[index].title,
-                        messenger_image: _list[index].shop_logo,
+                        conversation_id: controller.buyerChatList[index].id,
+                        messenger_name:
+                            controller.buyerChatList[index].shop_name,
+                        messenger_title: controller.buyerChatList[index].title,
+                        messenger_image:
+                            controller.buyerChatList[index].shop_logo,
                       )));
         },
         child: Row(
@@ -270,13 +255,13 @@ class _BuyerChatListState extends State<BuyerChatList> {
                 ],
               ),
             ),
-            count != 0
+            unReadCustomer != 0
                 ? Container(
                     height: 24,
                     width: 24,
                     child: Center(
                         child: CustomText(
-                      text: count.toString(),
+                      text: unReadCustomer.toString(),
                       fontSize: 12,
                       color: MyTheme.white,
                     )),

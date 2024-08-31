@@ -1,52 +1,46 @@
 {
   "project_info": {
-    "project_number": "260283240468",
-    "project_id": "ecom-ce6ea",
-    "storage_bucket": "ecom-ce6ea.appspot.com"
+    "project_number": "461253628285",
+    "firebase_url": "https://animalyard-da031-default-rtdb.firebaseio.com",
+    "project_id": "animalyard-da031",
+    "storage_bucket": "animalyard-da031.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:260283240468:android:75c71da71f5da53bbf1701",
+        "mobilesdk_app_id": "1:461253628285:android:cf9616fe28568d2ce6fc14",
         "android_client_info": {
           "package_name": "com.activeitzone.activeecommerceflutterapp"
         }
       },
-      "oauth_client": [
-        {
-          "client_id": "260283240468-8hrnkmv1pdbgktb1a8tt6f1a0pm1llql.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.activeitzone.activeecommerceflutterapp",
-            "certificate_hash": ""
-          }
-        },
-        {
-          "client_id": "260283240468-m36tcuu8tc15qquc79la1uj1ofu68prt.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.activeitzone.activeecommerceflutterapp",
-            "certificate_hash": ""
-          }
-        },
-        {
-          "client_id": "260283240468-b6cvmqvhat3t7445cqr7bs3n1irg0i7q.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
+      "oauth_client": [],
       "api_key": [
         {
-          "current_key": ""
+          "current_key": "AIzaSyA7he0l9u0G9pFuzr2e7InRqg_lzoQJOxk"
         }
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "260283240468-b6cvmqvhat3t7445cqr7bs3n1irg0i7q.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:461253628285:android:be29382e7b5f3723e6fc14",
+        "android_client_info": {
+          "package_name": "com.animalyard.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA7he0l9u0G9pFuzr2e7InRqg_lzoQJOxk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
         }
       }
     }

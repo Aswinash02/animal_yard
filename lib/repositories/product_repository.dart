@@ -111,7 +111,7 @@ class ProductRepository {
       max = ""}) async {
     String url = ("${AppConfig.BASE_URL}/products/search" +
         "?page=$page&name=${name}&sort_key=${sort_key}&brands=${brands}&categories=${categories}&min=${min}&max=${max}");
-
+print('url ----------- > ${url}');
     final response = await ApiRequest.get(url: url, headers: {
       "App-Language": app_language.$!,
     });

@@ -45,17 +45,16 @@ class _SellerDashBoardState extends State<SellerDashBoard> {
   }
 
   Stream<void> listenChatStream() async* {
-    print('yes entered ======== >');
     while (true) {
       ConversationResponse buyerMessageCount =
           await ChatRepository().getConversationResponse();
       ChatListResponse sellerMessageCount =
           await ChatRepository().getChatList();
-      if (buyerMessageCount.unReadSeller != 0) {
-        Get.find<ChatController>().isBatch(buyerMessageCount.unReadSeller!);
+      if (buyerMessageCount.unReadCustomer! > 0) {
+        Get.find<ChatController>().isBatch(buyerMessageCount.unReadCustomer!);
       }
-      if (sellerMessageCount.unReadSeller != 0) {
-        Get.find<ChatController>().isBatch(buyerMessageCount.unReadSeller!);
+      if (sellerMessageCount.unReadSeller! > 0) {
+        Get.find<ChatController>().isBatch(sellerMessageCount.unReadSeller!);
       }
       print('badgeCount.unReadSeller ---- > ${buyerMessageCount.unReadSeller}');
       print(
