@@ -4,6 +4,7 @@ import 'package:active_ecommerce_flutter/common/no_internet_screen.dart';
 import 'package:active_ecommerce_flutter/controllers/chat_controller.dart';
 import 'package:active_ecommerce_flutter/controllers/local_controller.dart';
 import 'package:active_ecommerce_flutter/custom/aiz_route.dart';
+import 'package:active_ecommerce_flutter/firebase_options.dart';
 import 'package:active_ecommerce_flutter/helpers/main_helpers.dart';
 import 'package:active_ecommerce_flutter/middlewares/auth_middleware.dart';
 import 'package:active_ecommerce_flutter/my_theme.dart';
@@ -11,6 +12,7 @@ import 'package:active_ecommerce_flutter/other_config.dart';
 import 'package:active_ecommerce_flutter/presenter/cart_counter.dart';
 import 'package:active_ecommerce_flutter/presenter/currency_presenter.dart';
 import 'package:active_ecommerce_flutter/providers/locale_provider.dart';
+import 'package:active_ecommerce_flutter/repositories/firebase_repository.dart';
 import 'package:active_ecommerce_flutter/screens/all_routes.dart';
 import 'package:active_ecommerce_flutter/screens/auction/auction_bidded_products.dart';
 import 'package:active_ecommerce_flutter/screens/auction/auction_products.dart';
@@ -37,7 +39,9 @@ import 'package:active_ecommerce_flutter/screens/product/todays_deal_products.da
 import 'package:active_ecommerce_flutter/screens/profile.dart';
 import 'package:active_ecommerce_flutter/screens/seller_details.dart';
 import 'package:active_ecommerce_flutter/screens/splash_screen.dart';
+import 'package:active_ecommerce_flutter/services/local_db.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
@@ -50,9 +54,20 @@ import 'package:shared_value/shared_value.dart';
 import 'package:get/get.dart';
 import 'app_config.dart';
 
+@pragma("vm:entry-point")
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  print('message id ${message.messageId}');
+}
+
 main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
+  OneContext().key = GlobalKey<NavigatorState>();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  await FirebaseMessaging.instance.getInitialMessage();
+
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   FlutterDownloader.initialize(
       debug: true,
       // optional: set to false to disable printing logs to console (default: true)
@@ -68,7 +83,13 @@ main() async {
     statusBarColor: Colors.transparent,
     systemNavigationBarDividerColor: Colors.transparent,
   ));
+  FirebaseRepository firebaseRepo = FirebaseRepository();
+  firebaseRepo.requestPermission();
+  var token = await firebaseRepo.getToken();
+  print('device token $token');
 
+  SharedPreference().setDeviceToken(token);
+  // firebaseRepo.sendPushNotification(token,"test");
   runApp(
     SharedValue.wrapApp(
       MyApp(),
@@ -164,13 +185,13 @@ var routes = GoRouter(
                     slug: getParameter(state, "slug"),
                   )))),
           // GoRoute(
-              // path: "brands",
-              // name: "Brands",
-              // pageBuilder: (BuildContext context, GoRouterState state) =>
-              //     MaterialPage(
-              //         child: Filter(
-              //       selected_filter: "brands",
-              //     ))),
+          // path: "brands",
+          // name: "Brands",
+          // pageBuilder: (BuildContext context, GoRouterState state) =>
+          //     MaterialPage(
+          //         child: Filter(
+          //       selected_filter: "brands",
+          //     ))),
           GoRoute(
               path: "cart",
               pageBuilder: (BuildContext context, GoRouterState state) =>
@@ -268,9 +289,11 @@ class _MyAppState extends State<MyApp> {
     routes.routeInformationProvider.addListener(() {});
     super.initState();
   }
+  FirebaseRepository firebaseRepo = FirebaseRepository();
 
   @override
   Widget build(BuildContext context) {
+    firebaseRepo.initInfo(context);
     final textTheme = Theme.of(context).textTheme;
     final LocaleController localeController = Get.put(LocaleController());
     Get.put(ChatController());

@@ -22,7 +22,7 @@ class ProductRepository {
     };
 
     final response = await ApiRequest.get(url: url, headers: reqHeader);
-
+    print('response.body --------- ++++++++ ${response.body}');
     return catResponseFromJson(response.body);
   }
 
@@ -111,7 +111,7 @@ class ProductRepository {
       max = ""}) async {
     String url = ("${AppConfig.BASE_URL}/products/search" +
         "?page=$page&name=${name}&sort_key=${sort_key}&brands=${brands}&categories=${categories}&min=${min}&max=${max}");
-print('url ----------- > ${url}');
+    print('url ----------- > ${url}');
     final response = await ApiRequest.get(url: url, headers: {
       "App-Language": app_language.$!,
     });
@@ -120,7 +120,7 @@ print('url ----------- > ${url}');
 
   Future<AnimalProductModel> fetchAllAnimalProducts() async {
     String url = ("${AppConfig.BASE_URL}/get-animal");
-print('url -----> $url');
+    print('url -----> $url');
     final response = await ApiRequest.get(url: url, headers: {
       "App-Language": app_language.$!,
     });

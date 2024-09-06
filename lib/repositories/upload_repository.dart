@@ -52,6 +52,8 @@ class FileUploadRepository {
     print('file -------- $file');
     Uri url = Uri.parse("${AppConfig.BASE_URL_WITH_PREFIX}/file/upload");
 
+    print("url -------- fileUploadSeller >$url ");
+
     Map<String, String> header = {
       "App-Language": app_language.$!,
       "Authorization": "Bearer ${access_token.$}",

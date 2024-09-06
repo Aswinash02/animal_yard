@@ -13,6 +13,7 @@ import 'package:active_ecommerce_flutter/my_theme.dart';
 import 'package:active_ecommerce_flutter/presenter/cart_counter.dart';
 import 'package:active_ecommerce_flutter/presenter/home_presenter.dart';
 import 'package:active_ecommerce_flutter/repositories/chat_repository.dart';
+import 'package:active_ecommerce_flutter/repositories/firebase_repository.dart';
 import 'package:active_ecommerce_flutter/screens/cart.dart';
 import 'package:active_ecommerce_flutter/screens/category_list_n_product/category_products.dart';
 import 'package:active_ecommerce_flutter/screens/filter.dart';
@@ -92,7 +93,7 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
               actions: [
                 InkWell(
                   child: CustomIcon(
-                    icon: "assets/world_image.png",
+                    icon: "assets/language.png",
                     color: MyTheme.accent_color,
                   ),
                   onTap: () {
@@ -234,12 +235,27 @@ class _HomeState extends State<Home> with TickerProviderStateMixin {
                                             ),
                                           ),
                                           onTap: () {
+                                            // Navigator.push(
+                                            //   context,
+                                            //   MaterialPageRoute(
+                                            //     builder: (context) {
+                                            //       return CategoryProducts(
+                                            //           slug: homeData.foodSlug ??
+                                            //               '',
+                                            //           isFood: true);
+                                            //     },
+                                            //   ),
+                                            // );
                                             Navigator.push(
                                               context,
                                               MaterialPageRoute(
                                                 builder: (context) {
-                                                  return CategoryProducts(
-                                                      slug: homeData.foodSlug ??
+                                                  return Filter(
+                                                      id: homeData
+                                                              .foodCategoryId ??
+                                                          0,
+                                                      title: homeData
+                                                              .foodCategoryName ??
                                                           '',
                                                       isFood: true);
                                                 },

@@ -173,7 +173,7 @@ class _CategoryProductsState extends State<CategoryProducts> {
         IconButton(
           onPressed: () {
             // Navigator.push(context, MaterialPageRoute(builder: (context) {
-            //   return Filter();
+            //   return Filter(id: null, title: '',);
             // }));
           },
           icon: Icon(Icons.search),

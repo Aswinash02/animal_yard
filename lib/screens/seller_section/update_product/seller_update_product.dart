@@ -9,9 +9,7 @@ import 'package:active_ecommerce_flutter/screens/seller_section/file_upload/file
 import 'package:http/http.dart' as http;
 import 'package:active_ecommerce_flutter/data_model/uploaded_file_list_response.dart';
 import 'package:active_ecommerce_flutter/data_model/view_tax_model.dart';
-import 'package:active_ecommerce_flutter/helpers/phone_field_helpers.dart';
 import 'package:active_ecommerce_flutter/other_config.dart';
-import 'package:active_ecommerce_flutter/repositories/address_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
@@ -36,7 +34,6 @@ import '../../../my_theme.dart';
 import '../../../repositories/language_repository.dart';
 import '../../../repositories/product_repository_new.dart';
 import '../../classified_ads/classified_product_add.dart';
-import '../../uploads/upload_file.dart';
 import '../components/multi_category.dart';
 import '../../../custom/seller_loading.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -128,6 +125,7 @@ class _UpdateProductState extends State<UpdateProduct> {
       thumbnailImg,
       videoProvider,
       videoLink,
+      milk,
       colorsActive,
       unitPrice,
       dateRange,
@@ -181,6 +179,7 @@ class _UpdateProductState extends State<UpdateProduct> {
   TextEditingController descriptionEditTextController = TextEditingController();
   TextEditingController ageEditTextController = TextEditingController();
   TextEditingController milkEditTextController = TextEditingController();
+  TextEditingController kgEditTextController = TextEditingController();
   TextEditingController pregnancyEditTextController = TextEditingController();
   TextEditingController _cityController = TextEditingController();
   TextEditingController _addressController = TextEditingController();
@@ -645,8 +644,12 @@ class _UpdateProductState extends State<UpdateProduct> {
     // add product photo
     setProductPhotoValue();
     if (thumbnailImage != null) thumbnailImg = "${thumbnailImage!.id}";
+
     videoProvider = selectedVideoType!.key;
     videoLink = videoLinkEditTextController.text.trim().toString();
+    milk = categoryId == "1"
+        ? milkEditTextController.text
+        : kgEditTextController.text;
     //Set colors
     setColors();
     colorsActive = isColorActive ? "1" : "0";
@@ -806,7 +809,11 @@ class _UpdateProductState extends State<UpdateProduct> {
       "tax_type": taxType,
       "button": button,
       "age": ageEditTextController.text,
-      "milk": milkEditTextController.text,
+      "milk": milk == ""
+          ? ""
+          : categoryId == "1"
+              ? "$milk ltr"
+              : "$milk kg",
       "pregnancy": pregnancyEditTextController.text,
       "address": _addressController.text,
       "state_id": _selected_state!.id,
@@ -816,7 +823,6 @@ class _UpdateProductState extends State<UpdateProduct> {
       "longitude": long,
       "animal": 1
     });
-    print('postValue========== > $postValue');
     var postBody = jsonEncode(postValue);
     var response = await SellerProductRepository()
         .updateProductResponse(postBody, widget.productId, lang);
@@ -985,7 +991,13 @@ class _UpdateProductState extends State<UpdateProduct> {
     _postalCodeController.text = productInfo.postalCode ?? '';
     ageEditTextController.text =
         productInfo.age == '0' ? '' : productInfo.age ?? '';
-    milkEditTextController.text = productInfo.milk ?? '';
+    if (categoryId == "1") {
+      milkEditTextController.text =
+          (productInfo.milk ?? '').replaceAll('ltr', '');
+    } else {
+      kgEditTextController.text = (productInfo.milk ?? '').replaceAll('Kg', '');
+    }
+
     pregnancyEditTextController.text = productInfo.pregnancy ?? '';
     _selected_state = MyState(
         id: productInfo.stateId,
@@ -1165,20 +1177,29 @@ class _UpdateProductState extends State<UpdateProduct> {
               ),
             ),
             itemSpacer(),
-            buildEditTextField("Age", "Age", ageEditTextController,
+            buildEditTextField(LangText(context).local.age_ucf,
+                LangText(context).local.age_ucf, ageEditTextController,
                 keyboardType: TextInputType.number,
                 inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                 isMandatory: true),
             itemSpacer(),
-            buildEditTextField(
-              "Milk",
-              "Milk",
-              milkEditTextController,
-            ),
+            categoryId == "1"
+                ? buildEditTextField(LangText(context).local.milk_ucf,
+                    LangText(context).local.milk_ucf, milkEditTextController,
+                    keyboardType: TextInputType.number,
+                    inputFormatters: [
+                        FilteringTextInputFormatter.allow(RegExp(r'[r0-9 .]')),
+                      ])
+                : buildEditTextField(LangText(context).local.kg_ucf,
+                    LangText(context).local.kg_ucf, kgEditTextController,
+                    keyboardType: TextInputType.number,
+                    inputFormatters: [
+                        FilteringTextInputFormatter.allow(RegExp(r'[r0-9 .]')),
+                      ]),
             itemSpacer(),
             buildEditTextField(
-              "Pregnancy",
-              "Pregnancy",
+              LangText(context).local.pregnancy_ucf,
+              LangText(context).local.pregnancy_ucf,
               pregnancyEditTextController,
             ),
             // itemSpacer(),

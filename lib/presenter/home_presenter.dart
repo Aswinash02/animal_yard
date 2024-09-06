@@ -56,6 +56,8 @@ class HomePresenter extends ChangeNotifier {
   int cartCount = 0;
 
   String? foodBannerImage = '';
+  String? foodCategoryName = '';
+  int? foodCategoryId = 0;
   String? foodSlug = '';
   bool loadingState = false;
 
@@ -114,6 +116,8 @@ class HomePresenter extends ChangeNotifier {
     var bannerOneResponse = await SlidersRepository().getFoodBannerImage();
     foodBannerImage = bannerOneResponse.banner;
     foodSlug = bannerOneResponse.link;
+    foodCategoryName = bannerOneResponse.categoryName;
+    foodCategoryId = bannerOneResponse.categoryId;
     loadingState = false;
     notifyListeners();
   }
@@ -250,7 +254,6 @@ class HomePresenter extends ChangeNotifier {
 
   mainScrollListener() {
     mainScrollController.addListener(() {
-
       if (mainScrollController.position.pixels ==
           mainScrollController.position.maxScrollExtent) {
         allProductPage++;

@@ -118,7 +118,7 @@ class _ChatScreenState extends State<ChatScreen> {
       }
     }
     loadingState = false;
-    setState(() {});
+    if (mounted) setState(() {});
   }
 
   fetch_new_message() async {
@@ -163,6 +163,10 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   Widget build(BuildContext context) {
+    print("id ========== > ${widget.conversation_id}");
+    print("messenger_name ========== > ${widget.messenger_name}");
+    print("messenger_title ========== > ${widget.messenger_title}");
+    print("messenger_image ========== > ${widget.messenger_image}");
     return Directionality(
       textDirection:
           app_language_rtl.$! ? TextDirection.rtl : TextDirection.ltr,
@@ -382,7 +386,6 @@ class _ChatScreenState extends State<ChatScreen> {
             _list[index].date,
             _list[index].time);
   }
-
 
   getSenderView(
           CustomClipper clipper, BuildContext context, text, date, time) =>

@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:active_ecommerce_flutter/app_config.dart';
+import 'package:active_ecommerce_flutter/controllers/profile_controller.dart';
 import 'package:active_ecommerce_flutter/custom/aiz_route.dart';
 import 'package:active_ecommerce_flutter/custom/box_decorations.dart';
 import 'package:active_ecommerce_flutter/custom/btn.dart';
@@ -29,10 +30,14 @@ import 'package:active_ecommerce_flutter/screens/digital_product/purchased_digit
 import 'package:active_ecommerce_flutter/screens/filter.dart';
 import 'package:active_ecommerce_flutter/screens/followed_sellers.dart';
 import 'package:active_ecommerce_flutter/screens/orders/order_list.dart';
+import 'package:active_ecommerce_flutter/screens/privacy_policy_screen.dart';
 import 'package:active_ecommerce_flutter/screens/product/last_view_product.dart';
 import 'package:active_ecommerce_flutter/screens/product/top_selling_products.dart';
 import 'package:active_ecommerce_flutter/screens/profile_edit.dart';
 import 'package:active_ecommerce_flutter/screens/refund_request.dart';
+import 'package:active_ecommerce_flutter/screens/service_policy_screen.dart';
+import 'package:active_ecommerce_flutter/screens/support_policy_screen.dart';
+import 'package:active_ecommerce_flutter/screens/terms_&_condition_screen.dart';
 import 'package:active_ecommerce_flutter/screens/uploads/upload_file.dart';
 import 'package:active_ecommerce_flutter/screens/wallet.dart';
 import 'package:active_ecommerce_flutter/screens/wishlist.dart';
@@ -72,6 +77,7 @@ class _ProfileState extends State<Profile> {
   int? _orderCounter = 0;
   String _orderCounterString = "00";
   late BuildContext loadingcontext;
+  final ProfileController profileController = Get.put(ProfileController());
 
   @override
   void initState() {
@@ -96,8 +102,9 @@ class _ProfileState extends State<Profile> {
     fetchAll();
   }
 
-  fetchAll() {
+  fetchAll() async {
     fetchCounters();
+    await profileController.getPageData();
   }
 
   fetchCounters() async {
@@ -278,12 +285,10 @@ class _ProfileState extends State<Profile> {
           buildBottomVerticalCardListItem("assets/favoriteseller.png",
               AppLocalizations.of(context)!.service_policy, onPressed: () {
             setState(() {
-              Navigator.push(context, MaterialPageRoute(builder: (context) {
-                return CommonWebViewScreen(
-                  url: "${AppConfig.RAW_BASE_URL}/service",
-                  page_name: AppLocalizations.of(context)!.service_policy,
-                );
-              }));
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => ServicePolicyScreen()));
             });
           }),
           Divider(
@@ -293,12 +298,10 @@ class _ProfileState extends State<Profile> {
           buildBottomVerticalCardListItem("assets/return_policy.png",
               AppLocalizations.of(context)!.privacy_policy, onPressed: () {
             setState(() {
-              Navigator.push(context, MaterialPageRoute(builder: (context) {
-                return CommonWebViewScreen(
-                  url: "${AppConfig.RAW_BASE_URL}/privacy-policy",
-                  page_name: AppLocalizations.of(context)!.privacy_policy,
-                );
-              }));
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => PrivacyPolicyScreen()));
             });
           }),
           Divider(
@@ -308,12 +311,24 @@ class _ProfileState extends State<Profile> {
           buildBottomVerticalCardListItem("assets/headphone.png",
               AppLocalizations.of(context)!.support_policy_ucf, onPressed: () {
             setState(() {
-              Navigator.push(context, MaterialPageRoute(builder: (context) {
-                return CommonWebViewScreen(
-                  url: "${AppConfig.RAW_BASE_URL}/support-policy",
-                  page_name: AppLocalizations.of(context)!.support_policy_ucf,
-                );
-              }));
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => SupportPolicyScreen()));
+            });
+          }),
+          Divider(
+            thickness: 1,
+            color: MyTheme.light_grey,
+          ),
+          buildBottomVerticalCardListItem("assets/todays_deal.png",
+              AppLocalizations.of(context)!.terms_and_conditions_ucf,
+              onPressed: () {
+            setState(() {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => TermsAndConditionScreen()));
             });
           }),
           Divider(
@@ -566,7 +581,8 @@ class _ProfileState extends State<Profile> {
                 return RefundRequest();
               }));
             }),
-          buildSettingAndAddonsHorizontalMenuItem("assets/cart.png", "Cart",
+          buildSettingAndAddonsHorizontalMenuItem(
+              "assets/cart.png", AppLocalizations.of(context)!.cart_ucf,
               () async {
             await Navigator.push(context, MaterialPageRoute(builder: (context) {
               return Cart(

@@ -10,6 +10,7 @@ import 'package:active_ecommerce_flutter/data_model/password_forget_response.dar
 import 'package:active_ecommerce_flutter/data_model/resend_code_response.dart';
 import 'package:active_ecommerce_flutter/helpers/shared_value_helper.dart';
 import 'package:active_ecommerce_flutter/repositories/api-request.dart';
+import 'package:active_ecommerce_flutter/repositories/firebase_repository.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 
 class AuthRepository {
@@ -161,7 +162,6 @@ class AuthRepository {
 
   Future<LoginResponse> getConfirmCodeResponse(String otp, String phone) async {
     String deviceToken = await getToken();
-    print('device token ========= > ${deviceToken}');
     var post_body =
         jsonEncode({"phone": phone, "otp": otp, "device_token": deviceToken});
 

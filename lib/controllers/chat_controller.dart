@@ -4,29 +4,34 @@ import 'package:active_ecommerce_flutter/repositories/chat_repository.dart';
 import 'package:get/get.dart';
 
 class ChatController extends GetxController {
-  RxInt _count = 0.obs;
+  RxBool _isBadgeDisplay = false.obs;
   RxList<Chat> sellerChatList = <Chat>[].obs;
   RxBool sellerFaceData = false.obs;
+  RxBool buyerFaceData = false.obs;
   RxBool sellerLoadingState = false.obs;
+  RxBool buyerLoadingState = false.obs;
 
   RxList<ConversationItem> buyerChatList = <ConversationItem>[].obs;
   RxBool isInitial = true.obs;
   RxInt? totalData = 0.obs;
   RxBool showLoadingContainer = false.obs;
 
-  RxInt get count => _count;
+  RxBool get isBadgeDisplay => _isBadgeDisplay;
 
   void isBatch(int value) {
-    _count.value = value;
+    if (value > 0) {
+      _isBadgeDisplay.value = true;
+    } else {
+      _isBadgeDisplay.value = false;
+    }
   }
-
 
   Stream<void> fetchSellerChatList() async* {
     sellerLoadingState.value = true;
     while (true) {
       var response = await ChatRepository().getChatList();
       if (response.data != null) {
-        response.data!.forEach((newItem) {
+        response.data!.reversed.forEach((newItem) {
           var existingIndex = sellerChatList
               .indexWhere((existingItem) => existingItem.id == newItem.id);
           if (existingIndex != -1) {
@@ -53,40 +58,35 @@ class ChatController extends GetxController {
   }
 
   Stream<void> fetchBuyerChatList() async* {
-    showLoadingContainer.value = true;
+    buyerLoadingState.value = true;
 
     while (true) {
       var response = await ChatRepository().getConversationResponse();
+      if (response.conversation_item_list != null) {
+        response.conversation_item_list!.reversed.forEach((newItem) {
+          var existingIndex = buyerChatList
+              .indexWhere((existingItem) => existingItem.id == newItem.id);
 
-      response.conversation_item_list.forEach((newItem) {
-        var existingIndex = buyerChatList
-            .indexWhere((existingItem) => existingItem.id == newItem.id);
-
-        if (existingIndex != -1) {
-          if (buyerChatList[existingIndex].unReadSeller !=
-              newItem.unReadSeller) {
-            if (buyerChatList[existingIndex].unReadSeller! >
-                newItem.unReadSeller!) {
-              buyerChatList.removeAt(existingIndex);
-              buyerChatList.insert(0, newItem);
-            } else {
-              buyerChatList[existingIndex] = newItem;
+          if (existingIndex != -1) {
+            if (buyerChatList[existingIndex].unReadCustomer !=
+                newItem.unReadCustomer) {
+              if (buyerChatList[existingIndex].unReadCustomer! >
+                  newItem.unReadCustomer!) {
+                buyerChatList.removeAt(existingIndex);
+                buyerChatList.insert(0, newItem);
+              } else {
+                buyerChatList[existingIndex] = newItem;
+              }
             }
-            // buyerChatList.removeAt(existingIndex);
-            // buyerChatList.insert(0, newItem);
-            // buyerChatList[existingIndex] = newItem;
+          } else {
+            buyerChatList.insert(0, newItem);
           }
-        } else {
-          buyerChatList.insert(0, newItem);
-        }
-      });
+        });
+      }
 
-      isInitial.value = false;
-      totalData!.value = response.meta.total;
-      showLoadingContainer.value = false;
-
+      buyerFaceData.value = true;
+      buyerLoadingState.value = false;
       yield null;
-
       await Future.delayed(Duration(seconds: 3));
     }
   }

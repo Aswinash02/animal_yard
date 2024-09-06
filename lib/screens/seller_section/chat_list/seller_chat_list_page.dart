@@ -119,20 +119,21 @@ class _SellerChatListState extends State<SellerChatList> {
   }
 
   Widget buildChatListView() {
-    return Obx(() {
-      print('rebuild chatListShimmer');
-      return controller.sellerLoadingState.value
-          ? chatListShimmer()
-          : controller.sellerChatList.isEmpty
-              ? Center(
-                  child: Text("No Chat History Found"),
-                )
-              : ListView.builder(
-                  physics: NeverScrollableScrollPhysics(),
-                  shrinkWrap: true,
-                  itemCount: controller.sellerChatList.length,
-                  itemBuilder: (context, index) {
-                    return Container(
+    return Obx(
+      () {
+        print('rebuild chatListShimmer');
+        return controller.sellerLoadingState.value
+            ? chatListShimmer()
+            : controller.sellerChatList.isEmpty
+                ? Center(
+                    child: Text("No Chat History Found"),
+                  )
+                : ListView.builder(
+                    physics: NeverScrollableScrollPhysics(),
+                    shrinkWrap: true,
+                    itemCount: controller.sellerChatList.length,
+                    itemBuilder: (context, index) {
+                      return Container(
                         width: 100,
                         child: buildChatItem(
                           index,
@@ -143,9 +144,12 @@ class _SellerChatListState extends State<SellerChatList> {
                           true,
                           controller.sellerChatList[index].unReadCustomer ?? 0,
                           controller.sellerChatList[index].unReadSeller ?? 0,
-                        ));
-                  });
-    });
+                        ),
+                      );
+                    },
+                  );
+      },
+    );
   }
 
   Widget buildChatItem(index, conversationId, String userName, img, sms,
@@ -157,14 +161,16 @@ class _SellerChatListState extends State<SellerChatList> {
         padding: EdgeInsets.zero,
         onPressed: () {
           Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (context) => ChatScreen(
-                        conversation_id: controller.sellerChatList[index].id,
-                        messenger_name: controller.sellerChatList[index].name!,
-                        messenger_title: controller.sellerChatList[index].title,
-                        messenger_image: controller.sellerChatList[index].image,
-                      )));
+            context,
+            MaterialPageRoute(
+              builder: (context) => ChatScreen(
+                conversation_id: controller.sellerChatList[index].id,
+                messenger_name: controller.sellerChatList[index].name!,
+                messenger_title: controller.sellerChatList[index].title,
+                messenger_image: controller.sellerChatList[index].image,
+              ),
+            ),
+          );
         },
         child: Row(
           children: [

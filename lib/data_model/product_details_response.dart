@@ -74,7 +74,11 @@ class DetailedProduct {
       this.lon,
       this.phone,
       this.address,
-      this.video});
+      this.video,
+      this.milk,
+      this.age,
+      this.pregnancy,
+      this.categoryId});
 
   int? id;
   String? name;
@@ -109,11 +113,15 @@ class DetailedProduct {
   Brand? brand;
   List<Wholesale>? wholesale;
   int? estShippingTime;
+  int? categoryId;
   double? lat;
   double? lon;
   String? phone;
   String? address;
   String? video;
+  String? pregnancy;
+  String? milk;
+  String? age;
 
   factory DetailedProduct.fromJson(Map<String, dynamic> json) =>
       DetailedProduct(
@@ -121,6 +129,10 @@ class DetailedProduct {
         name: json["name"],
         added_by: json["added_by"],
         seller_id: json["seller_id"],
+        age: json["age"],
+        milk: json["milk"],
+        pregnancy: json["pregnancy"],
+        categoryId: json["category_id"],
         shop_id: json["shop_id"],
         shop_slug: json["shop_slug"],
         shop_name: json["shop_name"],

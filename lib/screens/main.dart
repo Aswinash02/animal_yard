@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:active_ecommerce_flutter/common/custom_text.dart';
 import 'package:active_ecommerce_flutter/controllers/chat_controller.dart';
 import 'package:active_ecommerce_flutter/data_model/conversation_response.dart';
 import 'package:active_ecommerce_flutter/data_model/seller_chat_list.dart';
@@ -12,6 +13,7 @@ import 'package:active_ecommerce_flutter/screens/seller_section/chat_list/widget
 import 'package:active_ecommerce_flutter/screens/seller_section/seller_products.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class Main extends StatefulWidget {
   Main({Key? key, this.goBack = true}) : super(key: key);
@@ -40,6 +42,7 @@ class _SellerDashBoardState extends State<SellerDashBoard> {
 
   @override
   void initState() {
+    Permission.location.request();
     _chatStreamSubscription = listenChatStream().listen((_) {});
     super.initState();
   }
@@ -52,15 +55,11 @@ class _SellerDashBoardState extends State<SellerDashBoard> {
           await ChatRepository().getChatList();
       if (buyerMessageCount.unReadCustomer! > 0) {
         Get.find<ChatController>().isBatch(buyerMessageCount.unReadCustomer!);
-      }
-      if (sellerMessageCount.unReadSeller! > 0) {
+      } else if (sellerMessageCount.unReadSeller! > 0) {
         Get.find<ChatController>().isBatch(sellerMessageCount.unReadSeller!);
+      } else {
+        Get.find<ChatController>().isBatch(0);
       }
-      print('badgeCount.unReadSeller ---- > ${buyerMessageCount.unReadSeller}');
-      print(
-          'badgeCount.unReadCustomer ---- > ${buyerMessageCount.unReadCustomer}');
-      print('---- > ${sellerMessageCount.unReadSeller}');
-      print('---- > ${sellerMessageCount.unReadCustomer}');
 
       yield null;
       await Future.delayed(Duration(seconds: 5)); // Adjust the delay as needed
@@ -130,30 +129,72 @@ class _SellerDashBoardState extends State<SellerDashBoard> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
-                        IconButton(
-                          icon: CustomIcon(
-                            icon: "assets/home.png",
-                            color: _selectedIndex == 0
-                                ? MyTheme.accent_color
-                                : Colors.grey,
+                        GestureDetector(
+                          onTap: () => _onItemTapped(0),
+                          child: Padding(
+                            padding: const EdgeInsets.only(bottom: 12.0),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                CustomIcon(
+                                  icon: "assets/home.png",
+                                  color: _selectedIndex == 0
+                                      ? MyTheme.accent_color
+                                      : Colors.grey,
+                                ),
+                                SizedBox(height: 4),
+                                CustomText(
+                                  text: "Home",
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w200,
+                                  color: _selectedIndex == 0
+                                      ? MyTheme.accent_color
+                                      : Colors.grey,
+                                )
+                              ],
+                            ),
                           ),
-                          onPressed: () => _onItemTapped(0),
                         ),
-                        IconButton(
-                          icon: CustomIcon(
-                            icon: "assets/products.png",
-                            color: _selectedIndex == 1
-                                ? MyTheme.accent_color
-                                : Colors.grey,
+                        GestureDetector(
+                          onTap: () => _onItemTapped(1),
+                          child: Padding(
+                            padding: const EdgeInsets.only(bottom: 12.0),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                CustomIcon(
+                                  icon: "assets/products.png",
+                                  color: _selectedIndex == 1
+                                      ? MyTheme.accent_color
+                                      : Colors.grey,
+                                ),
+                                SizedBox(height: 4),
+                                CustomText(
+                                  text: "Product",
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w200,
+                                  color: _selectedIndex == 1
+                                      ? MyTheme.accent_color
+                                      : Colors.grey,
+                                )
+                              ],
+                            ),
                           ),
-                          onPressed: () => _onItemTapped(1),
-                          color: _selectedIndex == 1
-                              ? MyTheme.accent_color
-                              : Colors.grey,
                         ),
                       ],
                     ),
                   ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 12.0),
+                  child: Align(
+                      alignment: Alignment.bottomCenter,
+                      child: CustomText(
+                        text: "Sell",
+                        fontSize: 12,
+                        fontWeight: FontWeight.w200,
+                        color: Colors.grey,
+                      )),
                 ),
                 Expanded(
                   child: Padding(
@@ -163,20 +204,39 @@ class _SellerDashBoardState extends State<SellerDashBoard> {
                       children: [
                         Stack(
                           children: [
-                            IconButton(
-                              icon: CustomIcon(
-                                icon: "assets/messages.png",
-                                color: _selectedIndex == 2
-                                    ? MyTheme.accent_color
-                                    : Colors.grey,
+                            GestureDetector(
+                              onTap: () => _onItemTapped(2),
+                              child: Padding(
+                                padding: const EdgeInsets.only(bottom: 12.0),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  children: [
+                                    CustomIcon(
+                                      icon: "assets/messages.png",
+                                      color: _selectedIndex == 2
+                                          ? MyTheme.accent_color
+                                          : Colors.grey,
+                                    ),
+                                    SizedBox(height: 4),
+                                    CustomText(
+                                      text: "Chat",
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w200,
+                                      color: _selectedIndex == 2
+                                          ? MyTheme.accent_color
+                                          : Colors.grey,
+                                    )
+                                  ],
+                                ),
                               ),
-                              onPressed: () => _onItemTapped(2),
                             ),
                             Obx(
-                              () => Get.find<ChatController>().count > 0
+                              () => Get.find<ChatController>()
+                                      .isBadgeDisplay
+                                      .value
                                   ? Positioned(
-                                      right: 6,
-                                      top: 6,
+                                      right: 0,
+                                      top: 10,
                                       child: Container(
                                         padding: EdgeInsets.all(4),
                                         decoration: BoxDecoration(
@@ -190,14 +250,31 @@ class _SellerDashBoardState extends State<SellerDashBoard> {
                             ),
                           ],
                         ),
-                        IconButton(
-                          icon: CustomIcon(
-                            icon: "assets/profile.png",
-                            color: _selectedIndex == 3
-                                ? MyTheme.accent_color
-                                : Colors.grey,
+                        GestureDetector(
+                          onTap: () => _onItemTapped(3),
+                          child: Padding(
+                            padding: const EdgeInsets.only(bottom: 12.0),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                CustomIcon(
+                                  icon: "assets/profile.png",
+                                  color: _selectedIndex == 3
+                                      ? MyTheme.accent_color
+                                      : Colors.grey,
+                                ),
+                                SizedBox(height: 4),
+                                CustomText(
+                                  text: "Profile",
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w200,
+                                  color: _selectedIndex == 3
+                                      ? MyTheme.accent_color
+                                      : Colors.grey,
+                                )
+                              ],
+                            ),
                           ),
-                          onPressed: () => _onItemTapped(3),
                         ),
                       ],
                     ),

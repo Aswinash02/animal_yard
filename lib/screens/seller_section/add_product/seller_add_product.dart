@@ -15,22 +15,18 @@ import 'package:active_ecommerce_flutter/custom/toast_component.dart';
 import 'package:active_ecommerce_flutter/data_model/attribute_model.dart';
 import 'package:active_ecommerce_flutter/data_model/category_model.dart';
 import 'package:active_ecommerce_flutter/data_model/city_response.dart';
-import 'package:active_ecommerce_flutter/data_model/common_dropdown_model.dart';
 import 'package:active_ecommerce_flutter/data_model/seller_category_response.dart';
 import 'package:active_ecommerce_flutter/data_model/seller_product_response.dart';
 import 'package:active_ecommerce_flutter/data_model/state_response.dart';
 import 'package:active_ecommerce_flutter/data_model/uploaded_file_list_response.dart';
 import 'package:active_ecommerce_flutter/data_model/view_tax_model.dart';
-import 'package:active_ecommerce_flutter/helpers/phone_field_helpers.dart';
 import 'package:active_ecommerce_flutter/helpers/shared_value_helper.dart';
 import 'package:active_ecommerce_flutter/helpers/styles_helpers.dart';
 import 'package:active_ecommerce_flutter/my_theme.dart';
-import 'package:active_ecommerce_flutter/repositories/address_repository.dart';
 import 'package:active_ecommerce_flutter/repositories/product_repository_new.dart';
 import 'package:active_ecommerce_flutter/screens/seller_section/components/multi_category.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:toast/toast.dart';
 import '../../../custom/seller_loading.dart';
@@ -70,7 +66,6 @@ class _AddNewProductState extends State<AddNewProduct> {
 
   // bool isFeatured = false;
   bool isTodaysDeal = false;
-  bool isContinue = true;
 
   List<CategoryModel> categories = [];
   bool isCategoryInit = false;
@@ -167,6 +162,7 @@ class _AddNewProductState extends State<AddNewProduct> {
   TextEditingController productNameEditTextController = TextEditingController();
   TextEditingController ageEditTextController = TextEditingController();
   TextEditingController milkEditTextController = TextEditingController();
+  TextEditingController kgEditTextController = TextEditingController();
   TextEditingController pregnancyEditTextController = TextEditingController();
   TextEditingController unitEditTextController = TextEditingController();
   TextEditingController descriptionEditTextController = TextEditingController();
@@ -560,9 +556,9 @@ class _AddNewProductState extends State<AddNewProduct> {
   setProductValues() async {
     productName = _selectedProductName;
     if (selectedBrand != null) brandId = selectedBrand!.key;
-    milk = milkEditTextController.text.isEmpty
-        ? 'null'
-        : milkEditTextController.text;
+    milk = mainCategoryId == "1"
+        ? milkEditTextController.text
+        : kgEditTextController.text;
     age = ageEditTextController.text.isEmpty ? '0' : ageEditTextController.text;
     unit = unitEditTextController.text.trim();
     weight = weightEditTextController.text.trim();
@@ -692,8 +688,7 @@ class _AddNewProductState extends State<AddNewProduct> {
       ToastComponent.showDialog("Product Image Required",
           gravity: Toast.center);
       return false;
-    } else if (isContinue == false &&
-        _addressController.text.trim().toString().isEmpty) {
+    } else if (_addressController.text.trim().toString().isEmpty) {
       ToastComponent.showDialog("Product Address Required",
           gravity: Toast.center);
       return false;
@@ -752,7 +747,11 @@ class _AddNewProductState extends State<AddNewProduct> {
       "tax_type": ["amount"],
       "button": button,
       "age": int.parse(ageEditTextController.text),
-      "milk": milkEditTextController.text,
+      "milk": milk == ""
+          ? ""
+          : mainCategoryId == "1"
+              ? "$milk ltr"
+              : "$milk Kg",
       "pregnancy": pregnancyEditTextController.text,
       "address": _addressController.text,
       "state_id": 0,
@@ -767,7 +766,6 @@ class _AddNewProductState extends State<AddNewProduct> {
       postValue.addAll({"refundable": refundable});
     }
     postValue.addAll(makeVariationMap());
-    print('postValue ======== > $postValue');
     var postBody = jsonEncode(postValue);
     var response = await SellerProductRepository().addProductResponse(postBody);
 
@@ -848,49 +846,38 @@ class _AddNewProductState extends State<AddNewProduct> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          isContinue
-              ? Container(
-                  color: MyTheme.accent_color,
-                  width: mWidht,
+          Wrap(
+            children: [
+              Container(
+                  padding: EdgeInsets.all(8),
+                  color: MyTheme.accent_color.withOpacity(0.7),
+                  width: mWidht / 2,
+                  height: 48,
                   child: Buttons(
                       onPressed: () async {
-                        if (!requiredFieldVerification()) {
-                          return;
-                        }
-                        ToastComponent.showDialog("Address Required",
-                            gravity: Toast.center);
-                        isContinue = false;
-                        setChange();
+                        submitProduct("unpublish");
                       },
-                      child: Text(
-                        "Continue",
-                        style: TextStyle(color: MyTheme.white),
+                      child: FittedBox(
+                        child: Text(
+                          LangText(context).local.save_n_unpublish_ucf,
+                          style: TextStyle(color: MyTheme.white),
+                        ),
+                      ))),
+              Container(
+                  color: MyTheme.accent_color,
+                  padding: EdgeInsets.all(8),
+                  width: mWidht / 2,
+                  height: 48,
+                  child: Buttons(
+                      onPressed: () async {
+                        submitProduct("publish");
+                      },
+                      child: FittedBox(
+                        child: Text(LangText(context).local.save_n_publish_ucf,
+                            style: TextStyle(color: MyTheme.white)),
                       )))
-              : Wrap(
-                  children: [
-                    Container(
-                        color: MyTheme.accent_color.withOpacity(0.7),
-                        width: mWidht / 2,
-                        child: Buttons(
-                            onPressed: () async {
-                              submitProduct("unpublish");
-                            },
-                            child: Text(
-                              LangText(context).local.save_n_unpublish_ucf,
-                              style: TextStyle(color: MyTheme.white),
-                            ))),
-                    Container(
-                        color: MyTheme.accent_color,
-                        width: mWidht / 2,
-                        child: Buttons(
-                            onPressed: () async {
-                              submitProduct("publish");
-                            },
-                            child: Text(
-                                LangText(context).local.save_n_publish_ucf,
-                                style: TextStyle(color: MyTheme.white))))
-                  ],
-                )
+            ],
+          )
         ],
       ),
     );
@@ -934,15 +921,36 @@ class _AddNewProductState extends State<AddNewProduct> {
                 ),
               ),
               itemSpacer(),
-              buildEditTextField("Age", "Age", ageEditTextController,
+              buildEditTextField(LangText(context).local.age_ucf,
+                  LangText(context).local.age_ucf, ageEditTextController,
                   keyboardType: TextInputType.number,
                   inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                   isMandatory: true),
               itemSpacer(),
-              buildEditTextField("Milk", "Milk", milkEditTextController),
+              mainCategoryId == "1"
+                  ? buildEditTextField(
+                      LangText(context).local.milk_ucf,
+                      LangText(context).local.milk_ucf,
+                      milkEditTextController,
+                      keyboardType: TextInputType.number,
+                      inputFormatters: [
+                        FilteringTextInputFormatter.allow(RegExp(r'[r0-9 .]')),
+                      ],
+                    )
+                  : buildEditTextField(
+                      LangText(context).local.kg_ucf,
+                      LangText(context).local.kg_ucf,
+                      kgEditTextController,
+                      keyboardType: TextInputType.number,
+                      inputFormatters: [
+                        FilteringTextInputFormatter.allow(RegExp(r'[r0-9 .]')),
+                      ],
+                    ),
               itemSpacer(),
               buildEditTextField(
-                  "Pregnancy", "Pregnancy", pregnancyEditTextController),
+                  LangText(context).local.pregnancy_ucf,
+                  LangText(context).local.pregnancy_ucf,
+                  pregnancyEditTextController),
               // itemSpacer(),
               // buildEditTextField("Unit", "Unit", unitEditTextController,
               //     keyboardType: TextInputType.number,
@@ -1027,90 +1035,80 @@ class _AddNewProductState extends State<AddNewProduct> {
             ),
           ),
           itemSpacer(),
-          if (isContinue == false)
-            Wrap(
+          Padding(
+            padding: const EdgeInsets.only(bottom: 8.0),
+            child: Row(
               children: [
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 8.0),
-                  child: Row(
-                    children: [
-                      Text("${LangText(context).local.address_ucf}",
-                          style: TextStyle(
-                              color: MyTheme.dark_font_grey, fontSize: 12)),
-                      Text("*",
-                          style: TextStyle(
-                              color: MyTheme.brick_red, fontSize: 16)),
-                    ],
-                  ),
-                ),
-                Container(
-                  height: 46,
-                  decoration: BoxDecoration(
-                    color: MyTheme.white,
-                    borderRadius: BorderRadius.circular(10),
-                    boxShadow: [
-                      BoxShadow(
-                        color: MyTheme.textfield_grey,
-                        offset: Offset(0, 6),
-                        blurRadius: 20,
-                      ),
-                    ],
-                  ),
-                  child: TypeAheadField(
-                    textFieldConfiguration: TextFieldConfiguration(
-                      controller: _addressController,
-                      cursorColor: MyTheme.accent_color,
-                      decoration: InputDecorations.buildInputDecoration_1(
-                        hint_text: LangText(context).local.enter_address_ucf,
-                      ),
-                      onSubmitted: (value) async {
-                        var suggestion = await getSuggestions(value);
-                        if (suggestion.isNotEmpty) {
-                          _addressController.text = suggestion[0]['description']; // Assuming the first match
-                          var placeId = suggestion[0]['place_id'];
-                          var details = await getPlaceDetails(placeId);
-                          var location = details['geometry']['location'];
-                          lat = location['lat'];
-                          long = location['lng'];
-                          print('lat ------------ > $lat');
-                          print('long ------------ > $long');
-                          mapController?.animateCamera(
-                            CameraUpdate.newLatLng(
-                              LatLng(lat, long),
-                            ),
-                          );
-                        }
-                      },
-                    ),
-                    suggestionsCallback: (pattern) async {
-                      return await getSuggestions(pattern);
-                    },
-                    itemBuilder: (context, suggestion) {
-                      return ListTile(
-                        title: Text(suggestion['description']),
-                      );
-                    },
-                    onSuggestionSelected: (suggestion) async {
-                      _addressController.text = suggestion['description'];
-                      var placeId = suggestion['place_id'];
-                      var details = await getPlaceDetails(placeId);
-                      var location = details['geometry']['location'];
-                      lat = location['lat'];
-                      long = location['lng'];
-                      print('lat ------------ > $lat');
-                      print('long ------------ > $long');
-                      mapController?.animateCamera(
-                        CameraUpdate.newLatLng(
-                          LatLng(lat, long),
-                        ),
-                      );
-                    },
-                  ),
-
-                ),
-                itemSpacer(height: 200)
+                Text("${LangText(context).local.address_ucf}",
+                    style:
+                        TextStyle(color: MyTheme.dark_font_grey, fontSize: 12)),
+                Text("*",
+                    style: TextStyle(color: MyTheme.brick_red, fontSize: 16)),
               ],
-            )
+            ),
+          ),
+          Container(
+            height: 46,
+            decoration: BoxDecoration(
+              color: MyTheme.white,
+              borderRadius: BorderRadius.circular(10),
+              boxShadow: [
+                BoxShadow(
+                  color: MyTheme.textfield_grey,
+                  offset: Offset(0, 6),
+                  blurRadius: 20,
+                ),
+              ],
+            ),
+            child: TypeAheadField(
+              textFieldConfiguration: TextFieldConfiguration(
+                controller: _addressController,
+                cursorColor: MyTheme.accent_color,
+                decoration: InputDecorations.buildInputDecoration_1(
+                  hint_text: LangText(context).local.enter_address_ucf,
+                ),
+                onSubmitted: (value) async {
+                  var suggestion = await getSuggestions(value);
+                  if (suggestion.isNotEmpty) {
+                    _addressController.text = suggestion[0]
+                        ['description']; // Assuming the first match
+                    var placeId = suggestion[0]['place_id'];
+                    var details = await getPlaceDetails(placeId);
+                    var location = details['geometry']['location'];
+                    lat = location['lat'];
+                    long = location['lng'];
+                    mapController?.animateCamera(
+                      CameraUpdate.newLatLng(
+                        LatLng(lat, long),
+                      ),
+                    );
+                  }
+                },
+              ),
+              suggestionsCallback: (pattern) async {
+                return await getSuggestions(pattern);
+              },
+              itemBuilder: (context, suggestion) {
+                return ListTile(
+                  title: Text(suggestion['description']),
+                );
+              },
+              onSuggestionSelected: (suggestion) async {
+                _addressController.text = suggestion['description'];
+                var placeId = suggestion['place_id'];
+                var details = await getPlaceDetails(placeId);
+                var location = details['geometry']['location'];
+                lat = location['lat'];
+                long = location['lng'];
+                mapController?.animateCamera(
+                  CameraUpdate.newLatLng(
+                    LatLng(lat, long),
+                  ),
+                );
+              },
+            ),
+          ),
+          itemSpacer(height: 200)
         ],
       ),
     );

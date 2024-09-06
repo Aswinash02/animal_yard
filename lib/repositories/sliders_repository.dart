@@ -32,12 +32,14 @@ class SlidersRepository {
 
   Future<FoodBannerModel> getFoodBannerImage() async {
     String url = ("${AppConfig.BASE_URL}/banner");
+    print('url************* $url');
     final response = await ApiRequest.get(
       url: url,
       headers: {
         "App-Language": app_language.$!,
       },
     );
+    print('response.body ***** ${response.body}');
     return FoodBannerModel.fromJson(jsonDecode(response.body));
   }
 

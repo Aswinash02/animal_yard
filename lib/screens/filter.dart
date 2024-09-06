@@ -45,11 +45,13 @@ class Filter extends StatefulWidget {
   Filter(
       {Key? key,
       this.selected_filter = "product",
+      this.isFood = false,
       required this.id,
       required this.title})
       : super(key: key);
 
   final String selected_filter;
+  final bool isFood;
   final int id;
   final String title;
 
@@ -970,7 +972,7 @@ class _FilterState extends State<Filter> {
                         borderRadius: BorderRadius.circular(4.0),
                       ),
                       child: Text(
-                        "DEFAULT",
+                        "REMOVE",
                         style: TextStyle(color: Colors.white, fontSize: 13),
                       ),
                       onPressed: () {
@@ -1011,8 +1013,10 @@ class _FilterState extends State<Filter> {
                         var min = _minPriceController.text.toString();
                         var max = _maxPriceController.text.toString();
                         bool apply = true;
+                        print('min --------- ${min}');
+                        print('max --------- ${max}');
                         if (min != "" && max != "") {
-                          if (max.compareTo(min) < 0) {
+                          if (int.parse(min) > int.parse(max)) {
                             ToastComponent.showDialog(
                                 AppLocalizations.of(context)!
                                     .filter_screen_min_max_warning,
@@ -1152,6 +1156,7 @@ class _FilterState extends State<Filter> {
                   // 3
                   return ProductCard(
                     product: _productList[index],
+                    isFood: widget.isFood,
                     // id: _productList[index].id,
                     // slug: _productList[index].slug,
                     // image: _productList[index].thumbnail_image,

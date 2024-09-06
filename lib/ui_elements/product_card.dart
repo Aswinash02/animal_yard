@@ -153,7 +153,7 @@ class _ProductCardState extends State<ProductCard> {
           );
         },
         child: Container(
-          padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+          padding: EdgeInsets.symmetric(horizontal: 15, vertical: 8),
           child: CustomText(
             text: "Buy Now",
             color: Colors.white,

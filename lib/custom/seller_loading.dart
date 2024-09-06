@@ -21,14 +21,16 @@ class Loading {
         Loading._context = context;
         return AlertDialog(
             content: Row(
-              children: [
-                CircularProgressIndicator(),
-                const SizedBox(
-                  width: 10,
-                ),
-                Text(LangText(context).local.please_wait_ucf),
-              ],
-            ));
+          children: [
+            CircularProgressIndicator(),
+            const SizedBox(
+              width: 10,
+            ),
+            SizedBox(
+                width: 180,
+                child: Text(LangText(context).local.please_wait_ucf)),
+          ],
+        ));
       },
     );
   }
@@ -40,19 +42,18 @@ class Loading {
   static Widget bottomLoading(bool value) {
     return value
         ? Container(
-      alignment: Alignment.center,
-      child: SizedBox(
-          height: 20, width: 20, child: CircularProgressIndicator()),
-    )
+            alignment: Alignment.center,
+            child: SizedBox(
+                height: 20, width: 20, child: CircularProgressIndicator()),
+          )
         : SizedBox(
-      height: 5,
-      width: 5,
-    );
+            height: 5,
+            width: 5,
+          );
   }
 }
 
 class OneContextLoading {
-
   static late BuildContext _loadingContext;
 
   static show() async {
@@ -61,14 +62,14 @@ class OneContextLoading {
         _loadingContext = context;
         return AlertDialog(
             content: Row(
-              children: [
-                CircularProgressIndicator(),
-                const SizedBox(
-                  width: 10,
-                ),
-                Text(LangText(context).local.please_wait_ucf),
-              ],
-            ));
+          children: [
+            CircularProgressIndicator(),
+            const SizedBox(
+              width: 10,
+            ),
+            Text(LangText(context).local.please_wait_ucf),
+          ],
+        ));
       },
     );
   }

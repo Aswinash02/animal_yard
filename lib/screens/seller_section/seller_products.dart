@@ -67,10 +67,9 @@ class _ProductSellerState extends State<ProductSeller> {
     _productList.addAll(productResponse.data!);
     _showMoreProductLoadingContainer = false;
     _isProductInit = true;
-    if(mounted){
+    if (mounted) {
       setState(() {});
     }
-
   }
 
   Future<bool> _getAccountInfo() async {
@@ -188,7 +187,10 @@ class _ProductSellerState extends State<ProductSeller> {
               SizedBox(
                 width: 10,
               ),
-              Text("${AppLocalizations.of(context)!.please_wait_ucf}"),
+              SizedBox(
+                  width: 180,
+                  child:
+                      Text("${AppLocalizations.of(context)!.please_wait_ucf}")),
             ],
           ));
         });
@@ -453,11 +455,16 @@ class _ProductSellerState extends State<ProductSeller> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  Text(
-                    LangText(context).local.add_new_product_ucf,
-                    style: MyTextStyle()
-                        .dashboardBoxText(context)
-                        .copyWith(color: MyTheme.accent_color),
+                  SizedBox(
+                    width: 110,
+                    child: FittedBox(
+                      child: Text(
+                        LangText(context).local.add_new_product_ucf,
+                        style: MyTextStyle()
+                            .dashboardBoxText(context)
+                            .copyWith(color: MyTheme.accent_color),
+                      ),
+                    ),
                   ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -641,13 +648,13 @@ class _ProductSellerState extends State<ProductSeller> {
                     ),
                     isApproved == 1
                         ? Text(
-                            'Approved',
+                            LangText(context).local.approved_ucf,
                             style: TextStyle(
                                 color: Colors.green,
                                 fontWeight: FontWeight.bold),
                           )
                         : Text(
-                            'Pending Approval',
+                            LangText(context).local.pending_approval_ucf,
                             style: TextStyle(
                                 color: Colors.red, fontWeight: FontWeight.bold),
                           ),
@@ -721,9 +728,6 @@ class _ProductSellerState extends State<ProductSeller> {
         ),
         onSelected: (MenuOptions result) {
           _tabOption(result.index, productId, listIndex);
-          // setState(() {
-          //   //_menuOptionSelected = result;
-          // });
         },
         itemBuilder: (BuildContext context) => <PopupMenuEntry<MenuOptions>>[
           PopupMenuItem<MenuOptions>(
@@ -734,18 +738,10 @@ class _ProductSellerState extends State<ProductSeller> {
             value: MenuOptions.Published,
             child: Text(AppLocalizations.of(context)!.published),
           ),
-          // PopupMenuItem<MenuOptions>(
-          //   value: MenuOptions.Featured,
-          //   child: Text(AppLocalizations.of(context)!.featured),
-          // ),
           PopupMenuItem<MenuOptions>(
             value: MenuOptions.Delete,
             child: Text(AppLocalizations.of(context)!.delete_ucf),
           ),
-          // PopupMenuItem<MenuOptions>(
-          //   value: MenuOptions.Duplicate,
-          //   child: Text(AppLocalizations.of(context)!.duplicate),
-          // ),
         ],
       ),
     );

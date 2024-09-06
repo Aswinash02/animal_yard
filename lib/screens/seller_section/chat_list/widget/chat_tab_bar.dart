@@ -26,8 +26,8 @@ class _ChatTabBarState extends State<ChatTabBar> {
         children: [
           Row(
             children: [
-              buildTopTapBarItem("Buying", 0),
-              buildTopTapBarItem("Selling", 1)
+              buildTopTapBarItem(LangText(context).local.buying_ucf, 0),
+              buildTopTapBarItem(LangText(context).local.selling_ucf, 1)
             ],
           ),
           Expanded(

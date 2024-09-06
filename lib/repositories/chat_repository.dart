@@ -13,7 +13,7 @@ import 'package:flutter/material.dart';
 import '../data_model/conversation_create_response.dart';
 
 class ChatRepository {
-  Future<dynamic> getConversationResponse({page = 1}) async {
+  Future<ConversationResponse> getConversationResponse({page = 1}) async {
     String url = ("${AppConfig.BASE_URL}/chat/conversations?page=${page}");
     final response = await ApiRequest.get(
         url: url,
@@ -22,7 +22,6 @@ class ChatRepository {
           "App-Language": app_language.$!,
         },
         middleware: BannedUser());
-    print("response buyer --------- ${response.body}");
     return conversationResponseFromJson(response.body);
   }
 
@@ -86,7 +85,6 @@ class ChatRepository {
       "message": "${message}"
     });
     String url = ("${AppConfig.BASE_URL}/chat/create-conversation");
-    // print("Bearer ${access_token.$}");
     final response = await ApiRequest.post(
       url: url,
       headers: {
@@ -110,7 +108,6 @@ class ChatRepository {
         "Authorization": "Bearer ${access_token.$}",
       },
     );
-    print('response seller chat ------ ${response.body}');
     return chatListResponseFromJson(response.body);
   }
 
@@ -134,7 +131,6 @@ class ChatRepository {
         ("${AppConfig.BASE_URL_WITH_PREFIX}/conversations/message/store");
 
     var post_body = jsonEncode({"conversation_id": id, "message": message});
-    // print(post_body);
 
     final response = await ApiRequest.post(
         url: url,
