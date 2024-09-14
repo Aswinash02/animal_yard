@@ -108,7 +108,6 @@ class _ClassifiedProductAddState extends State<ClassifiedProductAdd> {
 
   getBrands() async {
     var brandsRes = await BrandRepository().getBrands();
-    // print(brandsRes.brands);
     brandsRes.brands!.forEach((element) {
       brands.addAll([
         CommonDropDownItem("${element.id}", element.name),
@@ -206,7 +205,7 @@ class _ClassifiedProductAddState extends State<ClassifiedProductAdd> {
   }
 
   submit() async {
-    // print('submit');
+
 
     if (!requiredFieldVerification()) {
       return;
@@ -242,7 +241,7 @@ class _ClassifiedProductAddState extends State<ClassifiedProductAdd> {
     var response =
         await ClassifiedProductRepository().addProductResponse(postBody);
 
-    // print(postBody);
+
 
     Loading.close();
     if (response.result != null && response.result!) {
@@ -624,8 +623,6 @@ class _ClassifiedProductAddState extends State<ClassifiedProductAdd> {
                           fileType: fileType,
                           canSelect: true,
                         ))));
-            // print("chooseFile.url");
-            // print(chooseFile.first.url);
             if (chooseFile.isNotEmpty) {
               onChosenFile(chooseFile.first);
             }
@@ -748,8 +745,6 @@ class _ClassifiedProductAddState extends State<ClassifiedProductAdd> {
                           fileType: "image",
                           canSelect: true,
                         ))));
-            // print("chooseFile.url");
-            // print(chooseFile.first.url);
             if (chooseFile.isNotEmpty) {
               onChosenImage(chooseFile.first);
             }
@@ -1326,7 +1321,6 @@ class _ClassifiedProductAddState extends State<ClassifiedProductAdd> {
     if (productDescriptionKey.currentState != null) {
       productDescriptionKey.currentState!.getText().then((value) {
         description = value;
-        print(description);
         if (description != null) {
           // productDescriptionKey.currentState.setText(description);
         }
@@ -1368,7 +1362,6 @@ class _ClassifiedProductAddState extends State<ClassifiedProductAdd> {
                   canMultiSelect: true,
                   prevData: tmp,
                 )));
-    // print(images != null);
     if (images != null) {
       productGalleryImages = images;
       setChange();
@@ -1456,7 +1449,6 @@ class _ClassifiedProductAddState extends State<ClassifiedProductAdd> {
                           color: MyTheme.white),
                       child: InkWell(
                         onTap: () {
-                          print(index);
                           productGalleryImages.removeAt(index);
                           setState(() {});
                         },

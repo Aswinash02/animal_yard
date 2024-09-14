@@ -107,7 +107,6 @@ class PushNotificationService {
                     gravity: Toast.top, duration: Toast.lengthLong);
                 return;
               }
-              //print(message);
               Navigator.of(context).pop();
               if (message.data['item_type'] == 'order') {
                 OneContext().push(MaterialPageRoute(builder: (_) {

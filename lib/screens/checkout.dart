@@ -558,8 +558,6 @@ class _CheckoutState extends State<Checkout> {
       });
     }
 
-    //print(_selected_payment_method);
-    //print(_selected_payment_method_key);
   }
 
   onPressDetails() {

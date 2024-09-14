@@ -23,19 +23,10 @@ class FirebaseRepository {
       provisional: false,
       sound: true,
     );
-    if (settings.authorizationStatus == AuthorizationStatus.authorized) {
-      print('User granted Permission');
-    } else if (settings.authorizationStatus ==
-        AuthorizationStatus.provisional) {
-      print('User granted provisional Permission');
-    } else {
-      print('User denied');
-    }
   }
 
   Future<String> getToken() async {
     String? token = await _firebaseInstance.getToken();
-    print('token  $token');
     return token ?? '';
   }
 
@@ -71,9 +62,7 @@ class FirebaseRepository {
 
   void initLocalNotifications(
       RemoteMessage message, BuildContext context) async {
-    print('message=========  ${message.data}');
     Map<String, dynamic> notificationData = message.data;
-    print('notificationData  $notificationData');
     var androidInitializationSettings =
         const AndroidInitializationSettings('@mipmap/ic_launcher');
     var iosInitializationSettings = const DarwinInitializationSettings();
@@ -92,8 +81,6 @@ class FirebaseRepository {
         await FirebaseMessaging.instance.getInitialMessage();
 
     if (initialMessage != null) {
-      print(initialMessage.data);
-
       handleMessage(initialMessage.data);
     }
 
@@ -107,32 +94,11 @@ class FirebaseRepository {
     OneContext().push(
       MaterialPageRoute(
           builder: (context) => ChatScreen(
-                conversation_id:int.parse(message['conversation_id']) ,
+                conversation_id: int.parse(message['conversation_id']),
                 messenger_name: message['messenger_name'],
                 messenger_title: message['messenger_title'],
                 messenger_image: message['messenger_image'],
               )),
     );
   }
-
-// void sendPushNotification() async {
-//   try {
-//     print("yes entered push notification ------------");
-//     String deviceToken = await getToken();
-//     print("deviceToken ------------ $deviceToken");
-//    var response = await http.post(
-//         Uri.parse(
-//             "https://fcm.googleapis.com/v1/projects/animalyard-da031/messages:send"),
-//         headers: {'Content-Type': 'application/json'},
-//       body: jsonEncode({
-//         'title': 'GHL Notification',
-//         'body': 'test',
-//         'token': deviceToken,
-//       }),
-//     );
-//    print('response ========== ${response.body}');
-//   } catch (e) {
-//     print('error push notification ------------ $e');
-//   }
-// }
 }

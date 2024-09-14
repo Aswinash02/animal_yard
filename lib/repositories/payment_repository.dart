@@ -61,7 +61,6 @@ class PaymentRepository {
       "App-Language": app_language.$!,
     });
 
-    print(response.body);
 
     return paypalUrlResponseFromJson(response.body);
   }

@@ -140,7 +140,6 @@ class _BkashScreenState extends State<BkashScreen> {
       if (responseJSON.runtimeType == String) {
         responseJSON = jsonDecode(responseJSON);
       }
-      print(data);
       if (responseJSON["result"] == false) {
         ToastComponent.showDialog(responseJSON["message"],
             duration: Toast.lengthLong, gravity: Toast.center);

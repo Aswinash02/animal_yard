@@ -35,7 +35,6 @@ class GuestCheckoutRepository {
       },
     );
 
-    // print("guest -user - create -account");
 
     return loginResponseFromJson(response.body);
   }

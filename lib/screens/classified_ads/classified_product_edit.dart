@@ -163,7 +163,7 @@ class _ClassifiedProductEditState extends State<ClassifiedProductEdit> {
 
     setState(() {});
 
-    // print(selectedBrand);
+
   }
 
   bool requiredFieldVerification() {
@@ -236,7 +236,6 @@ class _ClassifiedProductEditState extends State<ClassifiedProductEdit> {
   }
 
   update() async {
-    // print('update');
 
     if (!requiredFieldVerification()) {
       return;
@@ -269,11 +268,9 @@ class _ClassifiedProductEditState extends State<ClassifiedProductEdit> {
     });
 
     var postBody = jsonEncode(postValue);
-    print(postBody);
     var response = await ClassifiedProductRepository()
         .updateCustomerProductResponse(postBody, widget.productId, lang);
 
-    // print(postBody);
 
     Loading.close();
     if (response.result != null && response.result!) {
@@ -725,8 +722,6 @@ class _ClassifiedProductEditState extends State<ClassifiedProductEdit> {
                           fileType: fileType,
                           canSelect: true,
                         ))));
-            // print("chooseFile.url");
-            // print(chooseFile.first.url);
             if (chooseFile.isNotEmpty) {
               onChosenFile(chooseFile.first);
             }
@@ -1426,7 +1421,6 @@ class _ClassifiedProductEditState extends State<ClassifiedProductEdit> {
     if (productDescriptionKey.currentState != null) {
       productDescriptionKey.currentState!.getText().then((value) {
         description = value;
-        print(description);
         if (description != null) {
           // productDescriptionKey.currentState.setText(description);
         }
@@ -1468,7 +1462,6 @@ class _ClassifiedProductEditState extends State<ClassifiedProductEdit> {
                   canMultiSelect: true,
                   prevData: tmp,
                 )));
-    // print(images != null);
     if (images != null) {
       productGalleryImages = images;
       setChange();
@@ -1556,7 +1549,6 @@ class _ClassifiedProductEditState extends State<ClassifiedProductEdit> {
                           color: MyTheme.white),
                       child: InkWell(
                         onTap: () {
-                          print(index);
                           productGalleryImages.removeAt(index);
                           setState(() {});
                         },

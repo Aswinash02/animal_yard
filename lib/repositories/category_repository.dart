@@ -18,7 +18,6 @@ class CategoryRepository {
       "App-Language": app_language.$!,
     });
 
-    print('CategoryResponse ------ > ${response.body}');
     return categoryResponseFromJson(response.body);
 
   }

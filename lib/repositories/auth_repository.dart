@@ -174,7 +174,6 @@ class AuthRepository {
           "Authorization": "Bearer ${access_token.$}",
         },
         body: post_body);
-    print('response.body login ------ > ${response.body}');
     return loginResponseFromJson(response.body);
   }
 
@@ -182,7 +181,6 @@ class AuthRepository {
     final _firebaseInstance = FirebaseMessaging.instance;
 
     String? token = await _firebaseInstance.getToken();
-    print('token  $token');
     return token ?? '';
   }
 

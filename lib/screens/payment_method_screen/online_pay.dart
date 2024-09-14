@@ -69,7 +69,6 @@ class _OnlinePayState extends State<OnlinePay> {
   }
 
   pay(url) {
-    print(url);
     _webViewController
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
       ..setBackgroundColor(const Color(0x00000000))
@@ -77,7 +76,6 @@ class _OnlinePayState extends State<OnlinePay> {
         NavigationDelegate(
           onWebResourceError: (error) {},
           onPageFinished: (page) {
-            print(page);
             if (page.contains("/online-pay/done")) {
               if (widget.payment_type == "cart_payment") {
                 Navigator.push(

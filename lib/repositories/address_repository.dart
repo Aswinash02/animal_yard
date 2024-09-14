@@ -240,9 +240,6 @@ class AddressRepository {
 
     String url = ("${AppConfig.BASE_URL}/update-shipping-type-in-cart");
 
-    print(url.toString());
-/*    print(post_body.toString());
-    print(access_token.$.toString());*/
     final response = await ApiRequest.post(
         url: url,
         headers: {

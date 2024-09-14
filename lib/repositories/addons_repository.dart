@@ -8,7 +8,6 @@ class AddonsRepository {
     // $();
     String url = ('${AppConfig.BASE_URL}/addon-list');
     final response = await ApiRequest.get(url: url);
-    print("Addon List Data=================>${response.body}");
     return addonsListResponseFromJson(response.body);
   }
 }

@@ -94,8 +94,6 @@ class _NagadScreenState extends State<NagadScreen> {
     setState(() {});
 
     nagad();
-    //print(_initial_url);
-    //print(_initial_url_fetched);
   }
 
   nagad() {

@@ -11,7 +11,6 @@ import 'api-request.dart';
 
 class FileUploadRepository {
   Future<CommonResponse> fileUpload(File file) async {
-    print('picked file  ------------ ${file.path}');
     Uri url = Uri.parse("${AppConfig.BASE_URL}/file/upload");
 
     Map<String, String> header = {
@@ -38,21 +37,17 @@ class FileUploadRepository {
 
     if (response.statusCode == 200) {
       try {
-        // print('responseDecode -----$')
         commonResponse = commonResponseFromJson(responseDecode);
-      } on Exception catch (e) {
-        debugPrint(e.toString());
+      } on Exception catch (_) {
+
       }
     }
-    print("res body File Upload====================>${commonResponse.message}");
     return commonResponse;
   }
 
   Future<CommonResponse> fileUploadSeller(File file) async {
-    print('file -------- $file');
     Uri url = Uri.parse("${AppConfig.BASE_URL_WITH_PREFIX}/file/upload");
 
-    print("url -------- fileUploadSeller >$url ");
 
     Map<String, String> header = {
       "App-Language": app_language.$!,
@@ -79,11 +74,10 @@ class FileUploadRepository {
     if (response.statusCode == 200) {
       try {
         commonResponse = commonResponseFromJson(responseDecode);
-      } on Exception catch (e) {
-        debugPrint(e.toString());
+      } on Exception catch (_) {
+
       }
     }
-    print("res body File Upload====================>${commonResponse.message}");
     return commonResponse;
   }
 

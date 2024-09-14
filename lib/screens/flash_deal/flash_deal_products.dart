@@ -61,13 +61,10 @@ class _FlashDealProductsState extends State<FlashDealProducts> {
         ? blank_zeros
         : txt;
 
-    // print(txt + " " + default_length.toString());
-    // print(newtxt);
 
     if (default_length > txt.length) {
       newtxt = leading_zeros + newtxt;
     }
-    //print(newtxt);
 
     return newtxt;
   }
@@ -108,7 +105,6 @@ class _FlashDealProductsState extends State<FlashDealProducts> {
 
   _buildSearchList(search_key) async {
     _searchList.clear();
-    //print(_fullList.length);
 
     if (search_key.isEmpty) {
       _searchList.addAll(_fullList);

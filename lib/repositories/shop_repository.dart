@@ -16,7 +16,6 @@ class ShopRepository {
     String url =
         ("${AppConfig.BASE_URL}/shops" + "?page=${page}&name=${name}");
 
-    print(url.toString());
 
     final response = await ApiRequest.get(url: url,
       headers: {
@@ -29,7 +28,6 @@ class ShopRepository {
   Future<ShopDetailsResponse> getShopInfo(slug) async {
 
     String url =  ("${AppConfig.BASE_URL}/shops/details/$slug");
-    print(url.toString());
     final response =
         await ApiRequest.get(url: url,
           headers: {
@@ -47,7 +45,6 @@ class ShopRepository {
       "Authorization": "Bearer ${access_token.$}",
     };
     final response = await ApiRequest.get(url: url, headers: header);
-    // print("shop info " + response.body.toString());
     return shopInfoResponseFromJson(response.body);
   }
 
@@ -139,7 +136,6 @@ class ShopRepository {
         "Authorization": "Bearer ${access_token.$}",
         "App-Language": app_language.$!,
       },);
-    print(response.body);
     return followedSellersResponseFromJson(response.body);
   }
 

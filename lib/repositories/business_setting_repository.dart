@@ -26,12 +26,10 @@ class BusinessSettingRepository {
       //'keys':params
       "keys": params
     };
-    //print("business ${body}");
     var response = await ApiRequest.get(
       url: url,
     );
 
-    // print("business ${response.body}");
 
     return businessSettingListResponseFromJson(response.body);
   }

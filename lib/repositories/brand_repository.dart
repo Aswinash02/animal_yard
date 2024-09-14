@@ -27,7 +27,6 @@ class BrandRepository {
       "App-Language": app_language.$!,
     });
 
-    // print(response.body);
     return allBrandsResponseFromJson(response.body);
   }
 }

@@ -187,8 +187,6 @@ class ProductInfo {
   String? state;
 
   factory ProductInfo.fromJson(Map<String, dynamic> json) {
-    print('json  --------- ${json['latitude']}');
-    print('json  --------- ${json['longitude']}');
     return ProductInfo(
       id: json["id"],
       lang: json["lang"],

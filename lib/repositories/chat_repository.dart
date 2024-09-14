@@ -108,6 +108,7 @@ class ChatRepository {
         "Authorization": "Bearer ${access_token.$}",
       },
     );
+
     return chatListResponseFromJson(response.body);
   }
 

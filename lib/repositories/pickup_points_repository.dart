@@ -9,7 +9,6 @@ class PickupPointRepository{
 
     final response = await ApiRequest.get(url: url);
 
-    //print("response ${response.body}");
 
     return pickupPointListResponseFromJson(response.body);
   }

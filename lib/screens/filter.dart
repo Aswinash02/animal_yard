@@ -163,14 +163,14 @@ class _FilterState extends State<Filter> {
     fetchFilteredBrands();
 
     if (_selectedFilter!.option_key == "sellers") {
-      print('sellers ========== >');
+
       fetchShopData();
     } else if (_selectedFilter!.option_key == "brands") {
-      print('brands ========== >');
+
 
       fetchBrandData();
     } else {
-      print('fetchProductData ========== >');
+
 
       fetchProductData();
     }
@@ -212,7 +212,6 @@ class _FilterState extends State<Filter> {
   }
 
   fetchProductData() async {
-    // print("_selectedCategories ====== > ${_selectedCategories.join(",").toString()}");
     var productResponse = await ProductRepository().getFilteredProducts(
         page: _productPage,
         name: _searchKey,
@@ -1013,8 +1012,7 @@ class _FilterState extends State<Filter> {
                         var min = _minPriceController.text.toString();
                         var max = _maxPriceController.text.toString();
                         bool apply = true;
-                        print('min --------- ${min}');
-                        print('max --------- ${max}');
+
                         if (min != "" && max != "") {
                           if (int.parse(min) > int.parse(max)) {
                             ToastComponent.showDialog(

@@ -101,7 +101,6 @@ class _ClassifiedAdsDetailsState extends State<ClassifiedAdsDetails>
         .getClassifiedOtherAds(slug: widget.slug);
 
     _relatedProducts.addAll(relatedProductResponse.data!);
-    // print(_relatedProducts.length.toString() + "ddd");
     _relatedProductInit = true;
 
     setState(() {});
@@ -196,7 +195,6 @@ class _ClassifiedAdsDetailsState extends State<ClassifiedAdsDetails>
                             style: TextStyle(color: Colors.white),
                           ),
                           onPressed: () {
-                            // print("share links ${_productDetails!.link}");
                             SocialShare.shareOptions(_productDetails!.link!);
                           },
                         ),
@@ -268,7 +266,6 @@ class _ClassifiedAdsDetailsState extends State<ClassifiedAdsDetails>
           }
         }
       }
-      // print("opachity{} $_scrollPosition");
 
       setState(() {});
     });
@@ -722,7 +719,6 @@ class _ClassifiedAdsDetailsState extends State<ClassifiedAdsDetails>
   }
 
   Widget buildSellerRow(BuildContext context) {
-    //print("sl:" +  _productDetails.shop_logo);
     return Container(
       color: MyTheme.light_grey,
       padding: EdgeInsets.symmetric(horizontal: 14, vertical: 14),
@@ -1126,7 +1122,6 @@ class _ClassifiedAdsDetailsState extends State<ClassifiedAdsDetails>
                       return GestureDetector(
                         onTap: () {
                           _currentImage = itemIndex;
-                          print(_currentImage);
                           setState(() {});
                         },
                         child: Container(
@@ -1198,7 +1193,6 @@ class _ClassifiedAdsDetailsState extends State<ClassifiedAdsDetails>
             enlargeCenterPage: false,
             scrollDirection: Axis.horizontal,
             onPageChanged: (index, reason) {
-              print(index);
               setState(() {
                 _currentImage = index;
               });

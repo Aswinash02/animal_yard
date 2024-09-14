@@ -77,7 +77,6 @@ class HomePresenter extends ChangeNotifier {
 
   fetchTodayDealData() async {
     var deal = await ProductRepository().getTodaysDealProducts();
-    // print(deal.products!.length);
     if (deal.success! && deal.products!.isNotEmpty) {
       isTodayDeal = true;
       notifyListeners();
@@ -189,7 +188,6 @@ class HomePresenter extends ChangeNotifier {
     animalProductList.clear();
     var productResponse = await ProductRepository().fetchAllAnimalProducts();
     if (productResponse.data != null) {
-      print('home ======== > ${productResponse.data!.length}');
       for (var product in productResponse.data!) {
         if (!animalProductList
             .any((existingProduct) => existingProduct.id == product.id)) {

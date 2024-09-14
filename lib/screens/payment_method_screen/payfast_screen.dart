@@ -58,7 +58,6 @@ class _PayfastScreenState extends State<PayfastScreen> {
     String _initial_url =
         "${AppConfig.BASE_URL}/payfast/initiate?payment_type=${widget.payment_type}&combined_order_id=${_combined_order_id}&amount=${widget.amount}&user_id=${user_id.$}&package_id=${widget.package_id}&order_id=${widget.orderId}";
 
-    print(_initial_url);
 
     _webViewController
       ..setJavaScriptMode(JavaScriptMode.unrestricted)

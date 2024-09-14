@@ -12,12 +12,11 @@ class ClassifiedProductRepository {
     page = 1,
   }) async {
     String url = ("${AppConfig.BASE_URL}/classified/all?page=$page");
-    // print(url.toString());
+
 
     final response = await ApiRequest.get(url: url, headers: {
       "App-Language": app_language.$!,
     });
-    // print(response.body);
     return classifiedAdsResponseFromJson(response.body);
   }
 
@@ -30,7 +29,6 @@ class ClassifiedProductRepository {
       "Content-Type": "application/json",
       "Authorization": "Bearer ${access_token.$}",
     });
-    // print(response.body);
     return classifiedAdsResponseFromJson(response.body);
   }
 
@@ -38,30 +36,25 @@ class ClassifiedProductRepository {
     required slug,
   }) async {
     String url = ("${AppConfig.BASE_URL}/classified/related-products/$slug");
-    // print(url.toString());
 
     final response = await ApiRequest.get(url: url, headers: {
       "App-Language": app_language.$!,
     });
-    // print(response.body);
     return classifiedAdsResponseFromJson(response.body);
   }
 
   Future<ClassifiedProductDetailsResponse> getClassifiedProductsDetails(
       slug) async {
     String url = ("${AppConfig.BASE_URL}/classified/product-details/$slug");
-    // print(url.toString());
 
     final response = await ApiRequest.get(url: url, headers: {
       "App-Language": app_language.$!,
     });
-    // print(response.body);
     return classifiedProductDetailsResponseFromJson(response.body);
   }
 
   Future<CommonResponse> getDeleteClassifiedProductResponse(id) async {
     String url = ("${AppConfig.BASE_URL}/classified/delete/$id");
-    // print(url.toString());
 
     final response = await ApiRequest.delete(url: url, headers: {
       "App-Language": app_language.$!,

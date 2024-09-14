@@ -2,6 +2,7 @@ import 'package:active_ecommerce_flutter/data_model/conversation_response.dart';
 import 'package:active_ecommerce_flutter/data_model/seller_chat_list.dart';
 import 'package:active_ecommerce_flutter/repositories/chat_repository.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 
 class ChatController extends GetxController {
   RxBool _isBadgeDisplay = false.obs;
@@ -31,23 +32,14 @@ class ChatController extends GetxController {
     while (true) {
       var response = await ChatRepository().getChatList();
       if (response.data != null) {
-        response.data!.reversed.forEach((newItem) {
-          var existingIndex = sellerChatList
-              .indexWhere((existingItem) => existingItem.id == newItem.id);
-          if (existingIndex != -1) {
-            if (sellerChatList[existingIndex].unReadSeller !=
-                newItem.unReadSeller) {
-              if (sellerChatList[existingIndex].unReadSeller! >
-                  newItem.unReadSeller!) {
-                sellerChatList.removeAt(existingIndex);
-                sellerChatList.insert(0, newItem);
-              } else {
-                sellerChatList[existingIndex] = newItem;
-              }
-            }
-          } else {
-            sellerChatList.insert(0, newItem);
-          }
+        response.data!.forEach((newItem) {
+          final dateFormat = DateFormat('dd-MM-yyyy HH:mm:ss');
+          response.data!.sort((a, b) {
+            DateTime dateA = dateFormat.parse(a.dateTime!);
+            DateTime dateB = dateFormat.parse(b.dateTime!);
+            return dateB.compareTo(dateA);
+          });
+          sellerChatList.value = response.data!;
         });
       }
       sellerFaceData.value = true;
@@ -63,24 +55,13 @@ class ChatController extends GetxController {
     while (true) {
       var response = await ChatRepository().getConversationResponse();
       if (response.conversation_item_list != null) {
-        response.conversation_item_list!.reversed.forEach((newItem) {
-          var existingIndex = buyerChatList
-              .indexWhere((existingItem) => existingItem.id == newItem.id);
-
-          if (existingIndex != -1) {
-            if (buyerChatList[existingIndex].unReadCustomer !=
-                newItem.unReadCustomer) {
-              if (buyerChatList[existingIndex].unReadCustomer! >
-                  newItem.unReadCustomer!) {
-                buyerChatList.removeAt(existingIndex);
-                buyerChatList.insert(0, newItem);
-              } else {
-                buyerChatList[existingIndex] = newItem;
-              }
-            }
-          } else {
-            buyerChatList.insert(0, newItem);
-          }
+        response.conversation_item_list!.forEach((newItem) {
+          response.conversation_item_list!.sort((a, b) {
+            DateTime dateA = a.date!;
+            DateTime dateB = b.date!;
+            return dateB.compareTo(dateA);
+          });
+          buyerChatList.value = response.conversation_item_list!;
         });
       }
 

@@ -8,10 +8,8 @@ import 'package:active_ecommerce_flutter/firebase_options.dart';
 import 'package:active_ecommerce_flutter/helpers/main_helpers.dart';
 import 'package:active_ecommerce_flutter/middlewares/auth_middleware.dart';
 import 'package:active_ecommerce_flutter/my_theme.dart';
-import 'package:active_ecommerce_flutter/other_config.dart';
 import 'package:active_ecommerce_flutter/presenter/cart_counter.dart';
 import 'package:active_ecommerce_flutter/presenter/currency_presenter.dart';
-import 'package:active_ecommerce_flutter/providers/locale_provider.dart';
 import 'package:active_ecommerce_flutter/repositories/firebase_repository.dart';
 import 'package:active_ecommerce_flutter/screens/all_routes.dart';
 import 'package:active_ecommerce_flutter/screens/auction/auction_bidded_products.dart';
@@ -25,11 +23,9 @@ import 'package:active_ecommerce_flutter/screens/cart.dart';
 import 'package:active_ecommerce_flutter/screens/category_list_n_product/category_list.dart';
 import 'package:active_ecommerce_flutter/screens/category_list_n_product/category_products.dart';
 import 'package:active_ecommerce_flutter/screens/coupon/coupons.dart';
-import 'package:active_ecommerce_flutter/screens/filter.dart';
 import 'package:active_ecommerce_flutter/screens/flash_deal/flash_deal_list.dart';
 import 'package:active_ecommerce_flutter/screens/flash_deal/flash_deal_products.dart';
 import 'package:active_ecommerce_flutter/screens/followed_sellers.dart';
-import 'package:active_ecommerce_flutter/screens/index.dart';
 import 'package:active_ecommerce_flutter/screens/main.dart';
 import 'package:active_ecommerce_flutter/screens/orders/order_details.dart';
 import 'package:active_ecommerce_flutter/screens/orders/order_list.dart';
@@ -56,7 +52,6 @@ import 'app_config.dart';
 
 @pragma("vm:entry-point")
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  print('message id ${message.messageId}');
 }
 
 main() async {
@@ -86,7 +81,6 @@ main() async {
   FirebaseRepository firebaseRepo = FirebaseRepository();
   firebaseRepo.requestPermission();
   var token = await firebaseRepo.getToken();
-  print('device token $token');
 
   SharedPreference().setDeviceToken(token);
   // firebaseRepo.sendPushNotification(token,"test");

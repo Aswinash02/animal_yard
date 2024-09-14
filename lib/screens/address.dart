@@ -75,7 +75,6 @@ class _AddressState extends State<Address> {
   }
 
   fetchShippingAddressList() async {
-    // print("enter fetchShippingAddressList");
     var addressResponse = await AddressRepository().getAddressList();
     _shippingAddressList.addAll(addressResponse.addresses);
     setState(() {
@@ -765,7 +764,6 @@ class _AddressState extends State<Address> {
                               );
                             },
                             itemBuilder: (context, dynamic city) {
-                              //print(suggestion.toString());
                               return ListTile(
                                 dense: true,
                                 title: Text(
@@ -1013,7 +1011,6 @@ class _AddressState extends State<Address> {
                               );
                             },
                             itemBuilder: (context, dynamic country) {
-                              //print(suggestion.toString());
                               return ListTile(
                                 dense: true,
                                 title: Text(
@@ -1093,7 +1090,6 @@ class _AddressState extends State<Address> {
                               );
                             },
                             itemBuilder: (context, dynamic state) {
-                              //print(suggestion.toString());
                               return ListTile(
                                 dense: true,
                                 title: Text(
@@ -1173,7 +1169,6 @@ class _AddressState extends State<Address> {
                               );
                             },
                             itemBuilder: (context, dynamic city) {
-                              //print(suggestion.toString());
                               return ListTile(
                                 dense: true,
                                 title: Text(
@@ -1360,7 +1355,6 @@ class _AddressState extends State<Address> {
   }
 
   buildAddressList() {
-    // print("is Initial: ${_isInitial}");
     if (is_logged_in == false) {
       return Container(
           height: 100,

@@ -155,18 +155,13 @@ class _ChatScreenState extends State<ChatScreen> {
       }
     } catch (e) {
       if (!_isDisposed && mounted) {
-        // Handle the error here
-        print(e);
+
       }
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    print("id ========== > ${widget.conversation_id}");
-    print("messenger_name ========== > ${widget.messenger_name}");
-    print("messenger_title ========== > ${widget.messenger_title}");
-    print("messenger_image ========== > ${widget.messenger_image}");
     return Directionality(
       textDirection:
           app_language_rtl.$! ? TextDirection.rtl : TextDirection.ltr,
@@ -617,7 +612,6 @@ class _ChatScreenState extends State<ChatScreen> {
           padding: const EdgeInsets.only(top: 10, bottom: 10),
           physics: const NeverScrollableScrollPhysics(),
           itemBuilder: (context, index) {
-            //print(_messages[index+1].year.toString());
             return Container(
               padding: const EdgeInsets.only(
                   left: 14, right: 14, top: 10, bottom: 10),

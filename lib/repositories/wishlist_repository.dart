@@ -18,7 +18,6 @@ class WishListRepository {
 
     final response = await ApiRequest.get(
         url: url, headers: header, middleware: BannedUser());
-    print('whislist data ========== > ${response.body}');
     return wishlistResponseFromJson(response.body);
   }
 

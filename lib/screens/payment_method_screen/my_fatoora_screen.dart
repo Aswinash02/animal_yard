@@ -54,7 +54,7 @@ class _MyFatooraScreenState extends State<MyFatooraScreen> {
   myfa() {
     String _initial_url =
         "${AppConfig.BASE_URL}/myfatoorah/initiate?payment_type=${widget.payment_type}&combined_order_id=${_combined_order_id}&amount=${widget.amount}&user_id=${user_id.$}&package_id=${widget.package_id}&order_id=${widget.orderId}";
-    print(_initial_url);
+
     _webViewController
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
       ..setBackgroundColor(const Color(0x00000000))

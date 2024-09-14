@@ -25,8 +25,6 @@ class OfflinePaymentRepository {
   //
   //   String url = ("${AppConfig.BASE_URL}/offline/payment/submit");
   //
-  //   // print(post_body);
-  //   print(url);
   //
   //   final response = await ApiRequest.post(
   //       url: url,

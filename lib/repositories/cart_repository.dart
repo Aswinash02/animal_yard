@@ -51,8 +51,8 @@ class CartRepository {
       if (response.statusCode == 200) {
         return cartCountResponseFromJson(response.body);
       }
-    } catch (e) {
-      print(e);
+    } catch (_) {
+
     }
   }
 

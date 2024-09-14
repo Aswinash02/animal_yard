@@ -39,14 +39,14 @@ class ChatListResponse {
 }
 
 class Chat {
-  Chat({
-    this.id,
-    this.image,
-    this.name,
-    this.title,
-    this.unReadSeller,
-    this.unReadCustomer,
-  });
+  Chat(
+      {this.id,
+      this.image,
+      this.name,
+      this.title,
+      this.unReadSeller,
+      this.unReadCustomer,
+      this.dateTime});
 
   int? id;
   String? image;
@@ -54,6 +54,7 @@ class Chat {
   String? title;
   int? unReadSeller;
   int? unReadCustomer;
+  String? dateTime;
 
   factory Chat.fromJson(Map<String, dynamic> json) => Chat(
         id: json["id"],
@@ -62,6 +63,7 @@ class Chat {
         title: json["title"],
         unReadCustomer: json["unread_customer"],
         unReadSeller: json["unread_seller"],
+        dateTime: json["message"],
       );
 
   Map<String, dynamic> toJson() => {

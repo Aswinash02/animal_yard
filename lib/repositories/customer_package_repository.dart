@@ -40,7 +40,6 @@ class CustomerPackageRepository {
 //     //
 //     // //if (!checkResult) return responseCheckModelFromJson(response.body);
 //
-//    print(response.body);
 //     return commonResponseFromJson(response.body);
 //   }
 //
@@ -55,9 +54,7 @@ class CustomerPackageRepository {
 //       "photo": "${photo}",
 //     });
 //
-//     print(post_body);
 //
-//     print(url.toString());
 //     final response = await ApiRequest.post(
 //         url: url,
 //         headers: {

@@ -32,8 +32,7 @@ class AuctionProductsRepository {
 
   Future<AuctionProductPlaceBidResponse> placeBidResponse(
       String product_id, String amount) async {
-    print(product_id);
-    print(amount);
+
 
     var post_body = jsonEncode({
       "product_id": "${product_id}",

@@ -10,7 +10,6 @@ import 'package:active_ecommerce_flutter/repositories/api-request.dart';
 class ClubpointRepository {
   Future<dynamic> getClubPointListResponse({page = 1}) async {
     String url = ("${AppConfig.BASE_URL}/clubpoint/get-list?page=$page");
-    // print("url(${url.toString()}) access token (Bearer ${access_token.$})");
     final response = await ApiRequest.get(
         url: url,
         headers: {

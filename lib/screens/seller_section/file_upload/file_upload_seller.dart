@@ -218,8 +218,7 @@ class _UploadFileSellerState extends State<UploadFileSeller> {
       );
 
       return thumbnail;
-    } catch (e) {
-      print('Error generating thumbnail: $e');
+    } catch (_) {
       return null;
     }
   }

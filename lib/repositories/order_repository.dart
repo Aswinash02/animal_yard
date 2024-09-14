@@ -45,8 +45,7 @@ class OrderRepository {
   Future<ReOrderResponse> reOrder({int? id = 0}) async {
     String url = ("${AppConfig.BASE_URL}/re-order/$id");
 
-    // print(url);
-    // print("Bearer ${access_token.$}");
+
     final response = await ApiRequest.get(
         url: url,
         headers: {

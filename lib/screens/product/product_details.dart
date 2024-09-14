@@ -172,13 +172,6 @@ class _ProductDetailsState extends State<ProductDetails>
     setState(() {});
   }
 
-  // fetchRelatedProducts() async {
-  //   var relatedProductResponse =
-  //       await ProductRepository().getFrequentlyBoughProducts(slug: widget.slug);
-  //   _relatedProducts.addAll(relatedProductResponse.products!);
-  //   _relatedProductInit = true;
-  //   if (mounted) setState(() {});
-  // }
 
   fetchTopProducts() async {
     var topProductResponse = await ProductRepository()

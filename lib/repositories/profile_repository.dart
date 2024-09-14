@@ -60,7 +60,6 @@ class ProfileRepository {
   Future<dynamic> getProfileImageUpdateResponse(
       String image, String filename) async {
     var post_body = jsonEncode({"image": "${image}", "filename": "$filename"});
-    print(post_body.toString());
 
     String url = ("${AppConfig.BASE_URL}/profile/update-image");
     final response = await ApiRequest.post(
@@ -108,7 +107,6 @@ class ProfileRepository {
       "Authorization": "Bearer ${access_token.$}",
       "App-Language": app_language.$!,
     });
-    print('response.body ******* ${response.body}');
     return ProfilePageModel.fromJson(jsonDecode(response.body));
   }
 }

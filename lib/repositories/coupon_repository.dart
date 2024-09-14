@@ -55,8 +55,7 @@ class CouponRepository {
 
     String url = ("${AppConfig.BASE_URL}/coupon-list?page=$page");
     final response = await ApiRequest.get(url: url, headers: header);
-/*    print("response body");
-    print("${response.body}");*/
+
 
     return couponListResponseFromJson(response.body);
   }
@@ -67,8 +66,7 @@ class CouponRepository {
 
     String url = ("${AppConfig.BASE_URL}/coupon-products/$id");
     final response = await ApiRequest.get(url: url, headers: header);
-/*    print("response body");
-    print("${response.body}");*/
+
 
     return productMiniResponseFromJson(response.body);
   }

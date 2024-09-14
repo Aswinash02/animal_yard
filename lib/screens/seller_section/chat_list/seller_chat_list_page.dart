@@ -71,7 +71,6 @@ class _SellerChatListState extends State<SellerChatList> {
         slivers: [
           SliverToBoxAdapter(
             child: Obx(() {
-              print('yes rebuild');
               return Container(
                 width: DeviceInfo(context).width,
                 padding: EdgeInsets.symmetric(horizontal: 15.0),
@@ -121,7 +120,7 @@ class _SellerChatListState extends State<SellerChatList> {
   Widget buildChatListView() {
     return Obx(
       () {
-        print('rebuild chatListShimmer');
+
         return controller.sellerLoadingState.value
             ? chatListShimmer()
             : controller.sellerChatList.isEmpty
@@ -154,7 +153,6 @@ class _SellerChatListState extends State<SellerChatList> {
 
   Widget buildChatItem(index, conversationId, String userName, img, sms,
       bool isActive, int unReadCustomer, int unReadSeller) {
-    print('yes enter isActive ------- $unReadSeller');
     return Container(
       margin: EdgeInsets.only(top: index == 0 ? 20 : 0, bottom: 20),
       child: Buttons(

@@ -13,7 +13,7 @@ String conversationResponseToJson(ConversationResponse data) =>
 class ConversationResponse {
   ConversationResponse({
     this.conversation_item_list,
-    this.meta,
+    // this.meta,
     this.success,
     this.status,
     this.unReadCustomer,
@@ -21,7 +21,8 @@ class ConversationResponse {
   });
 
   List<ConversationItem>? conversation_item_list;
-  Meta? meta;
+
+  // Meta? meta;
   bool? success;
   int? status;
   int? unReadCustomer;
@@ -38,7 +39,7 @@ class ConversationResponse {
 
     return ConversationResponse(
       conversation_item_list: items,
-      meta: Meta.fromJson(json["meta"]),
+      // meta: Meta.fromJson(json["meta"]),
       success: json["success"],
       status: json["status"],
       unReadSeller: unReadSeller,
@@ -49,7 +50,7 @@ class ConversationResponse {
   Map<String, dynamic> toJson() => {
         "data":
             List<dynamic>.from(conversation_item_list!.map((x) => x.toJson())),
-        "meta": meta!.toJson(),
+        // "meta": meta!.toJson(),
         "success": success,
         "status": status,
       };
@@ -84,21 +85,22 @@ class ConversationItem {
   int? unReadSeller;
   DateTime? date;
 
-  factory ConversationItem.fromJson(Map<String, dynamic> json) =>
-      ConversationItem(
-        id: json["id"],
-        receiver_id: json["receiver_id"],
-        receiver_type: json["receiver_type"],
-        shop_id: json["shop_id"],
-        shop_name: json["shop_name"],
-        shop_logo: json["shop_logo"],
-        title: json["title"],
-        sender_viewed: json["sender_viewed"],
-        receiver_viewed: json["receiver_viewed"],
-        unReadCustomer: json["unread_customer"],
-        unReadSeller: json["unread_seller"],
-        date: DateTime.parse(json["date"]),
-      );
+  factory ConversationItem.fromJson(Map<String, dynamic> json) {
+    return ConversationItem(
+      id: json["id"],
+      receiver_id: json["receiver_id"],
+      receiver_type: json["receiver_type"],
+      shop_id: json["shop_id"],
+      shop_name: json["shop_name"],
+      shop_logo: json["shop_logo"],
+      title: json["title"],
+      sender_viewed: json["sender_viewed"],
+      receiver_viewed: json["receiver_viewed"],
+      unReadCustomer: json["unread_customer"],
+      unReadSeller: json["unread_seller"],
+      date: DateTime.parse(json["date"]),
+    );
+  }
 
   Map<String, dynamic> toJson() => {
         "id": id,

@@ -126,7 +126,6 @@ class _MyClassifiedAdsState extends State<MyClassifiedAds> {
   }
 
   cleanAll() {
-    // print("clean all");
     _isProductInit = false;
     _showMoreProductLoadingContainer = false;
     _productList = [];
@@ -147,7 +146,6 @@ class _MyClassifiedAdsState extends State<MyClassifiedAds> {
   }
 
   _tabOption(int index, productId, listIndex) {
-    print(index);
     switch (index) {
       case 0:
         showChangeStatusDialog(listIndex, productId);
@@ -422,7 +420,6 @@ class _MyClassifiedAdsState extends State<MyClassifiedAds> {
               itemCount: _productList.length + 1,
               shrinkWrap: true,
               itemBuilder: (context, index) {
-                // print(index);
                 if (index == _productList.length) {
                   return moreProductLoading();
                 }
@@ -644,7 +641,6 @@ class _MyClassifiedAdsState extends State<MyClassifiedAds> {
   }
 
   void showChangeStatusDialog(int? index, id) {
-    //print(index.toString()+" "+_productStatus[index].toString());
     showDialog(
         context: context,
         builder: (context) {
@@ -683,8 +679,7 @@ class _MyClassifiedAdsState extends State<MyClassifiedAds> {
   }
 
   void showFeaturedUnFeaturedDialog(int index, id) {
-    //print(_productFeatured[index]);
-    print(index);
+
     showDialog(
         context: context,
         builder: (context) {
