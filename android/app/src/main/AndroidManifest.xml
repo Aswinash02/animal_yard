@@ -84,14 +84,9 @@
                 android:value="true" />
             <intent-filter android:autoVerify="true">
                 <action android:name="android.intent.action.VIEW" />
-
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-
-                <data
-                    android:host="developers.activeitzone.com"
-                    android:scheme="http" />
-                <data android:scheme="https" />
+                <data android:scheme="https" android:host="animalyard.in" />
             </intent-filter>
 
             <meta-data

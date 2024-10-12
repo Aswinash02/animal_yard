@@ -10,7 +10,7 @@
       "client_info": {
         "mobilesdk_app_id": "1:461253628285:android:cf9616fe28568d2ce6fc14",
         "android_client_info": {
-          "package_name": "com.activeitzone.activeecommerceflutterapp"
+          "package_name": "com.codepluse.animal_yard"
         }
       },
       "oauth_client": [],
@@ -29,7 +29,7 @@
       "client_info": {
         "mobilesdk_app_id": "1:461253628285:android:be29382e7b5f3723e6fc14",
         "android_client_info": {
-          "package_name": "com.animalyard.app"
+          "package_name": "com.codepluse.animal_yard"
         }
       },
       "oauth_client": [],
