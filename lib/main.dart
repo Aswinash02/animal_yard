@@ -268,6 +268,7 @@ class _MyAppState extends State<MyApp> {
   @override
   void deactivate() {
     // TODO: implement deactivate
+    print("deactivate");
     super.deactivate();
   }
 
